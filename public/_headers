@@ -1,8 +1,10 @@
 /index.html
   Cache-Control: no-store, no-cache, must-revalidate
-/app.js
-  Cache-Control: no-store, no-cache, must-revalidate
 /styles.css
+  Cache-Control: no-store, no-cache, must-revalidate
+/base.css
+  Cache-Control: no-store, no-cache, must-revalidate
+/venue-polish.css
   Cache-Control: no-store, no-cache, must-revalidate
 /hero-reference.svg
   Cache-Control: no-store, no-cache, must-revalidate
