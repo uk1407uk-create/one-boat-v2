@@ -1,27 +1,30 @@
-ONE BOAT v10 Cloudflare Pages reviewed build
+ONE BOAT COMPLETE REBUILD — 2026-09-14
 
-Purpose:
-- Separate Cloudflare Pages test URL
-- Existing production URL is not changed
-- Adds short client-side cache to reduce repeated Supabase Function calls
-- Keeps current Supabase API endpoints for compatibility during test
+方針
+- 旧UI/旧フロント実装を使用せずゼロから再構築
+- iPhone最優先のモバイルUI
+- Cloudflare Worker + static assets
+- DBへの大量履歴保存を前提にしない
+- APIレスポンスは用途別TTLでEdge Cache
+- ブラウザへ秘密鍵を埋め込まない
 
-Before production switch:
-1. Move API calls behind Cloudflare Worker
-2. Move core data to Neon or keep Supabase with RLS/policies fixed
-3. Migrate manual prediction notes from browser localStorage to database if cross-device use is needed
-4. Replace hardcoded/historical sample panels with DB-driven values only
+本番表示ルール
+- 予想完了 = decision=ENTER かつ stake_total_yen>0 のみ
+- その他は様子見/見送り
+- 買う価値70以上
+- 基本4点、最大6点
+- 1R上限2,000円、100円単位
+- 10分前再計算、5分前安全確認
+- トリガミ回避、全レース購入しない
+- 中穴 20.0〜59.9倍
+- 穴 60.0倍〜
 
+構成
+index.html: UI骨格
+styles.css: モバイルUI
+app.js: API正規化・表示判定
+worker.js: API Gateway / Edge Cache
+manifest.webmanifest: iPhoneホーム画面対応
 
-ONE BOAT 10分前確定ルール対応版
-- 画面文言を「10分前確定」に統一
-- 締切10分以内のカードを確定確認対象として強調
-- 5分前は最終予想の新規生成ではなく安全確認の位置づけ
-注意: バックエンド側の最終判定ロジックも10分前確定へ合わせる必要があります。
-
-
-ONE BOAT v10.1 policy:
-- Prediction finalization: 10 minutes before deadline.
-- 5 minutes before deadline: abnormal/missing data check only.
-- Frontend cache TTL added to reduce repeated API calls.
-- No service_role key is bundled in this ZIP.
+注意
+現時点のライブデータ供給元は既存Supabase Functionsを互換レイヤーとして利用。フロントは直接Supabaseへ接続しない。将来供給元を交換してもUI側を作り直さない構造。
