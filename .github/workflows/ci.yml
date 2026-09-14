@@ -14,3 +14,5 @@ jobs:
           node-version: 22
       - run: npm install
       - run: npm test
+      - name: Validate Cloudflare Worker build
+        run: npx wrangler deploy --dry-run --outdir .wrangler-dry-run
