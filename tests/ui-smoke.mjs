@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+const html=fs.readFileSync('public/index.html','utf8');
+const scripts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]);
+if(!scripts.length) throw new Error('inline script missing');
+for(const script of scripts) new Function(script);
+const venues=['桐生','戸田','江戸川','平和島','多摩川','浜名湖','蒲郡','常滑','津','三国','びわこ','住之江','尼崎','鳴門','丸亀','児島','宮島','徳山','下関','若松','芦屋','福岡','唐津','大村'];
+for(const v of venues) if(!html.includes('>'+v+'<')) throw new Error('missing venue '+v);
+if(!html.includes('8分前までに予想完了または見送り確定')) throw new Error('8-minute rule missing');
+if(!html.includes("stake_total_yen&gt;0")) throw new Error('ENTER stake rule missing');
+console.log('ui-smoke ok: inline JS parses, 24 venues present, production rules present');
