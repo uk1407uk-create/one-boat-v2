@@ -1,6 +1,6 @@
 export const THEORY_KEYS=['in_trust','in_break','st_pressure','oriten','past_form','motor_gain','venue_bias','water_change','day_flow','odds_distortion','tie_cover'];
 
-export const DEFAULT_POLICY={min_value_score:70,max_stake_yen:2000,max_points:6,base_points:4,finalize_minutes:10,safety_check_minutes:5,min_sample:40,roi_enable:115,roi_watch:100,max_daily_hole:5};
+export const DEFAULT_POLICY={min_value_score:70,max_stake_yen:5000,max_points:6,base_points:4,finalize_minutes:10,safety_check_minutes:5,min_sample:40,roi_enable:115,roi_watch:100,max_daily_hole:5};
 
 const W={in_trust:1.00,in_break:1.06,st_pressure:1.08,oriten:1.02,past_form:1.00,motor_gain:1.04,venue_bias:1.03,water_change:1.04,day_flow:1.02,odds_distortion:1.14,tie_cover:0.94};
 const clamp=(n,a=0,b=100)=>Math.max(a,Math.min(b,Number(n)||0));
