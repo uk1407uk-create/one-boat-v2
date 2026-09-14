@@ -1,0 +1,8 @@
+node_modules/
+.wrangler/
+data/raw/
+data/backtest/*.gz
+data/backtest/*.jsonl
+data/backtest/*.db
+.env*
+!.env.example
