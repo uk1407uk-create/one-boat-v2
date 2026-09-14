@@ -4,3 +4,5 @@
   Cache-Control: no-store, no-cache, must-revalidate
 /styles.css
   Cache-Control: no-store, no-cache, must-revalidate
+/hero-reference.svg
+  Cache-Control: no-store, no-cache, must-revalidate
