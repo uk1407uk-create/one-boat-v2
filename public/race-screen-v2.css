@@ -11,9 +11,11 @@ body[data-view='races'] #screen-races{padding:0 11px 18px}
 #screen-races .pageHead h1:after{font-size:5.5px;margin-top:5px;color:#8098ae}
 #screen-races .pageHead>div:after{right:2px;font-size:23px}
 
-#screen-races .raceHeader{height:190px;margin:0 -11px 10px;padding:17px 20px 16px;border:0;border-bottom:1px solid rgba(35,153,215,.30);border-radius:0;background-color:#06182b!important;background-image:linear-gradient(90deg,rgba(1,8,18,.90) 0%,rgba(1,10,22,.62) 34%,rgba(2,13,27,.18) 68%,rgba(2,10,20,.34) 100%),linear-gradient(180deg,rgba(1,8,18,.08) 0%,rgba(1,8,18,.12) 52%,rgba(1,8,18,.86) 100%),var(--venue-photo)!important;background-size:cover,cover,cover!important;background-position:center,center,center 45%!important;background-repeat:no-repeat!important;box-shadow:none}
-#screen-races .raceHeader:before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 86% 18%,rgba(40,188,246,.18),transparent 30%);opacity:1!important;pointer-events:none}
-#screen-races .raceHeader:after{content:'';position:absolute;left:0;right:0;bottom:0;height:62px;background:linear-gradient(180deg,transparent,rgba(2,10,20,.78));pointer-events:none}
+/* 03 hero: use the same official image as 02, but fit the whole venue artwork horizontally.
+   The previous cover setting zoomed/cropped the BOAT RACE artwork on wide iPhones. */
+#screen-races .raceHeader{height:190px;margin:0 -11px 10px;padding:17px 20px 16px;border:0;border-bottom:1px solid rgba(35,153,215,.30);border-radius:0;overflow:hidden;background-color:#06182b!important;background-image:linear-gradient(90deg,rgba(1,8,18,.91) 0%,rgba(1,10,22,.64) 35%,rgba(2,13,27,.24) 68%,rgba(2,10,20,.38) 100%),linear-gradient(180deg,rgba(1,8,18,.06) 0%,rgba(1,8,18,.10) 48%,rgba(1,8,18,.90) 100%),var(--venue-photo)!important;background-size:cover,cover,100% auto!important;background-position:center,center,center center!important;background-repeat:no-repeat,no-repeat,no-repeat!important;box-shadow:none}
+#screen-races .raceHeader:before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 86% 18%,rgba(40,188,246,.15),transparent 30%);opacity:1!important;pointer-events:none}
+#screen-races .raceHeader:after{content:'';position:absolute;left:0;right:0;bottom:0;height:68px;background:linear-gradient(180deg,transparent,rgba(2,10,20,.84));pointer-events:none}
 #screen-races .raceHeaderTop{position:relative;z-index:3;align-items:flex-start}
 #screen-races .raceHeader h2{display:flex;flex-direction:column;gap:4px;margin:0;font-size:35px;line-height:.98;font-weight:950;letter-spacing:.015em;text-shadow:0 3px 16px rgba(0,0,0,.82)}
 #screen-races .raceHeader h2:after{display:none!important}
@@ -51,7 +53,7 @@ body[data-view='races'] #screen-races{padding:0 11px 18px}
 
 @media(max-width:370px){
   #screen-races .pageHead{min-height:70px}
-  #screen-races .raceHeader{height:180px;padding:15px 16px;background-position:center,center,center 46%!important}
+  #screen-races .raceHeader{height:180px;padding:15px 16px;background-size:cover,cover,100% auto!important;background-position:center,center,center center!important}
   #screen-races .raceHeader h2{font-size:31px}
   #screen-races .weatherRow{left:16px;right:16px;bottom:12px;gap:4px;font-size:8px}
   #screen-races .weatherRow span{padding:7px 2px}
