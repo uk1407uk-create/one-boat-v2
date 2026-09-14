@@ -22,7 +22,8 @@ export const DEFAULT_POLICY={
   min_sample:40,
   roi_enable:115,
   roi_watch:100,
-  max_daily_hole:5
+  max_daily_hole:5,
+  min_super_high_score:66
 };
 
 const W={in_trust:1.00,in_break:1.06,st_pressure:1.08,oriten:1.02,past_form:1.00,motor_gain:1.04,venue_bias:1.03,water_change:1.04,day_flow:1.02,odds_distortion:1.14,tie_cover:0.94};
@@ -97,11 +98,17 @@ export function evaluateRace(r,policy=DEFAULT_POLICY,history={}){
   const sample=Number(history.sample??r.theory_sample??0);const roi=Number(history.roi??r.theory_roi??0);
   const odds=Number(r.odds??r.expected_odds??0);const noData=Number(r.missing_data_count??0)>0;
   const cls=classifyOdds(odds);const dayFlowTheory=selectVenueTheory(r.venue_recent_results||[],r.current_theory||cls.strategy);
+  const holeScore=finite(r.hole_score)?Number(r.hole_score):finite(r.longshot_score)?Number(r.longshot_score):null;
+  const dailyHoleCount=Number(history.daily_hole_enter_count??r.daily_hole_enter_count??0);
+  const isHole=['狙い目','高配当','超高配当'].includes(cls.category);
   let decision='SKIP',why='条件不足';
   if(odds>0&&odds<3){decision='SKIP';why='3倍未満は本番対象外'}
   else if(noData){decision='WATCH';why='欠損データあり'}
   else if(sample>0&&sample<policy.min_sample){decision='WATCH';why='サンプル不足'}
   else if(roi>0&&roi<policy.roi_watch){decision='SKIP';why='理論ROI停止基準未満'}
+  else if(isHole&&dailyHoleCount>=policy.max_daily_hole){decision='SKIP';why='穴系は1日最大5Rに到達'}
+  else if(cls.category==='超高配当'&&holeScore===null){decision='WATCH';why='超高配当は穴スコア確認待ち'}
+  else if(cls.category==='超高配当'&&holeScore<policy.min_super_high_score){decision='SKIP';why='超高配当スコア66未満'}
   else if(s.value_score>=policy.min_value_score&&(roi===0||roi>=policy.roi_enable)){
     if(policy.confidence_gate_enabled&&s.confidence_score<policy.min_confidence_score_shadow){decision='WATCH';why='自信度ゲート未達'}
     else{decision='ENTER';why='価値・理論基準通過'}
@@ -111,19 +118,21 @@ export function evaluateRace(r,policy=DEFAULT_POLICY,history={}){
     steady_rank:null,
     points_bucket:Number(r.points??policy.base_points)>=3?'3点以上':'1-2点',
     high_variance:cls.high_variance,
-    odds_bucket:cls.odds_bucket
+    odds_bucket:cls.odds_bucket,
+    daily_hole_count:dailyHoleCount,
+    hole_score:holeScore
   };
   if(cls.category==='堅実'){
     const b=Object.fromEntries(s.breakdown.map(x=>[x.axis,x.score]));
     const candidate=Number(r.second_third_match_score??r.tie_candidate_score??0);
     monitor.steady_rank=(Number(b.axis_trust)>=75&&Number(b.exhibition_start)>=75&&Number(b.player_course)>=75&&candidate>=70)?'A':'B';
   }
-  if(decision!=='ENTER')return {...s,...cls,day_flow_theory:dayFlowTheory,monitor,decision,stake_total_yen:0,reason:why};
+  if(decision!=='ENTER')return {...s,...cls,day_flow_theory:dayFlowTheory,hole_score:holeScore,monitor,decision,stake_total_yen:0,reason:why};
   const points=Math.max(1,Math.min(policy.max_points,Number(r.points??policy.base_points)));
   const total=stake>0?stake:policy.max_stake_yen;
   const unit=Math.floor(total/points/100)*100;
   const stake_total_yen=unit*points;
-  return {...s,...cls,day_flow_theory:dayFlowTheory,monitor,decision,stake_total_yen,points,reason:why};
+  return {...s,...cls,day_flow_theory:dayFlowTheory,hole_score:holeScore,monitor,decision,stake_total_yen,points,reason:why};
 }
 
 export function aggregateBacktest(rows=[]){
