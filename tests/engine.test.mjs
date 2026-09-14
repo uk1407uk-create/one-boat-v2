@@ -12,6 +12,11 @@ const c=confidenceScore({confidence_components:{axis_trust:100,exhibition_start:
 assert.equal(classifyOdds(18).strategy,'壱−弐−参型');assert.equal(classifyOdds(45).strategy,'イン飛び外頭理論');assert.equal(classifyOdds(75).category,'狙い目');assert.equal(classifyOdds(150).category,'高配当');assert.equal(classifyOdds(250).odds_bucket,'200-299');assert.equal(classifyOdds(1200).odds_bucket,'1000+');
 assert.equal(selectVenueTheory([{winner_lane:1},{winner_lane:1}],'旧理論'),'イン信頼＋当日流れ');assert.equal(selectVenueTheory([{winner_lane:2},{winner_lane:3}],'旧理論'),'イン飛び＋当日流れ');assert.equal(selectVenueTheory([{winner_lane:1},{winner_lane:2}],'旧理論'),'旧理論');
 
+const superWait=evaluateRace({...base,odds:250});assert.equal(superWait.decision,'WATCH');assert.equal(superWait.reason,'超高配当は穴スコア確認待ち');
+const superSkip=evaluateRace({...base,odds:250,hole_score:65});assert.equal(superSkip.decision,'SKIP');
+const superEnter=evaluateRace({...base,odds:250,hole_score:66});assert.equal(superEnter.decision,'ENTER');assert.equal(superEnter.category,'超高配当');
+const dailyCap=evaluateRace({...base,odds:80},{daily_hole_enter_count:5,sample:100,roi:130});assert.equal(dailyCap.decision,'SKIP');assert.equal(dailyCap.reason,'穴系は1日最大5Rに到達');
+
 const bt=aggregateBacktest([{theory:'A',odds:8,bet_yen:1000,return_yen:2000},{theory:'A',odds:12,bet_yen:1000,return_yen:0}]);assert.equal(bt[0].roi,100);assert.equal(bt[0].buckets['7-9.9'].sample,1);assert.equal(bt[0].buckets['10-14.9'].sample,1);
 const wf=walkForward(Array.from({length:10},(_,i)=>({date:`2026-01-${String(i+1).padStart(2,'0')}`,theory:'A',odds:8,bet_yen:100,return_yen:i%2?0:200})));assert.equal(wf.train_size,7);assert.equal(wf.validation_size,3);
 console.log('ONE BOAT engine tests passed');
