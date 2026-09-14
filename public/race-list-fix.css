@@ -1,0 +1,12 @@
+/* 03 race list production fixes */
+body[data-view='races'] .topbar{display:none!important}
+body[data-view='races'] #screen-races{padding-top:0}
+#screen-races .raceHeader{background-image:linear-gradient(180deg,rgba(2,14,26,.08),rgba(1,10,20,.72)),linear-gradient(90deg,rgba(1,12,23,.30),transparent 58%),var(--venue-photo),linear-gradient(180deg,#0b5b8d,#061c32)!important;background-size:cover,cover,cover,cover!important;background-position:center,center,center 48%,center!important;background-repeat:no-repeat!important}
+#screen-races .raceHeader:before{background:linear-gradient(180deg,rgba(1,10,19,.04),rgba(2,11,22,.18)),radial-gradient(circle at 84% 22%,rgba(58,206,255,.18),transparent 30%)!important;opacity:1!important}
+#screen-races .raceHeader h2{display:flex;flex-direction:column;align-items:flex-start;gap:3px}
+#screen-races .raceHeader h2:after{display:none!important}
+#screen-races .raceHeader .venueEn{display:block;font-size:12px;line-height:1;font-weight:600;letter-spacing:.28em;color:#d8edf8;text-shadow:0 2px 8px rgba(0,0,0,.65)}
+#screen-races .raceHeaderTop{padding-top:2px}
+#screen-races .raceHeader .mini{margin-top:9px}
+#screen-races .weatherRow span{background:rgba(2,18,33,.62)}
+@media(max-width:370px){#screen-races .raceHeader{background-position:center,center,center 50%,center!important}}
