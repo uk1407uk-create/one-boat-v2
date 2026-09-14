@@ -1,0 +1,41 @@
+name: ONE BOAT 2Y Backfill
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/backfill.yml'
+  workflow_dispatch:
+    inputs:
+      start:
+        description: Start date YYYY-MM-DD
+        required: false
+        default: '2024-09-14'
+      end:
+        description: End date YYYY-MM-DD
+        required: false
+        default: '2026-09-13'
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r tools/requirements.txt
+      - name: Resolve range
+        id: range
+        shell: bash
+        run: |
+          echo "start=${{ github.event.inputs.start || '2024-09-14' }}" >> "$GITHUB_OUTPUT"
+          echo "end=${{ github.event.inputs.end || '2026-09-13' }}" >> "$GITHUB_OUTPUT"
+      - name: Download + normalize official data
+        run: python tools/official_backfill.py --start "${{ steps.range.outputs.start }}" --end "${{ steps.range.outputs.end }}" --out data/backtest/official.jsonl.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: one-boat-official-2y
+          path: |
+            data/backtest/official.jsonl.gz
+            data/backtest/official.jsonl.gz.manifest.json
+          retention-days: 14
