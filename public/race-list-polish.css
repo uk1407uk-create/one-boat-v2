@@ -1,0 +1,64 @@
+/* ONE BOAT 03 race list screen */
+body:has(#screen-races.active) .topbar{display:none}
+#screen-races{padding:0 10px 18px}
+#screen-races .pageHead{position:sticky;top:0;z-index:30;margin:0 -10px;padding:calc(9px + env(safe-area-inset-top)) 14px 9px;min-height:66px;align-items:center;background:linear-gradient(180deg,rgba(3,16,31,.995),rgba(2,11,23,.985));border-bottom:1px solid rgba(35,156,218,.22);box-shadow:0 8px 18px rgba(0,0,0,.18)}
+#screen-races .pageHead>div{position:relative;display:flex;align-items:center;width:100%;min-height:46px}
+#screen-races .pageHead .backBtn{position:absolute;left:0;top:50%;transform:translateY(-50%);width:42px;height:42px;font-size:0;color:#e6f6ff;z-index:2}
+#screen-races .pageHead .backBtn:before{content:'‹';font-size:39px;font-weight:300;line-height:1;text-shadow:0 0 12px rgba(36,201,255,.15)}
+#screen-races .pageHead .eyebrow{display:none}
+#screen-races .pageHead h1{font-size:0;margin:auto;line-height:1;text-align:center}
+#screen-races .pageHead h1:before{content:'ONE BOAT';font-size:18px;font-weight:950;font-style:italic;letter-spacing:.025em;color:#f7fbff}
+#screen-races .pageHead h1:after{content:'DATA × STRATEGY × VICTORY';display:block;margin-top:4px;font-size:5px;letter-spacing:.23em;color:#7f9bb4;font-style:normal}
+#screen-races .pageHead>div:after{content:'☰';position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:22px;color:#edf7fc}
+
+#screen-races .raceHeader{height:170px;margin:0 -10px 0;border-radius:0;border-width:0 0 1px;padding:16px 18px;background:
+linear-gradient(180deg,rgba(2,15,29,.08),rgba(1,10,20,.78)),
+radial-gradient(circle at 75% 24%,rgba(71,198,244,.35),transparent 28%),
+linear-gradient(164deg,transparent 0 53%,rgba(5,57,86,.54) 54% 59%,transparent 60%),
+linear-gradient(180deg,#0b5b8d 0 36%,#2c8cb4 37% 42%,#0b4e75 43% 58%,#061c32 59% 100%);
+box-shadow:none;overflow:hidden}
+#screen-races .raceHeader:before{content:'';position:absolute;inset:0;pointer-events:none;background:
+radial-gradient(ellipse at 82% 45%,rgba(255,255,255,.55) 0 1.5%,transparent 2%),
+repeating-linear-gradient(90deg,transparent 0 18px,rgba(140,220,255,.04) 19px 20px);opacity:.6}
+#screen-races .raceHeader:after{content:'';position:absolute;left:0;right:0;bottom:0;height:52px;background:linear-gradient(180deg,transparent,rgba(2,11,22,.72));pointer-events:none}
+#screen-races .raceHeaderTop{position:relative;z-index:3;display:flex;justify-content:space-between;align-items:flex-start}
+#screen-races .raceHeader h2{margin:0;font-size:34px;line-height:1;font-weight:950;letter-spacing:.02em;text-shadow:0 3px 14px rgba(0,0,0,.72)}
+#screen-races .raceHeader h2:after{content:'BOAT RACE';display:block;margin-top:7px;font-size:12px;letter-spacing:.28em;font-weight:500;color:#d4ecfa}
+#screen-races .raceHeader .statusChip{margin-top:1px;background:rgba(0,30,53,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#screen-races .raceHeader .mini{font-size:11px;color:#f5fbff;font-weight:800;margin-top:10px}
+#screen-races .weatherRow{position:absolute;z-index:4;left:18px;right:18px;bottom:16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin:0;color:#e7f6ff;font-size:10px;font-weight:850}
+#screen-races .weatherRow span{min-width:0;padding:7px 8px;border:1px solid rgba(81,182,231,.22);border-radius:7px;background:rgba(2,18,33,.48);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
+
+#screen-races .sectionTitle{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:9px 0 9px;border:1px solid #0e4e7d;border-radius:9px;overflow:hidden;background:#031326;min-height:46px}
+#screen-races .sectionTitle h2,#screen-races .sectionTitle .mini{display:grid;place-items:center;margin:0;padding:0 6px;font-size:0;font-weight:900;color:#8fa5b8}
+#screen-races .sectionTitle h2{color:#fff;background:linear-gradient(180deg,#0b81c9,#064f88);box-shadow:inset 0 0 0 1px #22baff,0 0 18px rgba(0,172,255,.18)}
+#screen-races .sectionTitle h2:before{content:'直近レース';font-size:12px}
+#screen-races .sectionTitle .mini:before{content:'レース一覧';font-size:12px;color:#a8bac8}
+
+#screen-races .raceList{margin:0;border:1px solid #123f63;border-radius:10px;overflow:hidden;background:#041423;box-shadow:0 10px 24px rgba(0,0,0,.26)}
+#screen-races .raceList:before{content:'R　　 締切時刻　　 ステータス　　 信頼度';display:block;height:38px;padding:12px 10px 0;border-bottom:1px solid #123653;background:#031120;color:#8ea6ba;font-size:9px;font-weight:900;letter-spacing:.02em;white-space:pre}
+#screen-races .raceRow{display:grid;grid-template-columns:42px 76px 1fr 50px;gap:5px;align-items:center;min-height:48px;padding:6px 10px;border-top:1px solid #0b2b46;background:linear-gradient(180deg,#06192c,#051524);color:#eaf6fd;box-shadow:none}
+#screen-races .raceRow:first-of-type{border-top:0}
+#screen-races .raceNo{font-size:15px;font-weight:950;color:#f5fbff}
+#screen-races .raceTime{font-size:13px;font-weight:800;color:#c4d8e7}
+#screen-races .raceState{justify-self:start;min-width:68px;text-align:center;padding:7px 8px;border-radius:6px;border:1px solid #1b3b55;background:#0c2134;color:#9fb1c1;font-size:10px;font-weight:900}
+#screen-races .raceScore{font-size:12px;font-weight:950;color:#8ea3b5;text-align:right}
+#screen-races .raceRow.current{position:relative;background:linear-gradient(90deg,#0a3d68,#082845 70%,#071d33);box-shadow:inset 0 0 0 1px #159bd9,0 0 16px rgba(0,159,238,.13)}
+#screen-races .raceRow.current:before{content:'';position:absolute;inset:0;border-left:3px solid #2bc8ff;pointer-events:none}
+#screen-races .raceRow.current .raceNo,#screen-races .raceRow.current .raceTime{color:#fff}
+#screen-races .raceRow.current .raceState{border-color:#21bcff;background:linear-gradient(180deg,#0c98e6,#0968b0);color:#fff;box-shadow:0 0 12px rgba(0,172,255,.15)}
+#screen-races .raceRow.current .raceScore{color:#f3fbff;font-size:14px}
+#screen-races .raceRow.future{color:#5d7488;background:#04111e}
+#screen-races .raceRow.future .raceNo,#screen-races .raceRow.future .raceTime{color:#8397a8}
+#screen-races .raceRow.future .raceState{background:#0a1a28;border-color:#1a3347;color:#788d9e}
+#screen-races .raceRow.future .raceScore{color:#5e7284}
+#screen-races .raceRow:not(.current):not(.future) .raceState{color:#aebbc7;background:#0c1e2e;border-color:#1c3b51}
+
+@media(max-width:370px){
+  #screen-races .pageHead{min-height:62px}
+  #screen-races .raceHeader{height:158px;padding:14px 15px}
+  #screen-races .raceHeader h2{font-size:30px}
+  #screen-races .weatherRow{left:15px;right:15px;bottom:13px;font-size:9px}
+  #screen-races .raceRow{grid-template-columns:36px 68px 1fr 44px;min-height:45px;padding:5px 8px}
+  #screen-races .raceList:before{font-size:8px;padding-left:8px}
+}
