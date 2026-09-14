@@ -16,32 +16,32 @@ body:has(#screen-venues.active) .topbar{display:none}
 #screen-venues .venueFilters button.active{color:#fff;background:linear-gradient(180deg,#0b81c9,#064f88);box-shadow:inset 0 0 0 1px #22baff,0 0 18px rgba(0,172,255,.2)}
 #screen-venues .venues{gap:9px;margin-top:0}
 #screen-venues .venue{min-height:142px;padding:0;border-radius:11px;border:1px solid #116698;background:linear-gradient(180deg,#082744 0 46%,#06182b 46% 100%);box-shadow:0 8px 18px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.04);overflow:hidden}
-#screen-venues .venue:before{content:'';position:absolute;left:0;right:0;top:0;height:70px;opacity:1;clip-path:none;background-color:#0a2a43;background-repeat:no-repeat;background-size:cover;background-position:center 45%;filter:saturate(.9) contrast(1.05) brightness(.82)}
-/* BOAT RACE オフィシャルウェブサイト掲載の各場画像。読み込み失敗時は背景色へフォールバック */
-#screen-venues .venue[data-venue='桐生']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.5)),url('https://www.boatrace.jp/static/uploads/sites/8/01_N-1.jpg')}
-#screen-venues .venue[data-venue='戸田']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.5)),url('https://www.boatrace.jp/static/uploads/sites/8/02_N-1.jpg')}
-#screen-venues .venue[data-venue='江戸川']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.5)),url('https://www.boatrace.jp/static/uploads/sites/8/03_N-1.jpg')}
-#screen-venues .venue[data-venue='平和島']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.5)),url('https://www.boatrace.jp/static/uploads/sites/8/04_N-1.jpg')}
-#screen-venues .venue[data-venue='多摩川']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.5)),url('https://www.boatrace.jp/static/uploads/sites/8/05_N-1.jpg')}
-#screen-venues .venue[data-venue='浜名湖']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.5)),url('https://www.boatrace.jp/static/uploads/sites/8/06_N-1.jpg')}
-#screen-venues .venue[data-venue='蒲郡']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.5)),url('https://www.boatrace.jp/static/uploads/sites/8/07_N-1.jpg')}
-#screen-venues .venue[data-venue='常滑']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.5)),url('https://www.boatrace.jp/static/uploads/sites/8/08_N-1.jpg')}
-#screen-venues .venue[data-venue='津']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.5)),url('https://www.boatrace.jp/static/uploads/sites/8/09_N-1.jpg')}
-#screen-venues .venue[data-venue='三国']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.5)),url('https://www.boatrace.jp/static/uploads/sites/8/10_N-1.jpg')}
-#screen-venues .venue[data-venue='びわこ']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.5)),url('https://www.boatrace.jp/static/uploads/sites/8/11_N-1.jpg')}
-#screen-venues .venue[data-venue='住之江']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.5)),url('https://www.boatrace.jp/static/uploads/sites/8/12_N-1.jpg')}
-#screen-venues .venue[data-venue='尼崎']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.5)),url('https://www.boatrace.jp/static/uploads/sites/8/13_N-1.jpg')}
-#screen-venues .venue[data-venue='鳴門']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.5)),url('https://www.boatrace.jp/static/uploads/sites/8/14_N-1.jpg')}
-#screen-venues .venue[data-venue='丸亀']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.5)),url('https://www.boatrace.jp/static/uploads/sites/8/15_N-1.jpg')}
-#screen-venues .venue[data-venue='児島']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.5)),url('https://www.boatrace.jp/static/uploads/sites/8/16_N-1.jpg')}
-#screen-venues .venue[data-venue='宮島']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.5)),url('https://www.boatrace.jp/static/uploads/sites/8/17_N-1.jpg')}
-#screen-venues .venue[data-venue='徳山']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.5)),url('https://www.boatrace.jp/static/uploads/sites/8/18_N-1.jpg')}
-#screen-venues .venue[data-venue='下関']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.5)),url('https://www.boatrace.jp/static/uploads/sites/8/19_N-1.jpg')}
-#screen-venues .venue[data-venue='若松']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.5)),url('https://www.boatrace.jp/static/uploads/sites/8/20_N-1.jpg')}
-#screen-venues .venue[data-venue='芦屋']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.5)),url('https://www.boatrace.jp/static/uploads/sites/8/21_N-1.jpg')}
-#screen-venues .venue[data-venue='福岡']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.5)),url('https://www.boatrace.jp/static/uploads/sites/8/22_N-1.jpg')}
-#screen-venues .venue[data-venue='唐津']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.5)),url('https://www.boatrace.jp/static/uploads/sites/8/23_N-1.jpg')}
-#screen-venues .venue[data-venue='大村']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.5)),url('https://www.boatrace.jp/static/uploads/sites/8/24_N-1.jpg')}
+#screen-venues .venue:before{content:'';position:absolute;left:0;right:0;top:0;height:70px;opacity:1;clip-path:none;background-color:#0a2a43;background-repeat:no-repeat;background-size:100% 100%;background-position:center;filter:saturate(.9) contrast(1.03) brightness(.82)}
+/* BOAT RACE公式系の各場画像。読み込み失敗時は背景色へフォールバック */
+#screen-venues .venue[data-venue='桐生']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.42)),url('https://www.kiryu-kyotei.com/modules/sisetsu/images/shisetsu/img_shisetsu_01.jpg?v=1.0')}
+#screen-venues .venue[data-venue='戸田']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.42)),url('https://www.boatrace.jp/static/uploads/sites/8/02_N-1.jpg')}
+#screen-venues .venue[data-venue='江戸川']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.42)),url('https://www.boatrace.jp/static/uploads/sites/8/03_N-1.jpg')}
+#screen-venues .venue[data-venue='平和島']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.42)),url('https://www.boatrace.jp/static/uploads/sites/8/04_N-1.jpg')}
+#screen-venues .venue[data-venue='多摩川']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.42)),url('https://www.boatrace.jp/static/uploads/sites/8/05_N-1.jpg')}
+#screen-venues .venue[data-venue='浜名湖']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.42)),url('https://www.boatrace.jp/static/uploads/sites/8/06_N-1.jpg')}
+#screen-venues .venue[data-venue='蒲郡']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.42)),url('https://www.boatrace.jp/static/uploads/sites/8/07_N-1.jpg')}
+#screen-venues .venue[data-venue='常滑']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.42)),url('https://www.boatrace.jp/static/uploads/sites/8/08_N-1.jpg')}
+#screen-venues .venue[data-venue='津']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.42)),url('https://www.boatrace.jp/static/uploads/sites/8/09_N-1.jpg')}
+#screen-venues .venue[data-venue='三国']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.42)),url('https://www.boatrace.jp/static/uploads/sites/8/10_N-1.jpg')}
+#screen-venues .venue[data-venue='びわこ']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.42)),url('https://www.boatrace.jp/static/uploads/sites/8/11_N-1.jpg')}
+#screen-venues .venue[data-venue='住之江']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.42)),url('https://www.boatrace.jp/static/uploads/sites/8/12_N-1.jpg')}
+#screen-venues .venue[data-venue='尼崎']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.42)),url('https://www.boatrace.jp/static/uploads/sites/8/13_N-1.jpg')}
+#screen-venues .venue[data-venue='鳴門']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.42)),url('https://www.boatrace.jp/static/uploads/sites/8/14_N-1.jpg')}
+#screen-venues .venue[data-venue='丸亀']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.42)),url('https://www.boatrace.jp/static/uploads/sites/8/15_N-1.jpg')}
+#screen-venues .venue[data-venue='児島']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.42)),url('https://www.boatrace.jp/static/uploads/sites/8/16_N-1.jpg')}
+#screen-venues .venue[data-venue='宮島']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.42)),url('https://www.boatrace.jp/static/uploads/sites/8/17_N-1.jpg')}
+#screen-venues .venue[data-venue='徳山']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.42)),url('https://www.boatrace.jp/static/uploads/sites/8/18_N-1.jpg')}
+#screen-venues .venue[data-venue='下関']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.42)),url('https://www.boatrace.jp/static/uploads/sites/8/19_N-1.jpg')}
+#screen-venues .venue[data-venue='若松']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.42)),url('https://www.boatrace.jp/static/uploads/sites/8/20_N-1.jpg')}
+#screen-venues .venue[data-venue='芦屋']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.42)),url('https://www.boatrace.jp/static/uploads/sites/8/21_N-1.jpg')}
+#screen-venues .venue[data-venue='福岡']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.42)),url('https://www.boatrace.jp/static/uploads/sites/8/22_N-1.jpg')}
+#screen-venues .venue[data-venue='唐津']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.42)),url('https://www.boatrace.jp/static/uploads/sites/8/23_N-1.jpg')}
+#screen-venues .venue[data-venue='大村']:before{background-image:linear-gradient(180deg,rgba(1,14,27,.04),rgba(1,15,29,.42)),url('https://www.boatrace.jp/static/uploads/sites/8/24_N-1.jpg')}
 #screen-venues .venue:after{content:'›';position:absolute;z-index:4;right:8px;top:37px;width:24px;height:24px;border:1px solid rgba(213,244,255,.7);border-radius:50%;display:grid;place-items:center;color:#fff;font-size:20px;line-height:1;background:rgba(1,16,29,.45);box-shadow:0 0 10px rgba(0,160,235,.14)}
 #screen-venues .venue>*{position:relative;z-index:3}
 #screen-venues .venue>b{position:absolute;top:8px;left:10px;margin:0;font-size:17px;letter-spacing:.01em;color:#fff;text-shadow:0 2px 9px rgba(0,0,0,.95),0 0 2px #000}
