@@ -13,18 +13,18 @@ ONE BOAT COMPLETE REBUILD — 2026-09-14
 - その他は様子見/見送り
 - 買う価値70以上
 - 基本4点、最大6点
-- 1R上限2,000円、100円単位
+- 1R上限5,000円、100円単位
 - 10分前再計算、5分前安全確認
 - トリガミ回避、全レース購入しない
 - 中穴 20.0〜59.9倍
 - 穴 60.0倍〜
 
 構成
-index.html: UI骨格
-styles.css: モバイルUI
-app.js: API正規化・表示判定
+public/index.html: UI骨格
+public/styles.css: モバイルUI
+public/app.js: API正規化・表示判定
 worker.js: API Gateway / Edge Cache
-manifest.webmanifest: iPhoneホーム画面対応
+engine.js: 予想判定・資金上限・ROIガード
 
 注意
 現時点のライブデータ供給元は既存Supabase Functionsを互換レイヤーとして利用。フロントは直接Supabaseへ接続しない。将来供給元を交換してもUI側を作り直さない構造。
