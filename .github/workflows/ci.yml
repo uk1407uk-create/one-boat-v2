@@ -14,5 +14,7 @@ jobs:
           node-version: 22
       - run: npm install
       - run: npm test
+      - name: Frontend boot smoke test
+        run: node tests/ui-smoke.mjs
       - name: Validate Cloudflare Worker build
         run: npx wrangler deploy --dry-run --outdir .wrangler-dry-run
