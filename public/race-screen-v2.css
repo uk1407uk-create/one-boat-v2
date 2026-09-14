@@ -1,0 +1,60 @@
+/* ONE BOAT 03 race screen — visual + interaction polish */
+body[data-view='races']{background:linear-gradient(180deg,#020b17 0,#010711 55%,#01050c 100%)}
+body[data-view='races'] .topbar{display:none!important}
+body[data-view='races'] #screen-races{padding:0 11px 18px}
+
+#screen-races .pageHead{margin:0 -11px;padding:calc(10px + env(safe-area-inset-top)) 17px 10px;min-height:76px;background:rgba(2,10,21,.98);border-bottom:1px solid rgba(43,184,244,.18);box-shadow:none}
+#screen-races .pageHead>div{min-height:48px}
+#screen-races .pageHead .backBtn{left:2px;width:44px;height:44px}
+#screen-races .pageHead .backBtn:before{font-size:38px}
+#screen-races .pageHead h1:before{font-size:19px;letter-spacing:.02em}
+#screen-races .pageHead h1:after{font-size:5.5px;margin-top:5px;color:#8098ae}
+#screen-races .pageHead>div:after{right:2px;font-size:23px}
+
+#screen-races .raceHeader{height:190px;margin:0 -11px 10px;padding:17px 20px 16px;border:0;border-bottom:1px solid rgba(35,153,215,.30);border-radius:0;background-color:#06182b!important;background-image:linear-gradient(90deg,rgba(1,8,18,.90) 0%,rgba(1,10,22,.62) 34%,rgba(2,13,27,.18) 68%,rgba(2,10,20,.34) 100%),linear-gradient(180deg,rgba(1,8,18,.08) 0%,rgba(1,8,18,.12) 52%,rgba(1,8,18,.86) 100%),var(--venue-photo)!important;background-size:cover,cover,cover!important;background-position:center,center,center 45%!important;background-repeat:no-repeat!important;box-shadow:none}
+#screen-races .raceHeader:before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 86% 18%,rgba(40,188,246,.18),transparent 30%);opacity:1!important;pointer-events:none}
+#screen-races .raceHeader:after{content:'';position:absolute;left:0;right:0;bottom:0;height:62px;background:linear-gradient(180deg,transparent,rgba(2,10,20,.78));pointer-events:none}
+#screen-races .raceHeaderTop{position:relative;z-index:3;align-items:flex-start}
+#screen-races .raceHeader h2{display:flex;flex-direction:column;gap:4px;margin:0;font-size:35px;line-height:.98;font-weight:950;letter-spacing:.015em;text-shadow:0 3px 16px rgba(0,0,0,.82)}
+#screen-races .raceHeader h2:after{display:none!important}
+#screen-races .raceHeader .venueEn{display:block;font-size:11px;line-height:1.1;font-weight:700;letter-spacing:.30em;color:#d6e9f5;text-shadow:0 2px 8px rgba(0,0,0,.75)}
+#screen-races .raceHeader .mini{margin-top:10px;font-size:12px;color:#f2f8fc;font-weight:850;text-shadow:0 2px 8px rgba(0,0,0,.74)}
+#screen-races .raceHeader .statusChip{margin-top:0;padding:7px 10px;border-radius:7px;background:rgba(3,29,50,.78);border-color:#1478ae;box-shadow:0 0 12px rgba(25,178,240,.10);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+
+#screen-races .weatherRow{position:absolute;z-index:4;left:20px;right:20px;bottom:14px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:0;color:#edf8ff;font-size:9px;font-weight:850}
+#screen-races .weatherRow span{min-width:0;padding:8px 4px;border:1px solid rgba(49,139,190,.38);border-radius:7px;background:rgba(2,17,31,.82);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+
+#screen-races .sectionTitle{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:10px 0 10px;min-height:44px;border:1px solid #0d4771;border-radius:8px;overflow:hidden;background:#031120}
+#screen-races .sectionTitle h2,#screen-races .sectionTitle .mini{display:grid;place-items:center;margin:0;padding:0 7px;min-height:42px;border:0;color:#8199ae;font-size:12px;font-weight:900;cursor:pointer;user-select:none;transition:background .12s ease,color .12s ease,box-shadow .12s ease}
+#screen-races .sectionTitle h2:before,#screen-races .sectionTitle .mini:before{display:none!important}
+#screen-races .sectionTitle h2{font-size:0}
+#screen-races .sectionTitle h2:after{content:'直近レース';font-size:12px}
+#screen-races .sectionTitle .mini{font-size:0}
+#screen-races .sectionTitle .mini:after{content:'レース一覧';font-size:12px}
+#screen-races .sectionTitle[data-race-tab='current'] h2,#screen-races .sectionTitle:not([data-race-tab]) h2,#screen-races .sectionTitle[data-race-tab='all'] .mini{color:#fff;background:linear-gradient(180deg,#0a91d9,#075b95);box-shadow:inset 0 0 0 1px #29c4ff,0 0 16px rgba(0,170,255,.13)}
+#screen-races .sectionTitle[data-race-tab='all'] h2,#screen-races .sectionTitle[data-race-tab='current'] .mini{color:#8199ae;background:transparent;box-shadow:none}
+
+#screen-races .raceList{margin:0;border:1px solid #113c5f;border-radius:9px;overflow:hidden;background:#041321;box-shadow:0 12px 28px rgba(0,0,0,.27)}
+#screen-races .raceList:before{content:'R       締切時刻       ステータス       信頼度';display:block;height:40px;padding:13px 12px 0;border-bottom:1px solid #123653;background:#03111f;color:#8ca4b8;font-size:9px;font-weight:900;letter-spacing:.01em;white-space:pre}
+#screen-races .raceRow{grid-template-columns:44px 78px 1fr 48px;gap:5px;min-height:50px;padding:6px 12px;border-top:1px solid #0c2b45;background:linear-gradient(180deg,#06192b,#051522);color:#eaf6fd}
+#screen-races .raceRow:first-of-type{border-top:0}
+#screen-races .raceNo{font-size:15px;color:#f4fbff}
+#screen-races .raceTime{font-size:13px;color:#c6d9e7}
+#screen-races .raceState{min-width:66px;padding:7px 8px;border-radius:6px;background:#0b2032;border:1px solid #1a3b54;color:#9fb2c1}
+#screen-races .raceScore{font-size:12px;color:#7891a6}
+#screen-races .raceRow.current{background:linear-gradient(90deg,#0a3a63 0,#082642 72%,#061c31 100%);box-shadow:inset 3px 0 0 #26c6ff,inset 0 0 0 1px rgba(28,157,218,.42)}
+#screen-races .raceRow.current .raceState{border-color:#20baff;background:linear-gradient(180deg,#0b91da,#0862a6);color:#fff}
+#screen-races .raceRow.current .raceScore{color:#f4fbff}
+#screen-races .raceRow.future{background:#04121f;color:#61798d}
+#screen-races .raceRow.future .raceNo,#screen-races .raceRow.future .raceTime{color:#7f94a5}
+#screen-races .raceRow.future .raceState{background:#091a28;border-color:#183247;color:#788d9e}
+
+@media(max-width:370px){
+  #screen-races .pageHead{min-height:70px}
+  #screen-races .raceHeader{height:180px;padding:15px 16px;background-position:center,center,center 46%!important}
+  #screen-races .raceHeader h2{font-size:31px}
+  #screen-races .weatherRow{left:16px;right:16px;bottom:12px;gap:4px;font-size:8px}
+  #screen-races .weatherRow span{padding:7px 2px}
+  #screen-races .raceRow{grid-template-columns:36px 68px 1fr 42px;min-height:47px;padding:5px 8px}
+  #screen-races .raceList:before{font-size:8px;padding-left:8px}
+}
