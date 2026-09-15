@@ -1,0 +1,36 @@
+#screen-performance{padding-top:8px;color:#f4f9ff}
+#screen-performance .pageHead{margin:4px 2px 10px;align-items:end}
+#screen-performance .pageHead .eyebrow{font-size:8px;letter-spacing:.22em;color:#5ddcff}
+#screen-performance .pageHead h1{font-size:24px;letter-spacing:.01em}
+#screen-performance .pageHead .mini{font-size:9px;color:#7690a7;margin-top:4px}
+#screen-performance #perfTabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:4px;margin:0 0 10px;border:1px solid #124b73;border-radius:10px;background:#03111f;box-shadow:inset 0 1px 0 rgba(255,255,255,.02)}
+#screen-performance #perfTabs button{min-height:36px;padding:7px 2px;font-size:9px;border-radius:7px;color:#718ca2}
+#screen-performance #perfTabs button.active{color:#fff;background:linear-gradient(180deg,#0da4ec,#08659f);box-shadow:inset 0 0 0 1px #41d6ff,0 0 14px rgba(26,193,255,.12)}
+#screen-performance .performanceSummary{padding:14px 12px 12px;border:1px solid #17628f;background:radial-gradient(circle at 50% 5%,rgba(46,198,255,.11),transparent 38%),linear-gradient(160deg,#09243d,#041321 72%);box-shadow:0 12px 30px rgba(0,0,0,.34),0 0 22px rgba(19,158,224,.06),inset 0 1px 0 rgba(255,255,255,.035)}
+#screen-performance .performanceSummary:before{content:'TOTAL PERFORMANCE';display:block;margin-bottom:9px;color:#67ddff;font-size:8px;font-weight:950;letter-spacing:.2em}
+#screen-performance .performanceSummary>.infoGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#screen-performance .performanceSummary .infoBox{min-height:70px;padding:11px 10px;border-color:#174a70;background:linear-gradient(180deg,#071e34,#051522)}
+#screen-performance .performanceSummary .infoBox span{font-size:9px;letter-spacing:.04em;color:#7e9ab1}
+#screen-performance .performanceSummary .infoBox b{font-size:18px;font-weight:950;font-variant-numeric:tabular-nums;color:#edfaff}
+#screen-performance .profitBig{position:relative;margin:11px 0 10px;padding:28px 10px 17px;border:1px solid #166d9c;border-radius:11px;text-align:center;background:linear-gradient(180deg,#082c49,#061d33);font-size:34px;line-height:1;font-weight:950;letter-spacing:-.035em;color:#62e2ff;font-variant-numeric:tabular-nums;text-shadow:0 0 18px rgba(54,210,255,.16)}
+#screen-performance .profitBig:before{content:'収支';position:absolute;left:0;right:0;top:9px;color:#7f9db4;font-size:9px;letter-spacing:.12em;font-weight:900}
+#screen-performance .performanceSummary .statsGrid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;border:1px solid #123f61!important;border-radius:10px!important;overflow:hidden;background:#051827!important}
+#screen-performance .performanceSummary .stat{padding:10px 2px 9px;border-right:1px solid #103a59}
+#screen-performance .performanceSummary .stat span{font-size:8px;color:#7894aa}
+#screen-performance .performanceSummary .stat b{font-size:13px;color:#e9f9ff;font-variant-numeric:tabular-nums}
+#screen-performance #performanceContent>.card.cardPad{padding:13px 11px 11px;border-color:#164f77;background:linear-gradient(180deg,#071d32,#041421)}
+#screen-performance #performanceContent>.card.cardPad>.mini{font-size:10px;font-weight:900;letter-spacing:.06em;color:#9ab3c5}
+#screen-performance .chart{height:205px;margin-top:9px;border:1px solid #123b5a;border-radius:10px;overflow:hidden;background:linear-gradient(180deg,rgba(7,28,49,.92),rgba(3,14,25,.96)),repeating-linear-gradient(to bottom,transparent 0 48px,rgba(40,110,150,.12) 48px 49px)}
+#screen-performance .chart svg{width:100%;height:100%;filter:drop-shadow(0 0 7px rgba(53,213,255,.18))}
+#screen-performance #performanceContent>.card.detailBody{padding:10px;border-color:#15496f;background:linear-gradient(180deg,#071b2f,#041421)}
+#screen-performance #performanceContent>.card.detailBody:before{content:'DETAIL';display:block;margin:1px 2px 9px;color:#66869f;font-size:8px;font-weight:950;letter-spacing:.18em}
+#screen-performance #performanceContent .dataCard{position:relative;margin-bottom:7px!important;padding:11px 10px;border:1px solid #123f61;border-radius:9px;background:linear-gradient(180deg,#071c31,#051522)}
+#screen-performance #performanceContent .dataCard:last-child{margin-bottom:0!important}
+#screen-performance #performanceContent .dataCard h3{margin:0 0 8px;padding-right:10px;color:#dff7ff;font-size:12px;font-weight:950}
+#screen-performance #performanceContent .dataCard .kv{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 0;border-top:1px solid rgba(18,60,90,.55)}
+#screen-performance #performanceContent .dataCard .kv:first-of-type{border-top:0}
+#screen-performance #performanceContent .dataCard .kv span{font-size:9px;color:#7894aa}
+#screen-performance #performanceContent .dataCard .kv b{font-size:12px;color:#d9f4ff;font-variant-numeric:tabular-nums;text-align:right}
+#screen-performance #performanceContent>.empty{padding:30px 14px;border-color:#143e5e;background:#051522;color:#7892a8}
+#screen-performance .bottomNav{padding-bottom:env(safe-area-inset-bottom)}
+@media(max-width:375px){#screen-performance .performanceSummary{padding:12px 10px 10px}#screen-performance .performanceSummary .infoBox{min-height:65px}#screen-performance .performanceSummary .infoBox b{font-size:16px}#screen-performance .profitBig{font-size:30px}#screen-performance .performanceSummary .stat b{font-size:12px}#screen-performance .chart{height:185px}}
