@@ -18,3 +18,11 @@ jobs:
         run: node tests/ui-smoke.mjs
       - name: Validate Cloudflare Worker build
         run: npx wrangler deploy --dry-run --outdir .wrangler-dry-run
+      - name: Temporary four-race diagnostic
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const base='https://one-boat-v2-pages.uk-1407-uk.workers.dev/api/detail?race_code=';
+          const codes=['202609151001','202609151003','202609151403','202609151404'];
+          (async()=>{for(const code of codes){try{const r=await fetch(base+code+'&_diag=four');const t=await r.text();console.log('=== '+code+' HTTP '+r.status+' ===');console.log(t.slice(0,60000));}catch(e){console.log('ERR '+code+' '+e)}}})();
+          NODE
