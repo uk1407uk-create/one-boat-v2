@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {evaluateRace,selectInitialTheory,auxiliaryContext,DEFAULT_POLICY} from '../engine_v51.js';
+import {evaluateRace,selectInitialTheory,auxiliaryContext,DEFAULT_POLICY,pointCapForOdds} from '../engine_v51.js';
 
 const base={score:68,stake_total_yen:2000,points:4,theory_sample:100,theory_roi:130,odds:25};
 
@@ -7,11 +7,18 @@ const single=evaluateRace({...base,motor_player_fit_score:100});
 assert.equal(single.decision,'WATCH');
 assert.equal(single.auxiliary_adjustment,0);
 assert.equal(single.monitor.aux_supportive_count,1);
+assert.equal(single.reason,'総合評価64〜69：候補表示');
 
 const multi=evaluateRace({...base,wind_match_score:90,motor_player_fit_score:90});
-assert.equal(multi.decision,'ENTER');
+assert.equal(multi.decision,'WATCH');
 assert.ok(multi.value_score>=70);
 assert.ok(multi.auxiliary_adjustment>0);
+assert.equal(multi.candidate,true);
+
+const eligible=evaluateRace({...base,score:74,wind_match_score:90,motor_player_fit_score:90});
+assert.equal(eligible.decision,'ENTER');
+assert.ok(eligible.confidence_score>=70);
+assert.ok(eligible.value_score>=70);
 
 const negative=evaluateRace({...base,score:72,wind_match_score:0,motor_player_fit_score:0});
 assert.notEqual(negative.decision,'ENTER');
@@ -39,4 +46,15 @@ const cap=evaluateRace({score:85,stake_total_yen:2000,points:4,theory_sample:100
 assert.equal(cap.decision,'SKIP');
 assert.equal(cap.reason,'穴系は1日最大5Rに到達');
 
-console.log('ONE BOAT V5.1 auxiliary tests passed');
+assert.equal(pointCapForOdds(10),4);
+assert.equal(pointCapForOdds(30),6);
+assert.equal(pointCapForOdds(50),8);
+assert.equal(pointCapForOdds(80),10);
+assert.equal(pointCapForOdds(150),12);
+assert.equal(pointCapForOdds(250),20);
+assert.equal(DEFAULT_POLICY.finalize_minutes,5);
+assert.equal(DEFAULT_POLICY.max_stake_yen,5000);
+assert.equal(DEFAULT_POLICY.per_pick_max_yen,2000);
+assert.equal(DEFAULT_POLICY.participation_target_pct,40);
+
+console.log('ONE BOAT V5.2 production-rule tests passed');
