@@ -18,12 +18,3 @@ jobs:
         run: node tests/ui-smoke.mjs
       - name: Validate Cloudflare Worker build
         run: npx wrangler deploy --dry-run --outdir .wrangler-dry-run
-      - name: Temporary performance source diagnostic
-        shell: bash
-        run: |
-          echo '=== PRODUCTION /api/performance ==='
-          curl -sS --max-time 20 'https://one-boat-v2-pages.uk-1407-uk.workers.dev/api/performance?_diag=20260915' || true
-          echo
-          echo '=== DIRECT OLD SUPABASE boat-ai-performance ==='
-          curl -sS --max-time 20 'https://vtgswxrzklwynpvifbef.supabase.co/functions/v1/boat-ai-performance?_diag=20260915' || true
-          echo
