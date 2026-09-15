@@ -13,18 +13,33 @@ permissions:
 jobs:
   backtest:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Normalize legacy v3 object/array shapes
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('scripts/backtest_v60_2y.mjs')
+          s=p.read_text()
+          s=s.replace("function indexByRace(rows=[]){const m=new Map();for(const x of rows||[]){", "function indexByRace(rows=[]){const m=new Map();for(const x of (Array.isArray(rows)?rows:Object.values(rows||{}))){")
+          s=s.replace("function programBoatMap(p){return new Map((p?.boats||[]).map(x=>[Number(x.racer_boat_number),x]))}\nfunction previewBoatMap(p){return new Map((p?.boats||[]).map(x=>[Number(x.racer_boat_number),x]))}", "function boatValues(v){return Array.isArray(v)?v:Object.values(v||{})}\nfunction programBoatMap(p){return new Map(boatValues(p?.boats).map(x=>[Number(x.racer_boat_number),x]))}\nfunction previewBoatMap(p){return new Map(boatValues(p?.boats).map(x=>[Number(x.racer_boat_number),x]))}")
+          s=s.replace("function resultOrder(result){return (result?.boats||[]).filter", "function resultOrder(result){return boatValues(result?.boats).filter")
+          s=s.replace("hasPreview=!!v&&(v.boats||[]).length>=6", "hasPreview=!!v&&boatValues(v.boats).length>=6")
+          s=s.replace("for(const z of r.boats||[])", "for(const z of boatValues(r.boats))")
+          p.write_text(s)
+          PY
       - name: Run two-year historical-safe backtest
         env:
           BACKTEST_START: '2024-09-15'
           BACKTEST_END: '2026-09-14'
           BACKTEST_WARMUP_DAYS: '180'
           BACKTEST_CONCURRENCY: '8'
+          BACKTEST_ODDS_CONCURRENCY: '2'
+          BACKTEST_ODDS_DELAY_MS: '700'
         run: node scripts/backtest_v60_2y.mjs
       - name: Upload backtest report
         uses: actions/upload-artifact@v4
