@@ -1,0 +1,1349 @@
+{
+  "model_version": "ONE BOAT V6.0-simple-six-theory",
+  "backtest_version": "v6-replay-1",
+  "generated_at": "2026-09-15T06:30:33.557804+00:00",
+  "core_2y": {
+    "mode": "core",
+    "period": {
+      "start": "2024-09-15",
+      "end": "2026-09-14",
+      "calendar_days": 730
+    },
+    "coverage": {
+      "processed_days": 730,
+      "not_covered_days": 0,
+      "error_days": 0,
+      "errors": []
+    },
+    "summary": {
+      "races": 112212,
+      "enter": 94906,
+      "hits": 23506,
+      "stake": 70003500,
+      "returns": 50046690,
+      "profit": -19956810,
+      "participation_rate": 84.6,
+      "hit_rate": 24.8,
+      "roi": 71.5,
+      "longest_losing_streak": 41,
+      "max_drawdown_yen": 19959040
+    },
+    "by_venue": {
+      "びわこ": {
+        "races": 4524,
+        "enter": 3781,
+        "hits": 921,
+        "stake": 2767100,
+        "returns": 1859010,
+        "profit": -908090,
+        "participation_rate": 83.6,
+        "hit_rate": 24.4,
+        "roi": 67.2
+      },
+      "三国": {
+        "races": 4668,
+        "enter": 4008,
+        "hits": 950,
+        "stake": 2917900,
+        "returns": 2078340,
+        "profit": -839560,
+        "participation_rate": 85.9,
+        "hit_rate": 23.7,
+        "roi": 71.2
+      },
+      "下関": {
+        "races": 4512,
+        "enter": 3770,
+        "hits": 1038,
+        "stake": 2823400,
+        "returns": 2036490,
+        "profit": -786910,
+        "participation_rate": 83.6,
+        "hit_rate": 27.5,
+        "roi": 72.1
+      },
+      "丸亀": {
+        "races": 4920,
+        "enter": 4119,
+        "hits": 1055,
+        "stake": 3057500,
+        "returns": 2258450,
+        "profit": -799050,
+        "participation_rate": 83.7,
+        "hit_rate": 25.6,
+        "roi": 73.9
+      },
+      "住之江": {
+        "races": 4668,
+        "enter": 3906,
+        "hits": 935,
+        "stake": 2851900,
+        "returns": 2208740,
+        "profit": -643160,
+        "participation_rate": 83.7,
+        "hit_rate": 23.9,
+        "roi": 77.4
+      },
+      "児島": {
+        "races": 4416,
+        "enter": 3676,
+        "hits": 887,
+        "stake": 2725100,
+        "returns": 2021710,
+        "profit": -703390,
+        "participation_rate": 83.2,
+        "hit_rate": 24.1,
+        "roi": 74.2
+      },
+      "唐津": {
+        "races": 4500,
+        "enter": 3849,
+        "hits": 1046,
+        "stake": 2866600,
+        "returns": 2015840,
+        "profit": -850760,
+        "participation_rate": 85.5,
+        "hit_rate": 27.2,
+        "roi": 70.3
+      },
+      "多摩川": {
+        "races": 4620,
+        "enter": 3946,
+        "hits": 901,
+        "stake": 2842800,
+        "returns": 1890170,
+        "profit": -952630,
+        "participation_rate": 85.4,
+        "hit_rate": 22.8,
+        "roi": 66.5
+      },
+      "大村": {
+        "races": 4896,
+        "enter": 4125,
+        "hits": 1030,
+        "stake": 3007000,
+        "returns": 2005180,
+        "profit": -1001820,
+        "participation_rate": 84.3,
+        "hit_rate": 25.0,
+        "roi": 66.7
+      },
+      "宮島": {
+        "races": 4776,
+        "enter": 4051,
+        "hits": 1015,
+        "stake": 2999900,
+        "returns": 2175330,
+        "profit": -824570,
+        "participation_rate": 84.8,
+        "hit_rate": 25.1,
+        "roi": 72.5
+      },
+      "尼崎": {
+        "races": 4620,
+        "enter": 3923,
+        "hits": 1057,
+        "stake": 2882200,
+        "returns": 2307550,
+        "profit": -574650,
+        "participation_rate": 84.9,
+        "hit_rate": 26.9,
+        "roi": 80.1
+      },
+      "常滑": {
+        "races": 4956,
+        "enter": 4269,
+        "hits": 1107,
+        "stake": 3135100,
+        "returns": 2288880,
+        "profit": -846220,
+        "participation_rate": 86.1,
+        "hit_rate": 25.9,
+        "roi": 73.0
+      },
+      "平和島": {
+        "races": 4476,
+        "enter": 3800,
+        "hits": 865,
+        "stake": 2790100,
+        "returns": 2190870,
+        "profit": -599230,
+        "participation_rate": 84.9,
+        "hit_rate": 22.8,
+        "roi": 78.5
+      },
+      "徳山": {
+        "races": 4860,
+        "enter": 4182,
+        "hits": 1137,
+        "stake": 3116900,
+        "returns": 2119290,
+        "profit": -997610,
+        "participation_rate": 86.0,
+        "hit_rate": 27.2,
+        "roi": 68.0
+      },
+      "戸田": {
+        "races": 4644,
+        "enter": 3898,
+        "hits": 902,
+        "stake": 2871200,
+        "returns": 2110800,
+        "profit": -760400,
+        "participation_rate": 83.9,
+        "hit_rate": 23.1,
+        "roi": 73.5
+      },
+      "桐生": {
+        "races": 4704,
+        "enter": 3882,
+        "hits": 889,
+        "stake": 2867300,
+        "returns": 1977070,
+        "profit": -890230,
+        "participation_rate": 82.5,
+        "hit_rate": 22.9,
+        "roi": 69.0
+      },
+      "江戸川": {
+        "races": 4668,
+        "enter": 3810,
+        "hits": 748,
+        "stake": 2810000,
+        "returns": 1944750,
+        "profit": -865250,
+        "participation_rate": 81.6,
+        "hit_rate": 19.6,
+        "roi": 69.2
+      },
+      "津": {
+        "races": 4764,
+        "enter": 4058,
+        "hits": 992,
+        "stake": 2973100,
+        "returns": 2212860,
+        "profit": -760240,
+        "participation_rate": 85.2,
+        "hit_rate": 24.4,
+        "roi": 74.4
+      },
+      "浜名湖": {
+        "races": 4896,
+        "enter": 4168,
+        "hits": 1007,
+        "stake": 3059500,
+        "returns": 2243890,
+        "profit": -815610,
+        "participation_rate": 85.1,
+        "hit_rate": 24.2,
+        "roi": 73.3
+      },
+      "福岡": {
+        "races": 4500,
+        "enter": 3821,
+        "hits": 909,
+        "stake": 2813800,
+        "returns": 1713610,
+        "profit": -1100190,
+        "participation_rate": 84.9,
+        "hit_rate": 23.8,
+        "roi": 60.9
+      },
+      "芦屋": {
+        "races": 4692,
+        "enter": 4017,
+        "hits": 1120,
+        "stake": 3040600,
+        "returns": 2161730,
+        "profit": -878870,
+        "participation_rate": 85.6,
+        "hit_rate": 27.9,
+        "roi": 71.1
+      },
+      "若松": {
+        "races": 4692,
+        "enter": 3960,
+        "hits": 1004,
+        "stake": 2951900,
+        "returns": 2023300,
+        "profit": -928600,
+        "participation_rate": 84.4,
+        "hit_rate": 25.4,
+        "roi": 68.5
+      },
+      "蒲郡": {
+        "races": 4968,
+        "enter": 4294,
+        "hits": 1138,
+        "stake": 3169700,
+        "returns": 2213740,
+        "profit": -955960,
+        "participation_rate": 86.4,
+        "hit_rate": 26.5,
+        "roi": 69.8
+      },
+      "鳴門": {
+        "races": 4272,
+        "enter": 3593,
+        "hits": 853,
+        "stake": 2662900,
+        "returns": 1989090,
+        "profit": -673810,
+        "participation_rate": 84.1,
+        "hit_rate": 23.7,
+        "roi": 74.7
+      }
+    },
+    "by_theory": {
+      "イン飛び外頭理論": {
+        "races": 40624,
+        "enter": 37540,
+        "hits": 5559,
+        "stake": 30032000,
+        "returns": 20643120,
+        "profit": -9388880,
+        "participation_rate": 92.4,
+        "hit_rate": 14.8,
+        "roi": 68.7
+      },
+      "壱−弐−参型": {
+        "races": 6268,
+        "enter": 5017,
+        "hits": 1322,
+        "stake": 2006800,
+        "returns": 1544730,
+        "profit": -462070,
+        "participation_rate": 80.0,
+        "hit_rate": 26.4,
+        "roi": 77.0
+      },
+      "展開強一致・超高配当型": {
+        "races": 23930,
+        "enter": 21970,
+        "hits": 1656,
+        "stake": 8435300,
+        "returns": 5631770,
+        "profit": -2803530,
+        "participation_rate": 91.8,
+        "hit_rate": 7.5,
+        "roi": 66.8
+      },
+      "理論不一致": {
+        "races": 7665,
+        "enter": 0,
+        "hits": 0,
+        "stake": 0,
+        "returns": 0,
+        "profit": 0,
+        "participation_rate": 0.0,
+        "hit_rate": null,
+        "roi": null
+      },
+      "直前強一致・1号艇型": {
+        "races": 29422,
+        "enter": 28255,
+        "hits": 14639,
+        "stake": 28255000,
+        "returns": 21366200,
+        "profit": -6888800,
+        "participation_rate": 96.0,
+        "hit_rate": 51.8,
+        "roi": 75.6
+      },
+      "直前気配＋ST型": {
+        "races": 4303,
+        "enter": 2124,
+        "hits": 330,
+        "stake": 1274400,
+        "returns": 860870,
+        "profit": -413530,
+        "participation_rate": 49.4,
+        "hit_rate": 15.5,
+        "roi": 67.6
+      }
+    },
+    "by_grade": {
+      "G1": {
+        "races": 5316,
+        "enter": 4054,
+        "hits": 651,
+        "stake": 3078000,
+        "returns": 1945000,
+        "profit": -1133000,
+        "participation_rate": 76.3,
+        "hit_rate": 16.1,
+        "roi": 63.2
+      },
+      "G2": {
+        "races": 1368,
+        "enter": 1081,
+        "hits": 200,
+        "stake": 806200,
+        "returns": 574480,
+        "profit": -231720,
+        "participation_rate": 79.0,
+        "hit_rate": 18.5,
+        "roi": 71.3
+      },
+      "G3": {
+        "races": 5580,
+        "enter": 4671,
+        "hits": 987,
+        "stake": 3428900,
+        "returns": 2247370,
+        "profit": -1181530,
+        "participation_rate": 83.7,
+        "hit_rate": 21.1,
+        "roi": 65.5
+      },
+      "GENERAL": {
+        "races": 92628,
+        "enter": 79011,
+        "hits": 20131,
+        "stake": 58185800,
+        "returns": 42156020,
+        "profit": -16029780,
+        "participation_rate": 85.3,
+        "hit_rate": 25.5,
+        "roi": 72.5
+      },
+      "SG": {
+        "races": 1152,
+        "enter": 855,
+        "hits": 117,
+        "stake": 643000,
+        "returns": 327650,
+        "profit": -315350,
+        "participation_rate": 74.2,
+        "hit_rate": 13.7,
+        "roi": 51.0
+      },
+      "WOMEN": {
+        "races": 6168,
+        "enter": 5234,
+        "hits": 1420,
+        "stake": 3861600,
+        "returns": 2796170,
+        "profit": -1065430,
+        "participation_rate": 84.9,
+        "hit_rate": 27.1,
+        "roi": 72.4
+      }
+    },
+    "by_month": {
+      "2024-09": {
+        "races": 2340,
+        "enter": 1946,
+        "hits": 454,
+        "stake": 1452700,
+        "returns": 991560,
+        "profit": -461140,
+        "participation_rate": 83.2,
+        "hit_rate": 23.3,
+        "roi": 68.3
+      },
+      "2024-10": {
+        "races": 4476,
+        "enter": 3740,
+        "hits": 880,
+        "stake": 2779400,
+        "returns": 1791010,
+        "profit": -988390,
+        "participation_rate": 83.6,
+        "hit_rate": 23.5,
+        "roi": 64.4
+      },
+      "2024-11": {
+        "races": 4260,
+        "enter": 3525,
+        "hits": 852,
+        "stake": 2608300,
+        "returns": 1795840,
+        "profit": -812460,
+        "participation_rate": 82.7,
+        "hit_rate": 24.2,
+        "roi": 68.9
+      },
+      "2024-12": {
+        "races": 4968,
+        "enter": 4211,
+        "hits": 1049,
+        "stake": 3132900,
+        "returns": 2398030,
+        "profit": -734870,
+        "participation_rate": 84.8,
+        "hit_rate": 24.9,
+        "roi": 76.5
+      },
+      "2025-01": {
+        "races": 5124,
+        "enter": 4362,
+        "hits": 1061,
+        "stake": 3226800,
+        "returns": 2237220,
+        "profit": -989580,
+        "participation_rate": 85.1,
+        "hit_rate": 24.3,
+        "roi": 69.3
+      },
+      "2025-02": {
+        "races": 4500,
+        "enter": 3772,
+        "hits": 882,
+        "stake": 2783100,
+        "returns": 1956320,
+        "profit": -826780,
+        "participation_rate": 83.8,
+        "hit_rate": 23.4,
+        "roi": 70.3
+      },
+      "2025-03": {
+        "races": 4668,
+        "enter": 3894,
+        "hits": 984,
+        "stake": 2895200,
+        "returns": 2117580,
+        "profit": -777620,
+        "participation_rate": 83.4,
+        "hit_rate": 25.3,
+        "roi": 73.1
+      },
+      "2025-04": {
+        "races": 4248,
+        "enter": 3635,
+        "hits": 901,
+        "stake": 2698900,
+        "returns": 1984670,
+        "profit": -714230,
+        "participation_rate": 85.6,
+        "hit_rate": 24.8,
+        "roi": 73.5
+      },
+      "2025-05": {
+        "races": 5112,
+        "enter": 4383,
+        "hits": 1140,
+        "stake": 3205800,
+        "returns": 2223440,
+        "profit": -982360,
+        "participation_rate": 85.7,
+        "hit_rate": 26.0,
+        "roi": 69.4
+      },
+      "2025-06": {
+        "races": 4800,
+        "enter": 4065,
+        "hits": 1061,
+        "stake": 3003900,
+        "returns": 2186620,
+        "profit": -817280,
+        "participation_rate": 84.7,
+        "hit_rate": 26.1,
+        "roi": 72.8
+      },
+      "2025-07": {
+        "races": 5196,
+        "enter": 4405,
+        "hits": 1094,
+        "stake": 3224100,
+        "returns": 2369740,
+        "profit": -854360,
+        "participation_rate": 84.8,
+        "hit_rate": 24.8,
+        "roi": 73.5
+      },
+      "2025-08": {
+        "races": 5088,
+        "enter": 4455,
+        "hits": 1142,
+        "stake": 3249900,
+        "returns": 2382260,
+        "profit": -867640,
+        "participation_rate": 87.6,
+        "hit_rate": 25.6,
+        "roi": 73.3
+      },
+      "2025-09": {
+        "races": 4272,
+        "enter": 3616,
+        "hits": 812,
+        "stake": 2663500,
+        "returns": 1957410,
+        "profit": -706090,
+        "participation_rate": 84.6,
+        "hit_rate": 22.5,
+        "roi": 73.5
+      },
+      "2025-10": {
+        "races": 4152,
+        "enter": 3531,
+        "hits": 815,
+        "stake": 2564000,
+        "returns": 1789650,
+        "profit": -774350,
+        "participation_rate": 85.0,
+        "hit_rate": 23.1,
+        "roi": 69.8
+      },
+      "2025-11": {
+        "races": 3948,
+        "enter": 3345,
+        "hits": 821,
+        "stake": 2450300,
+        "returns": 1665760,
+        "profit": -784540,
+        "participation_rate": 84.7,
+        "hit_rate": 24.5,
+        "roi": 68.0
+      },
+      "2025-12": {
+        "races": 4800,
+        "enter": 4060,
+        "hits": 973,
+        "stake": 2970700,
+        "returns": 2116860,
+        "profit": -853840,
+        "participation_rate": 84.6,
+        "hit_rate": 24.0,
+        "roi": 71.3
+      },
+      "2026-01": {
+        "races": 5340,
+        "enter": 4557,
+        "hits": 1129,
+        "stake": 3368400,
+        "returns": 2432790,
+        "profit": -935610,
+        "participation_rate": 85.3,
+        "hit_rate": 24.8,
+        "roi": 72.2
+      },
+      "2026-02": {
+        "races": 4200,
+        "enter": 3475,
+        "hits": 839,
+        "stake": 2567700,
+        "returns": 1765150,
+        "profit": -802550,
+        "participation_rate": 82.7,
+        "hit_rate": 24.1,
+        "roi": 68.7
+      },
+      "2026-03": {
+        "races": 4692,
+        "enter": 3910,
+        "hits": 958,
+        "stake": 2891700,
+        "returns": 1953350,
+        "profit": -938350,
+        "participation_rate": 83.3,
+        "hit_rate": 24.5,
+        "roi": 67.6
+      },
+      "2026-04": {
+        "races": 4380,
+        "enter": 3635,
+        "hits": 989,
+        "stake": 2705000,
+        "returns": 1937720,
+        "profit": -767280,
+        "participation_rate": 83.0,
+        "hit_rate": 27.2,
+        "roi": 71.6
+      },
+      "2026-05": {
+        "races": 4920,
+        "enter": 4177,
+        "hits": 1068,
+        "stake": 3083100,
+        "returns": 2107010,
+        "profit": -976090,
+        "participation_rate": 84.9,
+        "hit_rate": 25.6,
+        "roi": 68.3
+      },
+      "2026-06": {
+        "races": 4692,
+        "enter": 3933,
+        "hits": 962,
+        "stake": 2893100,
+        "returns": 2083000,
+        "profit": -810100,
+        "participation_rate": 83.8,
+        "hit_rate": 24.5,
+        "roi": 72.0
+      },
+      "2026-07": {
+        "races": 4956,
+        "enter": 4225,
+        "hits": 1079,
+        "stake": 3128300,
+        "returns": 2290940,
+        "profit": -837360,
+        "participation_rate": 85.3,
+        "hit_rate": 25.5,
+        "roi": 73.2
+      },
+      "2026-08": {
+        "races": 4944,
+        "enter": 4245,
+        "hits": 1091,
+        "stake": 3109400,
+        "returns": 2492720,
+        "profit": -616680,
+        "participation_rate": 85.9,
+        "hit_rate": 25.7,
+        "roi": 80.2
+      },
+      "2026-09": {
+        "races": 2136,
+        "enter": 1804,
+        "hits": 470,
+        "stake": 1347300,
+        "returns": 1020040,
+        "profit": -327260,
+        "participation_rate": 84.5,
+        "hit_rate": 26.1,
+        "roi": 75.7
+      }
+    },
+    "by_buy_value": {
+      "64-69": {
+        "races": 11956,
+        "enter": 0,
+        "hits": 0,
+        "stake": 0,
+        "returns": 0,
+        "profit": 0,
+        "participation_rate": 0.0,
+        "hit_rate": null,
+        "roi": null
+      },
+      "70-79": {
+        "races": 91347,
+        "enter": 86330,
+        "hits": 20562,
+        "stake": 63068700,
+        "returns": 45072170,
+        "profit": -17996530,
+        "participation_rate": 94.5,
+        "hit_rate": 23.8,
+        "roi": 71.5
+      },
+      "80-89": {
+        "races": 8576,
+        "enter": 8576,
+        "hits": 2944,
+        "stake": 6934800,
+        "returns": 4974520,
+        "profit": -1960280,
+        "participation_rate": 100.0,
+        "hit_rate": 34.3,
+        "roi": 71.7
+      },
+      "<64": {
+        "races": 333,
+        "enter": 0,
+        "hits": 0,
+        "stake": 0,
+        "returns": 0,
+        "profit": 0,
+        "participation_rate": 0.0,
+        "hit_rate": null,
+        "roi": null
+      }
+    }
+  },
+  "strict_2026": {
+    "mode": "strict",
+    "period": {
+      "start": "2026-01-01",
+      "end": "2026-09-14",
+      "calendar_days": 257
+    },
+    "coverage": {
+      "processed_days": 257,
+      "not_covered_days": 0,
+      "error_days": 0,
+      "errors": []
+    },
+    "summary": {
+      "races": 40260,
+      "enter": 31430,
+      "hits": 1523,
+      "stake": 7788400,
+      "returns": 5491910,
+      "profit": -2296490,
+      "participation_rate": 78.1,
+      "hit_rate": 4.8,
+      "roi": 70.5,
+      "longest_losing_streak": 168,
+      "max_drawdown_yen": 2306200
+    },
+    "by_venue": {
+      "びわこ": {
+        "races": 1632,
+        "enter": 1214,
+        "hits": 51,
+        "stake": 300000,
+        "returns": 149780,
+        "profit": -150220,
+        "participation_rate": 74.4,
+        "hit_rate": 4.2,
+        "roi": 49.9
+      },
+      "三国": {
+        "races": 1668,
+        "enter": 1302,
+        "hits": 68,
+        "stake": 327200,
+        "returns": 219130,
+        "profit": -108070,
+        "participation_rate": 78.1,
+        "hit_rate": 5.2,
+        "roi": 67.0
+      },
+      "下関": {
+        "races": 1620,
+        "enter": 1270,
+        "hits": 72,
+        "stake": 311400,
+        "returns": 189090,
+        "profit": -122310,
+        "participation_rate": 78.4,
+        "hit_rate": 5.7,
+        "roi": 60.7
+      },
+      "丸亀": {
+        "races": 1620,
+        "enter": 1245,
+        "hits": 58,
+        "stake": 309500,
+        "returns": 215980,
+        "profit": -93520,
+        "participation_rate": 76.9,
+        "hit_rate": 4.7,
+        "roi": 69.8
+      },
+      "住之江": {
+        "races": 1548,
+        "enter": 1186,
+        "hits": 51,
+        "stake": 284200,
+        "returns": 204270,
+        "profit": -79930,
+        "participation_rate": 76.6,
+        "hit_rate": 4.3,
+        "roi": 71.9
+      },
+      "児島": {
+        "races": 1920,
+        "enter": 1449,
+        "hits": 75,
+        "stake": 359100,
+        "returns": 314460,
+        "profit": -44640,
+        "participation_rate": 75.5,
+        "hit_rate": 5.2,
+        "roi": 87.6
+      },
+      "唐津": {
+        "races": 1704,
+        "enter": 1372,
+        "hits": 77,
+        "stake": 330700,
+        "returns": 224250,
+        "profit": -106450,
+        "participation_rate": 80.5,
+        "hit_rate": 5.6,
+        "roi": 67.8
+      },
+      "多摩川": {
+        "races": 1584,
+        "enter": 1264,
+        "hits": 53,
+        "stake": 313300,
+        "returns": 182270,
+        "profit": -131030,
+        "participation_rate": 79.8,
+        "hit_rate": 4.2,
+        "roi": 58.2
+      },
+      "大村": {
+        "races": 1692,
+        "enter": 1315,
+        "hits": 69,
+        "stake": 309600,
+        "returns": 210720,
+        "profit": -98880,
+        "participation_rate": 77.7,
+        "hit_rate": 5.2,
+        "roi": 68.1
+      },
+      "宮島": {
+        "races": 1716,
+        "enter": 1332,
+        "hits": 60,
+        "stake": 330400,
+        "returns": 266450,
+        "profit": -63950,
+        "participation_rate": 77.6,
+        "hit_rate": 4.5,
+        "roi": 80.6
+      },
+      "尼崎": {
+        "races": 1968,
+        "enter": 1504,
+        "hits": 66,
+        "stake": 369400,
+        "returns": 218750,
+        "profit": -150650,
+        "participation_rate": 76.4,
+        "hit_rate": 4.4,
+        "roi": 59.2
+      },
+      "常滑": {
+        "races": 1764,
+        "enter": 1395,
+        "hits": 64,
+        "stake": 336500,
+        "returns": 220350,
+        "profit": -116150,
+        "participation_rate": 79.1,
+        "hit_rate": 4.6,
+        "roi": 65.5
+      },
+      "平和島": {
+        "races": 1704,
+        "enter": 1371,
+        "hits": 75,
+        "stake": 367800,
+        "returns": 297070,
+        "profit": -70730,
+        "participation_rate": 80.5,
+        "hit_rate": 5.5,
+        "roi": 80.8
+      },
+      "徳山": {
+        "races": 1836,
+        "enter": 1458,
+        "hits": 71,
+        "stake": 342700,
+        "returns": 219700,
+        "profit": -123000,
+        "participation_rate": 79.4,
+        "hit_rate": 4.9,
+        "roi": 64.1
+      },
+      "戸田": {
+        "races": 1488,
+        "enter": 1196,
+        "hits": 69,
+        "stake": 318600,
+        "returns": 278270,
+        "profit": -40330,
+        "participation_rate": 80.4,
+        "hit_rate": 5.8,
+        "roi": 87.3
+      },
+      "桐生": {
+        "races": 1788,
+        "enter": 1343,
+        "hits": 58,
+        "stake": 351300,
+        "returns": 201640,
+        "profit": -149660,
+        "participation_rate": 75.1,
+        "hit_rate": 4.3,
+        "roi": 57.4
+      },
+      "江戸川": {
+        "races": 1464,
+        "enter": 1090,
+        "hits": 50,
+        "stake": 291100,
+        "returns": 180490,
+        "profit": -110610,
+        "participation_rate": 74.5,
+        "hit_rate": 4.6,
+        "roi": 62.0
+      },
+      "津": {
+        "races": 1608,
+        "enter": 1206,
+        "hits": 51,
+        "stake": 296700,
+        "returns": 169990,
+        "profit": -126710,
+        "participation_rate": 75.0,
+        "hit_rate": 4.2,
+        "roi": 57.3
+      },
+      "浜名湖": {
+        "races": 1812,
+        "enter": 1469,
+        "hits": 60,
+        "stake": 365900,
+        "returns": 284010,
+        "profit": -81890,
+        "participation_rate": 81.1,
+        "hit_rate": 4.1,
+        "roi": 77.6
+      },
+      "福岡": {
+        "races": 1536,
+        "enter": 1243,
+        "hits": 55,
+        "stake": 305200,
+        "returns": 173340,
+        "profit": -131860,
+        "participation_rate": 80.9,
+        "hit_rate": 4.4,
+        "roi": 56.8
+      },
+      "芦屋": {
+        "races": 1656,
+        "enter": 1312,
+        "hits": 84,
+        "stake": 313500,
+        "returns": 282540,
+        "profit": -30960,
+        "participation_rate": 79.2,
+        "hit_rate": 6.4,
+        "roi": 90.1
+      },
+      "若松": {
+        "races": 1740,
+        "enter": 1338,
+        "hits": 70,
+        "stake": 322600,
+        "returns": 333970,
+        "profit": 11370,
+        "participation_rate": 76.9,
+        "hit_rate": 5.2,
+        "roi": 103.5
+      },
+      "蒲郡": {
+        "races": 1776,
+        "enter": 1443,
+        "hits": 60,
+        "stake": 352600,
+        "returns": 227160,
+        "profit": -125440,
+        "participation_rate": 81.2,
+        "hit_rate": 4.2,
+        "roi": 64.4
+      },
+      "鳴門": {
+        "races": 1416,
+        "enter": 1113,
+        "hits": 56,
+        "stake": 279100,
+        "returns": 228230,
+        "profit": -50870,
+        "participation_rate": 78.6,
+        "hit_rate": 5.0,
+        "roi": 81.8
+      }
+    },
+    "by_theory": {
+      "イン飛び外頭理論": {
+        "races": 14167,
+        "enter": 13393,
+        "hits": 495,
+        "stake": 3375400,
+        "returns": 2360390,
+        "profit": -1015010,
+        "participation_rate": 94.5,
+        "hit_rate": 3.7,
+        "roi": 69.9
+      },
+      "壱−弐−参型": {
+        "races": 2375,
+        "enter": 1906,
+        "hits": 518,
+        "stake": 525100,
+        "returns": 431890,
+        "profit": -93210,
+        "participation_rate": 80.3,
+        "hit_rate": 27.2,
+        "roi": 82.2
+      },
+      "展開強一致・超高配当型": {
+        "races": 3410,
+        "enter": 2905,
+        "hits": 16,
+        "stake": 865200,
+        "returns": 613980,
+        "profit": -251220,
+        "participation_rate": 85.2,
+        "hit_rate": 0.6,
+        "roi": 71.0
+      },
+      "強イン高配当理論": {
+        "races": 168,
+        "enter": 159,
+        "hits": 1,
+        "stake": 28600,
+        "returns": 12990,
+        "profit": -15610,
+        "participation_rate": 94.6,
+        "hit_rate": 0.6,
+        "roi": 45.4
+      },
+      "理論不一致": {
+        "races": 6003,
+        "enter": 0,
+        "hits": 0,
+        "stake": 0,
+        "returns": 0,
+        "profit": 0,
+        "participation_rate": 0.0,
+        "hit_rate": null,
+        "roi": null
+      },
+      "直前強一致・1号艇型": {
+        "races": 8445,
+        "enter": 8094,
+        "hits": 154,
+        "stake": 1753500,
+        "returns": 1133420,
+        "profit": -620080,
+        "participation_rate": 95.8,
+        "hit_rate": 1.9,
+        "roi": 64.6
+      },
+      "直前気配＋ST型": {
+        "races": 5692,
+        "enter": 4973,
+        "hits": 339,
+        "stake": 1240600,
+        "returns": 939240,
+        "profit": -301360,
+        "participation_rate": 87.4,
+        "hit_rate": 6.8,
+        "roi": 75.7
+      }
+    },
+    "by_grade": {
+      "G1": {
+        "races": 1632,
+        "enter": 1093,
+        "hits": 31,
+        "stake": 275400,
+        "returns": 98250,
+        "profit": -177150,
+        "participation_rate": 67.0,
+        "hit_rate": 2.8,
+        "roi": 35.7
+      },
+      "G2": {
+        "races": 648,
+        "enter": 465,
+        "hits": 29,
+        "stake": 116400,
+        "returns": 91770,
+        "profit": -24630,
+        "participation_rate": 71.8,
+        "hit_rate": 6.2,
+        "roi": 78.8
+      },
+      "G3": {
+        "races": 1740,
+        "enter": 1341,
+        "hits": 60,
+        "stake": 346600,
+        "returns": 191980,
+        "profit": -154620,
+        "participation_rate": 77.1,
+        "hit_rate": 4.5,
+        "roi": 55.4
+      },
+      "GENERAL": {
+        "races": 33456,
+        "enter": 26360,
+        "hits": 1302,
+        "stake": 6525100,
+        "returns": 4785930,
+        "profit": -1739170,
+        "participation_rate": 78.8,
+        "hit_rate": 4.9,
+        "roi": 73.3
+      },
+      "SG": {
+        "races": 360,
+        "enter": 230,
+        "hits": 11,
+        "stake": 61900,
+        "returns": 31640,
+        "profit": -30260,
+        "participation_rate": 63.9,
+        "hit_rate": 4.8,
+        "roi": 51.1
+      },
+      "WOMEN": {
+        "races": 2424,
+        "enter": 1941,
+        "hits": 90,
+        "stake": 463000,
+        "returns": 292340,
+        "profit": -170660,
+        "participation_rate": 80.1,
+        "hit_rate": 4.6,
+        "roi": 63.1
+      }
+    },
+    "by_month": {
+      "2026-01": {
+        "races": 5340,
+        "enter": 4107,
+        "hits": 196,
+        "stake": 1034500,
+        "returns": 738090,
+        "profit": -296410,
+        "participation_rate": 76.9,
+        "hit_rate": 4.8,
+        "roi": 71.3
+      },
+      "2026-02": {
+        "races": 4200,
+        "enter": 3205,
+        "hits": 158,
+        "stake": 797700,
+        "returns": 545690,
+        "profit": -252010,
+        "participation_rate": 76.3,
+        "hit_rate": 4.9,
+        "roi": 68.4
+      },
+      "2026-03": {
+        "races": 4692,
+        "enter": 3647,
+        "hits": 181,
+        "stake": 901300,
+        "returns": 632430,
+        "profit": -268870,
+        "participation_rate": 77.7,
+        "hit_rate": 5.0,
+        "roi": 70.2
+      },
+      "2026-04": {
+        "races": 4380,
+        "enter": 3371,
+        "hits": 162,
+        "stake": 830700,
+        "returns": 530260,
+        "profit": -300440,
+        "participation_rate": 77.0,
+        "hit_rate": 4.8,
+        "roi": 63.8
+      },
+      "2026-05": {
+        "races": 4920,
+        "enter": 3858,
+        "hits": 193,
+        "stake": 940000,
+        "returns": 700690,
+        "profit": -239310,
+        "participation_rate": 78.4,
+        "hit_rate": 5.0,
+        "roi": 74.5
+      },
+      "2026-06": {
+        "races": 4692,
+        "enter": 3617,
+        "hits": 179,
+        "stake": 898700,
+        "returns": 667380,
+        "profit": -231320,
+        "participation_rate": 77.1,
+        "hit_rate": 4.9,
+        "roi": 74.3
+      },
+      "2026-07": {
+        "races": 4956,
+        "enter": 3948,
+        "hits": 191,
+        "stake": 979400,
+        "returns": 657530,
+        "profit": -321870,
+        "participation_rate": 79.7,
+        "hit_rate": 4.8,
+        "roi": 67.1
+      },
+      "2026-08": {
+        "races": 4944,
+        "enter": 3987,
+        "hits": 178,
+        "stake": 984700,
+        "returns": 756210,
+        "profit": -228490,
+        "participation_rate": 80.6,
+        "hit_rate": 4.5,
+        "roi": 76.8
+      },
+      "2026-09": {
+        "races": 2136,
+        "enter": 1690,
+        "hits": 85,
+        "stake": 421400,
+        "returns": 263630,
+        "profit": -157770,
+        "participation_rate": 79.1,
+        "hit_rate": 5.0,
+        "roi": 62.6
+      }
+    },
+    "by_buy_value": {
+      "64-69": {
+        "races": 4395,
+        "enter": 0,
+        "hits": 0,
+        "stake": 0,
+        "returns": 0,
+        "profit": 0,
+        "participation_rate": 0.0,
+        "hit_rate": null,
+        "roi": null
+      },
+      "70-79": {
+        "races": 32655,
+        "enter": 28439,
+        "hits": 1405,
+        "stake": 7059700,
+        "returns": 5034170,
+        "profit": -2025530,
+        "participation_rate": 87.1,
+        "hit_rate": 4.9,
+        "roi": 71.3
+      },
+      "80-89": {
+        "races": 3116,
+        "enter": 2991,
+        "hits": 118,
+        "stake": 728700,
+        "returns": 457740,
+        "profit": -270960,
+        "participation_rate": 96.0,
+        "hit_rate": 3.9,
+        "roi": 62.8
+      },
+      "<64": {
+        "races": 94,
+        "enter": 0,
+        "hits": 0,
+        "stake": 0,
+        "returns": 0,
+        "profit": 0,
+        "participation_rate": 0.0,
+        "hit_rate": null,
+        "roi": null
+      }
+    }
+  },
+  "disclaimer": {
+    "core_2y": "historical-safe core replay without pre-2026 trifecta odds bands",
+    "strict_2026": "retrospective replay using Turnmark odds; odds snapshot timing is unknown",
+    "profitability_proven": false
+  }
+}
