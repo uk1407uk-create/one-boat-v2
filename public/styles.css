@@ -10,3 +10,7 @@
 /* Critical iPhone fallbacks kept in the entry stylesheet so CI and first paint do not depend on nested imports. */
 body{padding-bottom:calc(68px + env(safe-area-inset-bottom))}
 .venues{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+
+/* OBPE detail navigation: keep the three tabs reachable while scrolling on iPhone. */
+#screen-detail #detailTabs{position:sticky;top:calc(80px + env(safe-area-inset-top));z-index:35;margin:0 0 10px;background:rgba(3,18,34,.97);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 8px 18px rgba(0,0,0,.28)}
+#screen-detail #detailTabs button{min-height:48px;font-size:12px}
