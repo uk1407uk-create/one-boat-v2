@@ -1,0 +1,1 @@
+(function(){'use strict';function fix(){document.querySelectorAll('.obpeCombo').forEach(function(row){var s=row.querySelectorAll('small');if(s[0]&&/^0\.0倍$/.test(s[0].textContent.trim())){s[0].textContent='オッズ未取得';if(s[1])s[1].textContent='市場差 --'}})}new MutationObserver(fix).observe(document.documentElement,{childList:true,subtree:true});setInterval(fix,1000);fix()})();
