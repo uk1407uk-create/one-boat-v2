@@ -3,6 +3,9 @@
   "name": "one-boat-v2-pages",
   "main": "worker_obpe.js",
   "compatibility_date": "2026-09-14",
+  "triggers": {
+    "crons": ["* * * * *"]
+  },
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
