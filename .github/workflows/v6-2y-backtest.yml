@@ -1,0 +1,43 @@
+name: ONE BOAT V6 2Y Backtest
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/run_v6_backtest.py'
+      - '.github/workflows/v6-2y-backtest.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run two-year V6 replay
+        run: |
+          mkdir -p data docs
+          python scripts/run_v6_backtest.py \
+            --start 2024-09-15 \
+            --end 2026-09-14 \
+            --strict-start 2026-01-01 \
+            --workers 10 \
+            --out-json data/backtest_v6_2y.json \
+            --out-md docs/BACKTEST_V6_2Y.md
+      - name: Commit backtest results
+        run: |
+          git config user.name 'ONE BOAT Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add data/backtest_v6_2y.json docs/BACKTEST_V6_2Y.md
+          if git diff --cached --quiet; then
+            echo 'No backtest result changes'
+          else
+            git commit -m 'Add ONE BOAT V6 two-year backtest results'
+            git push
+          fi
