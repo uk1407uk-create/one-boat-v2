@@ -18,3 +18,14 @@ jobs:
         run: node tests/ui-smoke.mjs
       - name: Validate Cloudflare Worker build
         run: npx wrangler deploy --dry-run --outdir .wrangler-dry-run
+      - name: Temporary performance race detail diagnostic
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const base='https://one-boat-v2-pages.uk-1407-uk.workers.dev/api/detail?race_code=';
+          const codes=[]; for(const v of [10,14]) for(let r=1;r<=12;r++) codes.push(`20260915${String(v).padStart(2,'0')}${String(r).padStart(2,'0')}`);
+          const keys=['decision','purchase_allowed','stake_total_yen','stake_yen','profit_yen','payout_yen','return_yen','returns','hit','is_hit','settled','settled_at','finish_order','result_order','combination','production_picks','bets','confidence','confidence_score','buy_value','value_score','selected_theory','strategy','theory','model_version','race_no','venue_id'];
+          function find(o,k,d=0){ if(!o||typeof o!=='object'||d>8)return undefined; if(Object.prototype.hasOwnProperty.call(o,k)&&o[k]!=null)return o[k]; for(const v of Object.values(o)){ if(v&&typeof v==='object'){const z=find(v,k,d+1); if(z!==undefined)return z;} } }
+          (async()=>{for(const code of codes){try{const res=await fetch(base+code+'&_diag=full'); const j=await res.json(); const out={code,http:res.status}; let interesting=false; for(const k of keys){const v=find(j,k); if(v!==undefined){out[k]=v; if(['decision','stake_total_yen','profit_yen','payout_yen','return_yen','returns','hit','is_hit','settled','production_picks','bets','selected_theory','strategy','theory'].includes(k)) interesting=true;}} if(interesting) console.log(JSON.stringify(out));}catch(e){console.log(JSON.stringify({code,error:String(e)}));}}
+          })();
+          NODE
