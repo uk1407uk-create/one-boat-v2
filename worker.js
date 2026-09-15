@@ -130,7 +130,7 @@ async function assetResponse(request,env){
     let html=await res.text();
     html=html.replace("function shouldFinal(r){var m=minutesLeft(r);return m!==null&&m>=0&&m<=8}","function shouldFinal(r){var m=minutesLeft(r);return m!==null&&m>=0&&m<=5}");
     html=html.replace('10分前再計算 / 8分前確定','10分前再計算 / 5分前最終確認');
-    html=html.replace('</body>','<script src="/race-screen-enhancer.js?v=20260915-prod52"></script></body>');
+    html=html.replace('</body>','<script src="/race-screen-enhancer.js?v=20260915-prod52"></script><script src="/production-v52-enhancer.js?v=20260915-prod52"></script></body>');
     const h=new Headers(res.headers);h.set('cache-control','no-store');return new Response(html,{status:res.status,headers:h});
   }
   return res;
