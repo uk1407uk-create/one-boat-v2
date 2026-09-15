@@ -18,28 +18,3 @@ jobs:
         run: node tests/ui-smoke.mjs
       - name: Validate Cloudflare Worker build
         run: npx wrangler deploy --dry-run --outdir .wrangler-dry-run
-      - name: Temporary today race diagnostic
-        shell: bash
-        run: |
-          URL='https://one-boat-v2-pages.uk-1407-uk.workers.dev/api/schedule?date=2026-09-15&_diag=entered'
-          echo '=== SCHEDULE TOP LEVEL ==='
-          curl -sS --max-time 25 "$URL" -o /tmp/schedule.json || true
-          node - <<'NODE'
-          const fs=require('fs');
-          try{
-            const j=JSON.parse(fs.readFileSync('/tmp/schedule.json','utf8'));
-            console.log(JSON.stringify({keys:Object.keys(j),date:j.date,updated_at:j.updated_at},null,2));
-            const matches=[];
-            function walk(x,path='root'){
-              if(!x||typeof x!=='object')return;
-              if(!Array.isArray(x)){
-                const s=Number(x.stake_total_yen||x.stake||0);
-                if(x.actual_enter===true||x.purchase_allowed===true||x.decision==='ENTER'||s>0||String(x.display_status||'').includes('予想完了')) matches.push({path,...x});
-                for(const [k,v] of Object.entries(x))walk(v,path+'.'+k);
-              }else x.forEach((v,i)=>walk(v,path+'['+i+']'));
-            }
-            walk(j);
-            console.log('=== ENTER-LIKE OBJECTS ===');
-            console.log(JSON.stringify(matches.slice(0,100),null,2));
-          }catch(e){console.log('PARSE_ERR',String(e)); try{console.log(fs.readFileSync('/tmp/schedule.json','utf8').slice(0,20000))}catch{}}
-          NODE
