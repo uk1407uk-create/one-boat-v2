@@ -4,6 +4,7 @@
 @import url('/race-list-polish.css?v=cf908188');
 @import url('/race-list-fix.css?v=463adb6f');
 @import url('/race-screen-v2.css?v=da51fbec');
+@import url('/result-screen.css?v=eaef5bb2');
 
 /* Critical iPhone fallbacks kept in the entry stylesheet so CI and first paint do not depend on nested imports. */
 body{padding-bottom:calc(68px + env(safe-area-inset-bottom))}
