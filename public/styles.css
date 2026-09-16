@@ -36,10 +36,11 @@ main{min-height:0;height:auto!important;overflow:visible!important;padding-botto
   #screen-performance{padding-bottom:100px!important}
   #performanceContent,#obHistList,#detailContent,#resultContent{overflow:visible!important}
 
-  /* Expanded saved prediction becomes its own Safari-safe panel.
-     The panel physically stops above Safari's bottom browser controls, so
-     tickets/results never sit behind the address/toolbar area while scrolling. */
-  body:has(#obHistList .obHistCard.open){overflow:hidden!important;padding-bottom:0!important}
+  /* Saved prediction modal: freeze the page and scroll only the prediction body.
+     This is more reliable than scrolling the whole fixed card on iPhone Safari. */
+  body.obHistModalOpen,
+  body:has(#obHistList .obHistCard.open){overflow:hidden!important;padding-bottom:0!important;touch-action:none!important}
+  body.obHistModalOpen .bottomNav,
   body:has(#obHistList .obHistCard.open) .bottomNav{display:none!important}
   #obHistList .obHistCard.open{
     position:fixed!important;
@@ -51,25 +52,36 @@ main{min-height:0;height:auto!important;overflow:visible!important;padding-botto
     width:auto!important;
     max-width:680px!important;
     margin:0 auto!important;
-    overflow-x:hidden!important;
-    overflow-y:auto!important;
-    -webkit-overflow-scrolling:touch!important;
-    overscroll-behavior:contain!important;
+    display:flex!important;
+    flex-direction:column!important;
+    min-height:0!important;
+    overflow:hidden!important;
     background:#071b2f!important;
     border:1px solid #17628f!important;
     border-radius:16px!important;
     box-shadow:0 22px 60px rgba(0,0,0,.72),0 0 0 9999px rgba(0,8,18,.76)!important;
+    touch-action:pan-y!important;
   }
   #obHistList .obHistCard.open .obHistHead{
-    position:sticky!important;
-    top:0!important;
+    position:relative!important;
+    flex:0 0 auto!important;
     z-index:3!important;
     background:linear-gradient(180deg,#071d32,#051522)!important;
     border-bottom:1px solid #174264!important;
   }
-  #obHistList .obHistCard.open .obHistDetails{padding-bottom:42px!important}
-  #obHistList .obHistCard.open::after{content:"";display:block;height:34px;width:100%}
-  #obHistList .obHistCard.open{scroll-padding-bottom:48px}
+  #obHistList .obHistCard.open .obHistDetails{
+    display:block!important;
+    flex:1 1 auto!important;
+    min-height:0!important;
+    overflow-x:hidden!important;
+    overflow-y:scroll!important;
+    -webkit-overflow-scrolling:touch!important;
+    overscroll-behavior:contain!important;
+    touch-action:pan-y!important;
+    padding:0 14px 72px!important;
+    scroll-padding-bottom:72px!important;
+  }
+  #obHistList .obHistCard.open .obHistDetails::after{content:"";display:block;height:64px;width:100%;pointer-events:none}
 }
 
 /* OBPE detail navigation: keep the three tabs reachable while scrolling on iPhone. */
