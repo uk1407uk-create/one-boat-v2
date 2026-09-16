@@ -14,5 +14,7 @@
   Cache-Control: no-store, no-cache, must-revalidate
 /race-screen-enhancer.js
   Cache-Control: no-store, no-cache, must-revalidate
+/obpe-history.js
+  Cache-Control: no-store, no-cache, must-revalidate
 /hero-reference.svg
   Cache-Control: no-store, no-cache, must-revalidate
