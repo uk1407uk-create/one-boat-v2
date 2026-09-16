@@ -1,8 +1,7 @@
 import base from './worker_obpe_social.js';
 
 const APP_URL='https://one-boat-v2-pages.uk-1407-uk.workers.dev';
-// Split to avoid casual topic discovery in code search. This topic carries only ONE BOAT race alerts.
-const NTFY_TOPIC=['oneboat-IRL62U','vsjkKYfHCuSjEu','qr6qhRDtX9'].join('');
+const NTFY_TOPIC=['oneboat-IRL62U','vsjkKYfHCuSjEu','qr6qh-RDtX9'].join('');
 const VENUES=['','桐生','戸田','江戸川','平和島','多摩川','浜名湖','蒲郡','常滑','津','三国','びわこ','住之江','尼崎','鳴門','丸亀','児島','宮島','徳山','下関','若松','芦屋','福岡','唐津','大村'];
 
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -90,7 +89,6 @@ async function runNotifications(){
     const c=closes.get(key);
     if(item?.prediction_ready&&c){
       const left=c.close-now;
-      // Hard rule: notify only from 5 minutes through 3 minutes before the official deadline.
       if(left>=3&&left<=5&&!(await seen('prediction',key))){
         await sendNtfy({
           title:`🚨 ONE BOAT｜${item?.venue_name||venueName(item?.venue_code)} ${item?.race_no||'--'}R`,
@@ -120,14 +118,14 @@ async function notifyTest(){
   return sendNtfy({
     title:'✅ ONE BOAT 通知テスト',
     message:'ntfyとの接続に成功しました。今後はENTERレースを締切5〜3分前に通知します。',
-    sequenceId:'ob-startup-test-v1',
+    sequenceId:'ob-startup-test-v2',
     priority:4
   });
 }
 async function startupTest(){
-  if(await seen('startup','v1'))return;
+  if(await seen('startup','v2'))return;
   await notifyTest();
-  await markSeen('startup','v1');
+  await markSeen('startup','v2');
 }
 
 export default {
@@ -138,7 +136,6 @@ export default {
     try{if(typeof base.scheduled==='function')await base.scheduled(controller,env,ctx)}catch{}
     ctx.waitUntil((async()=>{
       try{await startupTest()}catch{}
-      // Give prediction locking/settlement a moment to finish, then retry once for slow upstreams.
       await sleep(6000);
       try{await runNotifications()}catch{}
       await sleep(7000);
