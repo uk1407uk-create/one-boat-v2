@@ -51,12 +51,12 @@ async function approvedHomeImage(request,env){
       const bin=atob(b64);
       const bytes=new Uint8Array(bin.length);
       for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
-      if(bytes.length<16 || bytes[0]!==0x52 || bytes[1]!==0x49 || bytes[2]!==0x46 || bytes[3]!==0x46) throw new Error('invalid_home_webp');
+      if(bytes.length<16 || bytes[0]!==0x52 || bytes[1]!==0x49 || bytes[2]!==0x46 || bytes[3]!==0x46 || bytes[8]!==0x57 || bytes[9]!==0x45 || bytes[10]!==0x42 || bytes[11]!==0x50) throw new Error('invalid_home_webp');
       return bytes;
     })().catch(err=>{homeImagePromise=null;throw err;});
   }
   const bytes=await homeImagePromise;
-  return new Response(bytes,{status:200,headers:{'content-type':'image/webp','cache-control':'public,max-age=31536000,immutable','x-content-type-options':'nosniff'}});
+  return new Response(bytes,{status:200,headers:{'content-type':'image/webp','cache-control':'no-store, max-age=0','x-content-type-options':'nosniff'}});
 }
 function settledSummary(rec){
   const s=rec?.settlement||{};
@@ -107,10 +107,10 @@ export default {
   async fetch(request,env){
     const u=new URL(request.url);
     try{
-      if(u.pathname==='/api/health') return json({ok:true,service:'ONE BOAT CUSTOMER',version:'2026-09-17.1',performance_scope:'public_only'},200,'no-store');
+      if(u.pathname==='/api/health') return json({ok:true,service:'ONE BOAT CUSTOMER',version:'2026-09-17.2',performance_scope:'public_only'},200,'no-store');
       if(u.pathname==='/api/public/stats') return json(await publicStats(),200,'public,max-age=30');
       if(u.pathname==='/api/public/today') return json(await publicToday(),200,'public,max-age=20');
-      if(u.pathname==='/assets/home-approved-exact.webp') return await approvedHomeImage(request,env);
+      if(u.pathname==='/assets/home-approved-exact.webp' || u.pathname==='/assets/home-approved-live.webp') return await approvedHomeImage(request,env);
       if(env?.ASSETS?.fetch){
         let res=await env.ASSETS.fetch(request);
         if(res.status===404 && request.method==='GET'){
@@ -127,7 +127,7 @@ export default {
       return json({ok:false,error:'not_found'},404);
     }catch(e){
       if(u.pathname.startsWith('/api/')) return json({ok:false,error:'temporarily_unavailable'},502,'no-store');
-      if(u.pathname==='/assets/home-approved-exact.webp') return new Response('image unavailable',{status:502,headers:{'content-type':'text/plain;charset=utf-8','cache-control':'no-store'}});
+      if(u.pathname==='/assets/home-approved-exact.webp' || u.pathname==='/assets/home-approved-live.webp') return new Response('image unavailable',{status:502,headers:{'content-type':'text/plain;charset=utf-8','cache-control':'no-store'}});
       return env?.ASSETS?.fetch ? env.ASSETS.fetch(new Request(new URL('/index.html',u.origin),request)) : json({ok:false},500);
     }
   }
