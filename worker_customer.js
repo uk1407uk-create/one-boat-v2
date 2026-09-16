@@ -1,7 +1,6 @@
 const SOURCE_ORIGIN = 'https://boat-kaiseki.com';
 const PUBLIC_FREE_LIMIT = 3;
 const VENUES = ['', '桐生','戸田','江戸川','平和島','多摩川','浜名湖','蒲郡','常滑','津','三国','びわこ','住之江','尼崎','鳴門','丸亀','児島','宮島','徳山','下関','若松','芦屋','福岡','唐津','大村'];
-let homeImagePromise;
 
 function jstDate(){ return new Date(Date.now()+9*3600*1000).toISOString().slice(0,10); }
 function venueName(code){ return VENUES[Number(code)] || `場${String(code||'--')}`; }
@@ -34,29 +33,6 @@ async function sourceHistory(params={}){
   if(!r.ok) throw new Error(`history_${r.status}`);
   const d=await r.json();
   return Array.isArray(d?.records)?d.records:[];
-}
-async function approvedHomeImage(request,env){
-  if(!env?.ASSETS?.fetch) throw new Error('assets_unavailable');
-  if(!homeImagePromise){
-    homeImagePromise=(async()=>{
-      const origin=new URL(request.url).origin;
-      const parts=await Promise.all(Array.from({length:10},async(_,i)=>{
-        const name=String(i).padStart(2,'0');
-        const req=new Request(new URL(`/assets/home-exact-${name}.txt`,origin));
-        const r=await env.ASSETS.fetch(req);
-        if(!r.ok) throw new Error(`home_chunk_${name}_${r.status}`);
-        return (await r.text()).replace(/\s+/g,'');
-      }));
-      const b64=parts.join('');
-      const bin=atob(b64);
-      const bytes=new Uint8Array(bin.length);
-      for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
-      if(bytes.length<16 || bytes[0]!==0x52 || bytes[1]!==0x49 || bytes[2]!==0x46 || bytes[3]!==0x46 || bytes[8]!==0x57 || bytes[9]!==0x45 || bytes[10]!==0x42 || bytes[11]!==0x50) throw new Error('invalid_home_webp');
-      return bytes;
-    })().catch(err=>{homeImagePromise=null;throw err;});
-  }
-  const bytes=await homeImagePromise;
-  return new Response(bytes,{status:200,headers:{'content-type':'image/webp','cache-control':'no-store, max-age=0','x-content-type-options':'nosniff'}});
 }
 function settledSummary(rec){
   const s=rec?.settlement||{};
@@ -102,21 +78,43 @@ async function publicToday(){
   });
   return {ok:true,date:today,count:items.length,public_count:Math.min(PUBLIC_FREE_LIMIT,items.length),items};
 }
+async function serveHero(request,env){
+  if(!env?.ASSETS?.fetch) return new Response('image unavailable',{status:503});
+  const origin=new URL(request.url).origin;
+  const r=await env.ASSETS.fetch(new Request(new URL('/hero-top.jpg?v=2',origin),request));
+  const h=new Headers(r.headers);
+  h.set('content-type','image/jpeg');
+  h.set('cache-control','no-store, max-age=0');
+  h.set('x-content-type-options','nosniff');
+  return new Response(r.body,{status:r.status,headers:h});
+}
+async function serveIndex(request,env){
+  const origin=new URL(request.url).origin;
+  const r=await env.ASSETS.fetch(new Request(new URL('/index.html',origin),request));
+  if(!r.ok) return r;
+  let html=await r.text();
+  html=html.replace('/assets/home-approved-live.webp?v=20260917-3','/hero-top.jpg?v=2');
+  const h=new Headers(r.headers);
+  h.set('content-type','text/html;charset=utf-8');
+  h.set('cache-control','no-store, max-age=0');
+  h.set('x-frame-options','DENY');
+  h.set('referrer-policy','strict-origin-when-cross-origin');
+  h.set('x-content-type-options','nosniff');
+  return new Response(html,{status:200,headers:h});
+}
 
 export default {
   async fetch(request,env){
     const u=new URL(request.url);
     try{
-      if(u.pathname==='/api/health') return json({ok:true,service:'ONE BOAT CUSTOMER',version:'2026-09-17.3',performance_scope:'public_only'},200,'no-store');
+      if(u.pathname==='/api/health') return json({ok:true,service:'ONE BOAT CUSTOMER',version:'2026-09-17.4',performance_scope:'public_only',hero:'hero-top.jpg'},200,'no-store');
       if(u.pathname==='/api/public/stats') return json(await publicStats(),200,'public,max-age=30');
       if(u.pathname==='/api/public/today') return json(await publicToday(),200,'public,max-age=20');
-      if(u.pathname==='/assets/home-approved-exact.webp') return await approvedHomeImage(request,env);
+      if(u.pathname==='/hero-top.jpg' || u.pathname==='/assets/home-approved-live.webp' || u.pathname==='/assets/home-approved-exact.webp') return await serveHero(request,env);
+      if((u.pathname==='/' || u.pathname==='/index.html') && env?.ASSETS?.fetch) return await serveIndex(request,env);
       if(env?.ASSETS?.fetch){
         let res=await env.ASSETS.fetch(request);
-        if(res.status===404 && request.method==='GET'){
-          const fallback=new Request(new URL('/index.html',u.origin),request);
-          res=await env.ASSETS.fetch(fallback);
-        }
+        if(res.status===404 && request.method==='GET') return await serveIndex(request,env);
         const h=new Headers(res.headers);
         h.set('x-frame-options','DENY');
         h.set('referrer-policy','strict-origin-when-cross-origin');
@@ -127,8 +125,7 @@ export default {
       return json({ok:false,error:'not_found'},404);
     }catch(e){
       if(u.pathname.startsWith('/api/')) return json({ok:false,error:'temporarily_unavailable'},502,'no-store');
-      if(u.pathname==='/assets/home-approved-exact.webp') return new Response('image unavailable',{status:502,headers:{'content-type':'text/plain;charset=utf-8','cache-control':'no-store'}});
-      return env?.ASSETS?.fetch ? env.ASSETS.fetch(new Request(new URL('/index.html',u.origin),request)) : json({ok:false},500);
+      return new Response('temporarily unavailable',{status:502,headers:{'content-type':'text/plain;charset=utf-8','cache-control':'no-store'}});
     }
   }
 };
