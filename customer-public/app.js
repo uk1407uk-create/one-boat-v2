@@ -9,7 +9,7 @@ function renderMetrics(key='today'){
   $('#m-roi').textContent=pct(x.roi); setTone($('#m-roi'),x.roi-100);
   $('#m-hit').textContent=pct(x.hit_rate);
   $('#m-profit').textContent=`${x.profit_yen>0?'+':''}${yen(x.profit_yen)}`; setTone($('#m-profit'),x.profit_yen);
-  $('#m-races').textContent=`${x.races}R / ${x.hits}的中`;
+  $('#m-races').textContent=`公開 ${x.races}R / ${x.hits}的中`;
 }
 function deadlineText(v){ if(!v)return '最終予想確定'; const m=String(v).match(/(\d{1,2}:\d{2})/); return m?`締切 ${m[1]}`:'最終予想確定'; }
 function raceCard(x,i){
@@ -28,8 +28,8 @@ async function load(){
   try{
     const [s,t]=await Promise.all([fetch('/api/public/stats',{cache:'no-store'}).then(r=>r.json()),fetch('/api/public/today',{cache:'no-store'}).then(r=>r.json())]);
     STATS=s; renderMetrics('today');
-    $('#result-list').innerHTML=(s.latest||[]).slice(0,5).map(resultCard).join('')||'<div class="race-card"><div class="race-main"><strong>集計中</strong><small>結果が反映されると表示します</small></div></div>';
-    const items=t.items||[]; $('#today-count').textContent=`ENTER ${items.length}R`;
+    $('#result-list').innerHTML=(s.latest||[]).slice(0,5).map(resultCard).join('')||'<div class="race-card"><div class="race-main"><strong>集計中</strong><small>公開レースの結果が反映されると表示します</small></div></div>';
+    const items=t.items||[]; $('#today-count').textContent=`公開 ${t.public_count??Math.min(3,items.length)}R`;
     $('#today-list').innerHTML=items.length?items.slice(0,6).map(raceCard).join(''):'<div class="race-card"><div class="race-main"><strong>現在、公開対象なし</strong><small>対象レースが確定すると自動表示します</small></div></div>';
     $('#paywall').hidden=items.length<=3;
   }catch(e){
