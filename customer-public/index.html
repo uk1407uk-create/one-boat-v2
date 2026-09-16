@@ -6,28 +6,58 @@
 <meta name="theme-color" content="#ffffff" />
 <title>ONE BOAT｜ボートレースデータ分析</title>
 <meta name="description" content="ONE BOATは、データをもとに公開対象レースを選定するボートレース分析サービスです。" />
-<link rel="stylesheet" href="/styles.css?v=20260916-6" />
+<link rel="stylesheet" href="/styles.css?v=20260916-7" />
 </head>
 <body>
-<header class="site-header">
-  <div class="header-inner">
-    <a class="wordmark" href="#top">ONE <b>BOAT</b></a>
-    <a class="club-link" href="#club">ONE BOAT CLUB</a>
+<header class="site-header premium-header">
+  <div class="header-inner premium-header-inner">
+    <a class="wordmark premium-wordmark" href="#top" aria-label="ONE BOAT home">ONE BO<span class="brand-a">A</span>T</a>
+    <div class="header-actions">
+      <a class="club-link premium-club" href="#club">CLUB</a>
+      <details class="mobile-menu">
+        <summary aria-label="メニュー"><i></i><i></i><i></i></summary>
+        <nav aria-label="メインメニュー">
+          <a href="#today">本日の予想</a>
+          <a href="#performance">公開実績</a>
+          <a href="#results">レース結果</a>
+          <a href="#about">ONE BOATとは</a>
+          <a href="#club">ONE BOAT CLUB</a>
+        </nav>
+      </details>
+    </div>
   </div>
-  <nav class="main-nav" aria-label="メインメニュー">
-    <a href="#today">本日の予想</a>
-    <a href="#performance">公開実績</a>
-    <a href="#results">レース結果</a>
-    <a href="#about">ONE BOATとは</a>
-  </nav>
 </header>
 
-<section class="free-strip" id="top">
-  <div class="free-strip-title">本日の無料公開レース</div>
-  <div id="free-strip-list" class="free-strip-list">公開対象を確認中</div>
-</section>
-
 <main>
+  <section class="hero-premium" id="top">
+    <div class="hero-visual">
+      <img src="/hero-reference.svg" alt="ONE BOAT ボートレースイメージ" />
+      <div class="hero-copy-on-image">
+        <strong>データが、<br>勝負を変えていく。</strong>
+        <small>ONE BOAT<br>BOAT RACE ANALYTICS</small>
+      </div>
+    </div>
+    <div class="hero-content">
+      <span class="hero-kicker">BOAT RACE ANALYTICS</span>
+      <h1>データで選ぶ。<br><em>買わないレースも選ぶ。</em></h1>
+      <p>予想を増やすのではなく、条件を満たしたレースだけを公開。結果もそのまま残します。</p>
+      <div class="hero-actions">
+        <a class="hero-primary" href="#today">本日の予想を見る <b>›</b></a>
+        <a class="hero-secondary" href="#performance">実績を見る <b>›</b></a>
+      </div>
+      <div class="hero-features">
+        <div><span class="feature-icon">▤</span><strong>公開予想</strong><small>厳選したレースのみ</small></div>
+        <div><span class="feature-icon">▥</span><strong>公開実績</strong><small>数字で透明に管理</small></div>
+        <div><span class="feature-icon">−</span><strong>見送り</strong><small>買わない判断も公開</small></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="free-strip">
+    <div class="free-strip-title">本日の無料公開レース</div>
+    <div id="free-strip-list" class="free-strip-list">公開対象を確認中</div>
+  </section>
+
   <section class="page-section today-section" id="today">
     <div class="date-row">
       <button class="date-nav muted" type="button" disabled>‹ 前日</button>
@@ -36,34 +66,34 @@
     </div>
 
     <div class="venue-grid" aria-label="全国24場">
-      <button class="venue-tile" type="button" data-venue="桐生"><b>01</b><span>桐生</span></button>
-      <button class="venue-tile" type="button" data-venue="戸田"><b>02</b><span>戸田</span></button>
-      <button class="venue-tile" type="button" data-venue="江戸川"><b>03</b><span>江戸川</span></button>
-      <button class="venue-tile" type="button" data-venue="平和島"><b>04</b><span>平和島</span></button>
-      <button class="venue-tile" type="button" data-venue="多摩川"><b>05</b><span>多摩川</span></button>
-      <button class="venue-tile" type="button" data-venue="浜名湖"><b>06</b><span>浜名湖</span></button>
-      <button class="venue-tile" type="button" data-venue="蒲郡"><b>07</b><span>蒲郡</span></button>
-      <button class="venue-tile" type="button" data-venue="常滑"><b>08</b><span>常滑</span></button>
-      <button class="venue-tile" type="button" data-venue="津"><b>09</b><span>津</span></button>
-      <button class="venue-tile" type="button" data-venue="三国"><b>10</b><span>三国</span></button>
-      <button class="venue-tile" type="button" data-venue="びわこ"><b>11</b><span>びわこ</span></button>
-      <button class="venue-tile" type="button" data-venue="住之江"><b>12</b><span>住之江</span></button>
-      <button class="venue-tile" type="button" data-venue="尼崎"><b>13</b><span>尼崎</span></button>
-      <button class="venue-tile" type="button" data-venue="鳴門"><b>14</b><span>鳴門</span></button>
-      <button class="venue-tile" type="button" data-venue="丸亀"><b>15</b><span>丸亀</span></button>
-      <button class="venue-tile" type="button" data-venue="児島"><b>16</b><span>児島</span></button>
-      <button class="venue-tile" type="button" data-venue="宮島"><b>17</b><span>宮島</span></button>
-      <button class="venue-tile" type="button" data-venue="徳山"><b>18</b><span>徳山</span></button>
-      <button class="venue-tile" type="button" data-venue="下関"><b>19</b><span>下関</span></button>
-      <button class="venue-tile" type="button" data-venue="若松"><b>20</b><span>若松</span></button>
-      <button class="venue-tile" type="button" data-venue="芦屋"><b>21</b><span>芦屋</span></button>
-      <button class="venue-tile" type="button" data-venue="福岡"><b>22</b><span>福岡</span></button>
-      <button class="venue-tile" type="button" data-venue="唐津"><b>23</b><span>唐津</span></button>
-      <button class="venue-tile" type="button" data-venue="大村"><b>24</b><span>大村</span></button>
+      <button class="venue-tile" type="button" data-code="01" data-venue="桐生"><span class="venue-name">桐生</span><span class="venue-dash">—</span><span class="venue-none">公開なし</span></button>
+      <button class="venue-tile" type="button" data-code="02" data-venue="戸田"><span class="venue-name">戸田</span><span class="venue-dash">—</span><span class="venue-none">公開なし</span></button>
+      <button class="venue-tile" type="button" data-code="03" data-venue="江戸川"><span class="venue-name">江戸川</span><span class="venue-dash">—</span><span class="venue-none">公開なし</span></button>
+      <button class="venue-tile" type="button" data-code="04" data-venue="平和島"><span class="venue-name">平和島</span><span class="venue-dash">—</span><span class="venue-none">公開なし</span></button>
+      <button class="venue-tile" type="button" data-code="05" data-venue="多摩川"><span class="venue-name">多摩川</span><span class="venue-dash">—</span><span class="venue-none">公開なし</span></button>
+      <button class="venue-tile" type="button" data-code="06" data-venue="浜名湖"><span class="venue-name">浜名湖</span><span class="venue-dash">—</span><span class="venue-none">公開なし</span></button>
+      <button class="venue-tile" type="button" data-code="07" data-venue="蒲郡"><span class="venue-name">蒲郡</span><span class="venue-dash">—</span><span class="venue-none">公開なし</span></button>
+      <button class="venue-tile" type="button" data-code="08" data-venue="常滑"><span class="venue-name">常滑</span><span class="venue-dash">—</span><span class="venue-none">公開なし</span></button>
+      <button class="venue-tile" type="button" data-code="09" data-venue="津"><span class="venue-name">津</span><span class="venue-dash">—</span><span class="venue-none">公開なし</span></button>
+      <button class="venue-tile" type="button" data-code="10" data-venue="三国"><span class="venue-name">三国</span><span class="venue-dash">—</span><span class="venue-none">公開なし</span></button>
+      <button class="venue-tile" type="button" data-code="11" data-venue="びわこ"><span class="venue-name">びわこ</span><span class="venue-dash">—</span><span class="venue-none">公開なし</span></button>
+      <button class="venue-tile" type="button" data-code="12" data-venue="住之江"><span class="venue-name">住之江</span><span class="venue-dash">—</span><span class="venue-none">公開なし</span></button>
+      <button class="venue-tile" type="button" data-code="13" data-venue="尼崎"><span class="venue-name">尼崎</span><span class="venue-dash">—</span><span class="venue-none">公開なし</span></button>
+      <button class="venue-tile" type="button" data-code="14" data-venue="鳴門"><span class="venue-name">鳴門</span><span class="venue-dash">—</span><span class="venue-none">公開なし</span></button>
+      <button class="venue-tile" type="button" data-code="15" data-venue="丸亀"><span class="venue-name">丸亀</span><span class="venue-dash">—</span><span class="venue-none">公開なし</span></button>
+      <button class="venue-tile" type="button" data-code="16" data-venue="児島"><span class="venue-name">児島</span><span class="venue-dash">—</span><span class="venue-none">公開なし</span></button>
+      <button class="venue-tile" type="button" data-code="17" data-venue="宮島"><span class="venue-name">宮島</span><span class="venue-dash">—</span><span class="venue-none">公開なし</span></button>
+      <button class="venue-tile" type="button" data-code="18" data-venue="徳山"><span class="venue-name">徳山</span><span class="venue-dash">—</span><span class="venue-none">公開なし</span></button>
+      <button class="venue-tile" type="button" data-code="19" data-venue="下関"><span class="venue-name">下関</span><span class="venue-dash">—</span><span class="venue-none">公開なし</span></button>
+      <button class="venue-tile" type="button" data-code="20" data-venue="若松"><span class="venue-name">若松</span><span class="venue-dash">—</span><span class="venue-none">公開なし</span></button>
+      <button class="venue-tile" type="button" data-code="21" data-venue="芦屋"><span class="venue-name">芦屋</span><span class="venue-dash">—</span><span class="venue-none">公開なし</span></button>
+      <button class="venue-tile" type="button" data-code="22" data-venue="福岡"><span class="venue-name">福岡</span><span class="venue-dash">—</span><span class="venue-none">公開なし</span></button>
+      <button class="venue-tile" type="button" data-code="23" data-venue="唐津"><span class="venue-name">唐津</span><span class="venue-dash">—</span><span class="venue-none">公開なし</span></button>
+      <button class="venue-tile" type="button" data-code="24" data-venue="大村"><span class="venue-name">大村</span><span class="venue-dash">—</span><span class="venue-none">公開なし</span></button>
     </div>
 
     <div class="section-title-row">
-      <div><small>ONE BOAT SELECT</small><h1>本日の公開予想</h1></div>
+      <div><small>ONE BOAT SELECT</small><h2>本日の公開予想</h2></div>
       <span id="today-count" class="count-label">--</span>
     </div>
     <p class="lead">条件を満たしたレースだけを公開。無料枠では対象レースと結果の一部を確認できます。</p>
@@ -123,6 +153,6 @@
 <footer>
   <strong>ONE BOAT</strong><span>BOAT RACE ANALYTICS</span><small>© ONE BOAT</small>
 </footer>
-<script src="/app.js?v=20260916-6" defer></script>
+<script src="/app.js?v=20260916-7" defer></script>
 </body>
 </html>
