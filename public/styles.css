@@ -20,8 +20,7 @@ html,body{scroll-padding-bottom:calc(108px + env(safe-area-inset-bottom))}
 .bottomNav{padding-bottom:calc(5px + env(safe-area-inset-bottom))}
 #performanceContent>.card:last-child,#obHistList>.card:last-child,#detailContent>.card:last-child,#resultContent>.card:last-child{margin-bottom:18px}
 
-/* On iPhone, use a real app shell: header and tab bar stay outside the scroll area.
-   This prevents cards from ever being visually covered by the bottom navigation. */
+/* On iPhone, use a real app shell: header and tab bar stay outside the scroll area. */
 @media(max-width:699px){
   html,body{height:100%;overflow:hidden;scroll-padding-bottom:0}
   body{padding-bottom:0!important}
@@ -35,6 +34,13 @@ html,body{scroll-padding-bottom:calc(108px + env(safe-area-inset-bottom))}
   #detailContent,#resultContent{padding-bottom:120px}
   .bottomNav{position:relative;left:auto;right:auto;bottom:auto;transform:none;width:100%;flex:0 0 auto}
   #performanceContent>.card:last-child,#obHistList>.card:last-child,#detailContent>.card:last-child,#resultContent>.card:last-child{margin-bottom:32px}
+
+  /* When a saved prediction is open, remove the footer entirely so no ticket/result can be covered. */
+  body:has(#obHistList .obHistCard.open) .bottomNav{display:none!important}
+  body:has(#obHistList .obHistCard.open) #screen-performance{padding-bottom:56px!important}
+  body:has(#obHistList .obHistCard.open) #performanceContent,
+  body:has(#obHistList .obHistCard.open) #obHistList{padding-bottom:56px!important}
+  #obHistList .obHistCard.open{scroll-margin-top:12px}
 }
 
 /* OBPE detail navigation: keep the three tabs reachable while scrolling on iPhone. */
