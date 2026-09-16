@@ -22,6 +22,17 @@ jobs:
         with:
           node-version: 22
       - run: npm install
+      - name: Rebuild approved high-resolution hero
+        run: |
+          set -euo pipefail
+          cat customer-public/assets/home-exact-{00..09}.txt | tr -d '\r\n' | base64 -d > customer-public/hero-top.webp
+          python - <<'PY'
+          from pathlib import Path
+          b=Path('customer-public/hero-top.webp').read_bytes()
+          assert b[:4] == b'RIFF' and b[8:12] == b'WEBP', f'not webp: {b[:16]!r}'
+          assert len(b) > 80000, f'hero too small: {len(b)} bytes'
+          print('rebuilt_hero_webp_ok', len(b))
+          PY
       - name: Check Cloudflare credentials
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -47,19 +58,22 @@ jobs:
           cat /tmp/root.headers
           test "$ROOT_CODE" = '200'
           grep -q 'ONE BOAT' /tmp/root.html
+          grep -q 'hero-top.webp?v=4' /tmp/root.html
 
           HEALTH_CODE=$(curl -sS --max-redirs 0 -o /tmp/health.json -w '%{http_code}' "$BASE/api/health")
           echo "health_status=$HEALTH_CODE"
           cat /tmp/health.json
           test "$HEALTH_CODE" = '200'
-          grep -q '2026-09-17.5' /tmp/health.json
+          grep -q '2026-09-17.6' /tmp/health.json
 
-          HERO_CODE=$(curl -sS --max-redirs 0 -o /tmp/hero.jpg -w '%{http_code}' "$BASE/hero-top.jpg?v=3")
+          HERO_CODE=$(curl -sS --max-redirs 0 -o /tmp/hero.webp -D /tmp/hero.headers -w '%{http_code}' "$BASE/hero-top.webp?v=4")
           echo "hero_status=$HERO_CODE"
+          cat /tmp/hero.headers
           test "$HERO_CODE" = '200'
           python - <<'PY'
           from pathlib import Path
-          b=Path('/tmp/hero.jpg').read_bytes()
-          assert b[:2] == b'\xff\xd8', f'not jpeg: {b[:12]!r}'
-          print('hero_jpeg_ok', len(b))
+          b=Path('/tmp/hero.webp').read_bytes()
+          assert b[:4] == b'RIFF' and b[8:12] == b'WEBP', f'not webp: {b[:16]!r}'
+          assert len(b) > 80000, f'deployed hero too small: {len(b)} bytes'
+          print('deployed_hero_webp_ok', len(b))
           PY
