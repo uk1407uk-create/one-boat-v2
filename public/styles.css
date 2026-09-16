@@ -20,6 +20,19 @@ html,body{scroll-padding-bottom:calc(108px + env(safe-area-inset-bottom))}
 .bottomNav{padding-bottom:calc(5px + env(safe-area-inset-bottom))}
 #performanceContent>.card:last-child,#obHistList>.card:last-child,#detailContent>.card:last-child,#resultContent>.card:last-child{margin-bottom:18px}
 
+/* On iPhone, use a real app shell: header and tab bar stay outside the scroll area.
+   This prevents cards from ever being visually covered by the bottom navigation. */
+@media(max-width:699px){
+  html,body{height:100%;overflow:hidden;scroll-padding-bottom:0}
+  body{padding-bottom:0!important}
+  .app{height:100dvh;min-height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+  .topbar{position:relative;top:auto;flex:0 0 auto}
+  main{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding-bottom:18px;scroll-padding-bottom:18px}
+  .screen,#screen-home,#screen-performance{padding-bottom:28px}
+  .bottomNav{position:relative;left:auto;right:auto;bottom:auto;transform:none;width:100%;flex:0 0 auto}
+  #performanceContent>.card:last-child,#obHistList>.card:last-child,#detailContent>.card:last-child,#resultContent>.card:last-child{margin-bottom:24px}
+}
+
 /* OBPE detail navigation: keep the three tabs reachable while scrolling on iPhone. */
 #screen-detail #detailTabs{position:sticky;top:calc(80px + env(safe-area-inset-top));z-index:35;margin:0 0 10px;background:rgba(3,18,34,.97);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 8px 18px rgba(0,0,0,.28)}
 #screen-detail #detailTabs button{min-height:48px;font-size:12px}
