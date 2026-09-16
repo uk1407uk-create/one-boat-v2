@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "one-boat-v2-pages",
-  "main": "worker_obpe_social.js",
+  "main": "worker_obpe_social_ui.js",
   "compatibility_date": "2026-09-14",
   "triggers": {
     "crons": ["* * * * *"]
