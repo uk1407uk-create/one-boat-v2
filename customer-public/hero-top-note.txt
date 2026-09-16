@@ -1,0 +1,1 @@
+binary asset will be written through git tree
