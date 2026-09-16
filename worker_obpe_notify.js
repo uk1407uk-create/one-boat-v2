@@ -81,7 +81,7 @@ async function runNotifications(){
     if(item?.prediction_ready&&c){
       const left=c.close-now;
       if(left>=3&&left<=5&&!(await seen('prediction',key))){
-        await sendNtfy({title:`🚨 ONE BOAT｜${item?.venue_name||venueName(item?.venue_code)} ${item?.race_no||'--'}R`,message:predictionBody(item,c.closeText,left),sequenceId:`ob-pred-${compactKey(key)}`,priority:5});
+        await sendNtfy({title:`🚨 ONE BOAT｜${item?.venue_name||venueName(item?.venue_code)} ${item?.race_no||'--'}R｜締切 ${c.closeText}`,message:predictionBody(item,c.closeText,left),sequenceId:`ob-pred-${compactKey(key)}`,priority:5});
         await markSeen('prediction',key);
         sent.push({type:'prediction',key,left});
       }
