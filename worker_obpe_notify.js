@@ -120,23 +120,24 @@ async function notifyTest(){
   return sendNtfy({
     title:'✅ ONE BOAT 通知テスト',
     message:'ntfyとの接続に成功しました。今後はENTERレースを締切5〜3分前に通知します。',
-    sequenceId:`ob-test-${jstYmd()}`,
+    sequenceId:'ob-startup-test-v1',
     priority:4
   });
+}
+async function startupTest(){
+  if(await seen('startup','v1'))return;
+  await notifyTest();
+  await markSeen('startup','v1');
 }
 
 export default {
   async fetch(request,env,ctx){
-    const u=new URL(request.url);
-    if(u.pathname==='/api/notify-test'){
-      try{const out=await notifyTest();return new Response(JSON.stringify({ok:true,ntfy:out}),{headers:{'content-type':'application/json;charset=utf-8','cache-control':'no-store'}})}
-      catch(e){return new Response(JSON.stringify({ok:false,error:String(e?.message||e)}),{status:502,headers:{'content-type':'application/json;charset=utf-8','cache-control':'no-store'}})}
-    }
     return base.fetch(request,env,ctx);
   },
   async scheduled(controller,env,ctx){
     try{if(typeof base.scheduled==='function')await base.scheduled(controller,env,ctx)}catch{}
     ctx.waitUntil((async()=>{
+      try{await startupTest()}catch{}
       // Give prediction locking/settlement a moment to finish, then retry once for slow upstreams.
       await sleep(6000);
       try{await runNotifications()}catch{}
