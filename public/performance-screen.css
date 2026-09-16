@@ -1,36 +1,47 @@
-#screen-performance{padding-top:8px;color:#f4f9ff}
-#screen-performance .pageHead{margin:4px 2px 10px;align-items:end}
-#screen-performance .pageHead .eyebrow{font-size:8px;letter-spacing:.22em;color:#5ddcff}
-#screen-performance .pageHead h1{font-size:24px;letter-spacing:.01em}
+#screen-performance{position:relative;padding-top:8px;color:#f4fbff;isolation:isolate}
+#screen-performance:before{content:"";position:fixed;inset:80px max(0px,calc((100vw - 430px)/2)) 90px;pointer-events:none;z-index:-1;background:linear-gradient(rgba(58,218,255,.028) 1px,transparent 1px),linear-gradient(90deg,rgba(58,218,255,.022) 1px,transparent 1px),radial-gradient(circle at 50% 10%,rgba(0,190,255,.09),transparent 34%);background-size:28px 28px,28px 28px,auto;mask-image:linear-gradient(#000 0 75%,transparent)}
+#screen-performance .pageHead{position:relative;margin:4px 2px 12px;align-items:end;padding-bottom:8px;border-bottom:1px solid rgba(67,224,255,.16)}
+#screen-performance .pageHead:after{content:'SYSTEM // LIVE DATA';position:absolute;right:0;bottom:8px;color:#49dcff;font-size:7px;font-weight:900;letter-spacing:.16em;text-shadow:0 0 10px rgba(73,220,255,.65)}
+#screen-performance .pageHead .eyebrow{font-size:8px;letter-spacing:.26em;color:#62eaff;text-shadow:0 0 12px rgba(69,220,255,.45)}
+#screen-performance .pageHead h1{font-size:25px;letter-spacing:.02em;text-shadow:0 0 18px rgba(69,220,255,.13)}
 #screen-performance .pageHead .mini{font-size:9px;color:#7690a7;margin-top:4px}
-#screen-performance #perfTabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:4px;margin:0 0 10px;border:1px solid #124b73;border-radius:10px;background:#03111f;box-shadow:inset 0 1px 0 rgba(255,255,255,.02)}
-#screen-performance #perfTabs button{min-height:36px;padding:7px 2px;font-size:9px;border-radius:7px;color:#718ca2}
-#screen-performance #perfTabs button.active{color:#fff;background:linear-gradient(180deg,#0da4ec,#08659f);box-shadow:inset 0 0 0 1px #41d6ff,0 0 14px rgba(26,193,255,.12)}
-#screen-performance .performanceSummary{padding:14px 12px 12px;border:1px solid #17628f;background:radial-gradient(circle at 50% 5%,rgba(46,198,255,.11),transparent 38%),linear-gradient(160deg,#09243d,#041321 72%);box-shadow:0 12px 30px rgba(0,0,0,.34),0 0 22px rgba(19,158,224,.06),inset 0 1px 0 rgba(255,255,255,.035)}
-#screen-performance .performanceSummary:before{content:'TOTAL PERFORMANCE';display:block;margin-bottom:9px;color:#67ddff;font-size:8px;font-weight:950;letter-spacing:.2em}
-#screen-performance .performanceSummary>.infoGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-#screen-performance .performanceSummary .infoBox{min-height:70px;padding:11px 10px;border-color:#174a70;background:linear-gradient(180deg,#071e34,#051522)}
-#screen-performance .performanceSummary .infoBox span{font-size:9px;letter-spacing:.04em;color:#7e9ab1}
-#screen-performance .performanceSummary .infoBox b{font-size:18px;font-weight:950;font-variant-numeric:tabular-nums;color:#edfaff}
-#screen-performance .profitBig{position:relative;margin:11px 0 10px;padding:28px 10px 17px;border:1px solid #166d9c;border-radius:11px;text-align:center;background:linear-gradient(180deg,#082c49,#061d33);font-size:34px;line-height:1;font-weight:950;letter-spacing:-.035em;color:#62e2ff;font-variant-numeric:tabular-nums;text-shadow:0 0 18px rgba(54,210,255,.16)}
-#screen-performance .profitBig:before{content:'収支';position:absolute;left:0;right:0;top:9px;color:#7f9db4;font-size:9px;letter-spacing:.12em;font-weight:900}
-#screen-performance .performanceSummary .statsGrid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;border:1px solid #123f61!important;border-radius:10px!important;overflow:hidden;background:#051827!important}
-#screen-performance .performanceSummary .stat{padding:10px 2px 9px;border-right:1px solid #103a59}
-#screen-performance .performanceSummary .stat span{font-size:8px;color:#7894aa}
-#screen-performance .performanceSummary .stat b{font-size:13px;color:#e9f9ff;font-variant-numeric:tabular-nums}
-#screen-performance #performanceContent>.card.cardPad{padding:13px 11px 11px;border-color:#164f77;background:linear-gradient(180deg,#071d32,#041421)}
-#screen-performance #performanceContent>.card.cardPad>.mini{font-size:10px;font-weight:900;letter-spacing:.06em;color:#9ab3c5}
-#screen-performance .chart{height:205px;margin-top:9px;border:1px solid #123b5a;border-radius:10px;overflow:hidden;background:linear-gradient(180deg,rgba(7,28,49,.92),rgba(3,14,25,.96)),repeating-linear-gradient(to bottom,transparent 0 48px,rgba(40,110,150,.12) 48px 49px)}
-#screen-performance .chart svg{width:100%;height:100%;filter:drop-shadow(0 0 7px rgba(53,213,255,.18))}
-#screen-performance #performanceContent>.card.detailBody{padding:10px;border-color:#15496f;background:linear-gradient(180deg,#071b2f,#041421)}
-#screen-performance #performanceContent>.card.detailBody:before{content:'DETAIL';display:block;margin:1px 2px 9px;color:#66869f;font-size:8px;font-weight:950;letter-spacing:.18em}
-#screen-performance #performanceContent .dataCard{position:relative;margin-bottom:7px!important;padding:11px 10px;border:1px solid #123f61;border-radius:9px;background:linear-gradient(180deg,#071c31,#051522)}
+#screen-performance #perfTabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:4px;margin:0 0 12px;border:1px solid rgba(47,204,255,.42);border-radius:11px;background:linear-gradient(180deg,rgba(4,23,41,.94),rgba(2,12,23,.97));box-shadow:0 0 0 1px rgba(53,215,255,.05),0 0 24px rgba(22,171,232,.06),inset 0 1px 0 rgba(255,255,255,.03)}
+#screen-performance #perfTabs button{min-height:38px;padding:7px 2px;font-size:9px;border-radius:7px;color:#718ca2;letter-spacing:.04em}
+#screen-performance #perfTabs button.active{color:#e9fcff;background:linear-gradient(180deg,rgba(17,169,229,.92),rgba(4,86,135,.94));box-shadow:inset 0 0 0 1px #58e5ff,0 0 18px rgba(40,210,255,.24);text-shadow:0 0 8px rgba(255,255,255,.32)}
+#screen-performance .performanceSummary{position:relative;overflow:hidden;padding:16px 13px 13px;border:1px solid rgba(63,220,255,.52);border-radius:16px;background:radial-gradient(circle at 50% -10%,rgba(45,213,255,.17),transparent 38%),linear-gradient(145deg,rgba(8,39,65,.96),rgba(2,15,29,.98) 70%);box-shadow:0 18px 45px rgba(0,0,0,.42),0 0 34px rgba(33,190,245,.09),inset 0 1px 0 rgba(255,255,255,.045)}
+#screen-performance .performanceSummary:before{content:'TOTAL PERFORMANCE  //  CORE-01';display:block;margin-bottom:11px;color:#6be7ff;font-size:8px;font-weight:950;letter-spacing:.24em;text-shadow:0 0 12px rgba(76,225,255,.58)}
+#screen-performance .performanceSummary:after{content:"";position:absolute;inset:7px;pointer-events:none;background:linear-gradient(#66e7ff,#66e7ff) left top/22px 1px no-repeat,linear-gradient(#66e7ff,#66e7ff) left top/1px 22px no-repeat,linear-gradient(#66e7ff,#66e7ff) right top/22px 1px no-repeat,linear-gradient(#66e7ff,#66e7ff) right top/1px 22px no-repeat,linear-gradient(#66e7ff,#66e7ff) left bottom/22px 1px no-repeat,linear-gradient(#66e7ff,#66e7ff) left bottom/1px 22px no-repeat,linear-gradient(#66e7ff,#66e7ff) right bottom/22px 1px no-repeat,linear-gradient(#66e7ff,#66e7ff) right bottom/1px 22px no-repeat;opacity:.32}
+#screen-performance .performanceSummary>.infoGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+#screen-performance .performanceSummary .infoBox{position:relative;overflow:hidden;min-height:76px;padding:13px 11px;border:1px solid rgba(41,176,226,.43);border-radius:11px;background:linear-gradient(155deg,rgba(7,32,53,.96),rgba(3,17,31,.97));box-shadow:inset 0 0 18px rgba(38,195,255,.025)}
+#screen-performance .performanceSummary .infoBox:before{content:"";position:absolute;left:0;top:0;width:38%;height:2px;background:linear-gradient(90deg,#59e7ff,transparent);box-shadow:0 0 9px rgba(89,231,255,.55)}
+#screen-performance .performanceSummary .infoBox span{font-size:9px;letter-spacing:.08em;color:#7f9cb2}
+#screen-performance .performanceSummary .infoBox b{font-size:19px;font-weight:950;font-variant-numeric:tabular-nums;color:#f1fbff;letter-spacing:.01em;text-shadow:0 0 12px rgba(116,232,255,.08)}
+#screen-performance .profitBig{position:relative;overflow:hidden;margin:12px 0 11px;padding:32px 10px 20px;border:1px solid rgba(55,221,255,.6);border-radius:13px;text-align:center;background:radial-gradient(circle at 50% 45%,rgba(38,202,255,.13),transparent 55%),linear-gradient(180deg,rgba(7,46,75,.93),rgba(2,22,40,.97));font-size:38px;line-height:1;font-weight:950;letter-spacing:-.035em;color:#5ee8ff;font-variant-numeric:tabular-nums;text-shadow:0 0 12px rgba(75,224,255,.54),0 0 30px rgba(17,176,236,.22);box-shadow:inset 0 0 28px rgba(39,196,255,.05),0 0 20px rgba(31,198,255,.08)}
+#screen-performance .profitBig:before{content:'NET PROFIT / LOSS';position:absolute;left:0;right:0;top:10px;color:#8aa6b9;font-size:8px;letter-spacing:.2em;font-weight:950;text-shadow:none}
+#screen-performance .profitBig:after{content:"";position:absolute;left:5%;right:5%;top:-2px;height:2px;background:linear-gradient(90deg,transparent,#62e9ff,transparent);box-shadow:0 0 12px #36d9ff;opacity:.72;animation:obScan 4.8s linear infinite}
+@keyframes obScan{0%{transform:translateY(0);opacity:.15}20%{opacity:.75}50%{transform:translateY(96px);opacity:.35}100%{transform:translateY(155px);opacity:0}}
+#screen-performance .performanceSummary .statsGrid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;border:1px solid rgba(35,154,201,.42)!important;border-radius:11px!important;overflow:hidden;background:rgba(3,20,35,.88)!important;box-shadow:inset 0 0 22px rgba(40,195,255,.025)}
+#screen-performance .performanceSummary .stat{padding:11px 2px 10px;border-right:1px solid rgba(35,119,155,.35)}
+#screen-performance .performanceSummary .stat:last-child{border-right:0}
+#screen-performance .performanceSummary .stat span{font-size:8px;color:#7896ab;letter-spacing:.04em}
+#screen-performance .performanceSummary .stat b{font-size:13px;color:#effcff;font-variant-numeric:tabular-nums;text-shadow:0 0 9px rgba(69,220,255,.12)}
+#screen-performance #performanceContent>.card.cardPad{position:relative;overflow:hidden;padding:14px 12px 12px;border-color:rgba(51,205,255,.44);border-radius:15px;background:linear-gradient(165deg,rgba(7,31,52,.97),rgba(2,15,28,.99));box-shadow:0 14px 36px rgba(0,0,0,.36),0 0 26px rgba(32,184,239,.06)}
+#screen-performance #performanceContent>.card.cardPad:after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 5px,rgba(79,223,255,.012) 5px 6px);mix-blend-mode:screen}
+#screen-performance #performanceContent>.card.cardPad>.mini{font-size:10px;font-weight:950;letter-spacing:.12em;color:#9bb7c8}
+#screen-performance .chart{position:relative;height:218px;margin-top:10px;border:1px solid rgba(43,176,224,.42);border-radius:12px;overflow:hidden;background:linear-gradient(rgba(47,191,236,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(47,191,236,.055) 1px,transparent 1px),radial-gradient(circle at 50% 45%,rgba(14,132,180,.12),transparent 55%),linear-gradient(180deg,rgba(4,27,47,.96),rgba(2,13,24,.99));background-size:100% 44px,58px 100%,auto,auto;box-shadow:inset 0 0 30px rgba(37,191,246,.035),0 0 18px rgba(37,191,246,.035)}
+#screen-performance .chart:after{content:'LIVE ANALYTICS';position:absolute;right:9px;top:7px;color:rgba(106,228,255,.52);font-size:7px;font-weight:900;letter-spacing:.15em;pointer-events:none}
+#screen-performance .chart svg{position:relative;z-index:2;width:100%;height:100%;filter:drop-shadow(0 0 7px rgba(53,213,255,.42)) drop-shadow(0 0 16px rgba(32,184,244,.16))}
+#screen-performance #performanceContent>.card.detailBody{position:relative;padding:11px;border-color:rgba(43,171,220,.38);border-radius:15px;background:linear-gradient(165deg,rgba(6,28,48,.97),rgba(3,16,29,.99));box-shadow:0 12px 28px rgba(0,0,0,.3)}
+#screen-performance #performanceContent>.card.detailBody:before{content:'DETAIL // NODE BREAKDOWN';display:block;margin:1px 2px 10px;color:#6d91a8;font-size:8px;font-weight:950;letter-spacing:.2em}
+#screen-performance #performanceContent .dataCard{position:relative;overflow:hidden;margin-bottom:8px!important;padding:12px 11px;border:1px solid rgba(37,139,180,.42);border-radius:10px;background:linear-gradient(155deg,rgba(7,31,52,.96),rgba(3,18,31,.99));box-shadow:inset 0 0 18px rgba(50,207,255,.02)}
+#screen-performance #performanceContent .dataCard:before{content:"";position:absolute;left:0;top:0;width:52px;height:2px;background:linear-gradient(90deg,#57e5ff,transparent);box-shadow:0 0 8px rgba(87,229,255,.5)}
 #screen-performance #performanceContent .dataCard:last-child{margin-bottom:0!important}
-#screen-performance #performanceContent .dataCard h3{margin:0 0 8px;padding-right:10px;color:#dff7ff;font-size:12px;font-weight:950}
-#screen-performance #performanceContent .dataCard .kv{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 0;border-top:1px solid rgba(18,60,90,.55)}
+#screen-performance #performanceContent .dataCard h3{margin:0 0 9px;padding-right:10px;color:#e6fbff;font-size:13px;font-weight:950;letter-spacing:.02em}
+#screen-performance #performanceContent .dataCard .kv{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:5px 0;border-top:1px solid rgba(30,91,122,.47)}
 #screen-performance #performanceContent .dataCard .kv:first-of-type{border-top:0}
-#screen-performance #performanceContent .dataCard .kv span{font-size:9px;color:#7894aa}
-#screen-performance #performanceContent .dataCard .kv b{font-size:12px;color:#d9f4ff;font-variant-numeric:tabular-nums;text-align:right}
+#screen-performance #performanceContent .dataCard .kv span{font-size:9px;color:#7897ac}
+#screen-performance #performanceContent .dataCard .kv b{font-size:12px;color:#e3faff;font-variant-numeric:tabular-nums;text-align:right}
 #screen-performance #performanceContent>.empty{padding:30px 14px;border-color:#143e5e;background:#051522;color:#7892a8}
 #screen-performance .bottomNav{padding-bottom:env(safe-area-inset-bottom)}
-@media(max-width:375px){#screen-performance .performanceSummary{padding:12px 10px 10px}#screen-performance .performanceSummary .infoBox{min-height:65px}#screen-performance .performanceSummary .infoBox b{font-size:16px}#screen-performance .profitBig{font-size:30px}#screen-performance .performanceSummary .stat b{font-size:12px}#screen-performance .chart{height:185px}}
+@media(max-width:375px){#screen-performance .performanceSummary{padding:13px 10px 11px}#screen-performance .performanceSummary .infoBox{min-height:69px}#screen-performance .performanceSummary .infoBox b{font-size:17px}#screen-performance .profitBig{font-size:33px}#screen-performance .performanceSummary .stat b{font-size:12px}#screen-performance .chart{height:196px}}
+@media(prefers-reduced-motion:reduce){#screen-performance .profitBig:after{animation:none;top:50%}}
