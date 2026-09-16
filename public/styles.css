@@ -27,10 +27,14 @@ html,body{scroll-padding-bottom:calc(108px + env(safe-area-inset-bottom))}
   body{padding-bottom:0!important}
   .app{height:100dvh;min-height:100dvh;display:flex;flex-direction:column;overflow:hidden}
   .topbar{position:relative;top:auto;flex:0 0 auto}
-  main{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding-bottom:18px;scroll-padding-bottom:18px}
-  .screen,#screen-home,#screen-performance{padding-bottom:28px}
+  main{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding-bottom:0;scroll-padding-bottom:160px}
+  .screen,#screen-home{padding-bottom:40px}
+  #screen-performance{padding-bottom:180px!important}
+  #performanceContent{padding-bottom:140px}
+  #obHistList{padding-bottom:180px}
+  #detailContent,#resultContent{padding-bottom:120px}
   .bottomNav{position:relative;left:auto;right:auto;bottom:auto;transform:none;width:100%;flex:0 0 auto}
-  #performanceContent>.card:last-child,#obHistList>.card:last-child,#detailContent>.card:last-child,#resultContent>.card:last-child{margin-bottom:24px}
+  #performanceContent>.card:last-child,#obHistList>.card:last-child,#detailContent>.card:last-child,#resultContent>.card:last-child{margin-bottom:32px}
 }
 
 /* OBPE detail navigation: keep the three tabs reachable while scrolling on iPhone. */
