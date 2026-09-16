@@ -18,5 +18,7 @@
   Cache-Control: no-store, no-cache, must-revalidate
 /obpe-history-odds-labels.js
   Cache-Control: no-store, no-cache, must-revalidate
+/profit-trend.js
+  Cache-Control: no-store, no-cache, must-revalidate
 /hero-reference.svg
   Cache-Control: no-store, no-cache, must-revalidate
