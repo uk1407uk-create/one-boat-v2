@@ -6,12 +6,12 @@ async function injectProfitTrend(response){
   const ct=headers.get('content-type')||'';
   if(!ct.includes('text/html')) return response;
   let html=await response.text();
-  const src='/profit-trend.js?v=20260916-1349';
+  const src='/profit-trend.js?v=20260916-1504';
   if(!html.includes(src)){
     html=html.replace('</head>',`<script src="${src}"></script></head>`);
   }
   headers.set('cache-control','no-store');
-  headers.set('x-one-boat-ui','profit-trend-20260916-1349');
+  headers.set('x-one-boat-ui','profit-trend-20260916-1504');
   return new Response(html,{status:response.status,statusText:response.statusText,headers});
 }
 
