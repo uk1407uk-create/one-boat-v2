@@ -29,7 +29,7 @@ function publishedRows(rows){
 async function sourceHistory(params={}){
   const u=new URL('/api/history',SOURCE_ORIGIN);
   Object.entries(params).forEach(([k,v])=>{ if(v!==undefined&&v!==null&&v!=='')u.searchParams.set(k,String(v)); });
-  const r=await fetch(u,{headers:{accept:'application/json'},cache:'no-store'});
+  const r=await fetch(u,{headers:{accept:'application/json'},cache:'no-store',redirect:'follow'});
   if(!r.ok) throw new Error(`history_${r.status}`);
   const d=await r.json();
   return Array.isArray(d?.records)?d.records:[];
@@ -78,10 +78,17 @@ async function publicToday(){
   });
   return {ok:true,date:today,count:items.length,public_count:Math.min(PUBLIC_FREE_LIMIT,items.length),items};
 }
+function hardened(res){
+  const h=new Headers(res.headers);
+  h.set('x-frame-options','DENY');
+  h.set('referrer-policy','strict-origin-when-cross-origin');
+  h.set('x-content-type-options','nosniff');
+  return new Response(res.body,{status:res.status,headers:h});
+}
 async function serveHero(request,env){
   if(!env?.ASSETS?.fetch) return new Response('image unavailable',{status:503});
   const origin=new URL(request.url).origin;
-  const r=await env.ASSETS.fetch(new Request(new URL('/hero-top.jpg?v=2',origin),request));
+  const r=await env.ASSETS.fetch(new Request(new URL('/hero-top.jpg',origin),request));
   const h=new Headers(r.headers);
   h.set('content-type','image/jpeg');
   h.set('cache-control','no-store, max-age=0');
@@ -89,11 +96,12 @@ async function serveHero(request,env){
   return new Response(r.body,{status:r.status,headers:h});
 }
 async function serveIndex(request,env){
+  if(!env?.ASSETS?.fetch) return new Response('site unavailable',{status:503});
   const origin=new URL(request.url).origin;
   const r=await env.ASSETS.fetch(new Request(new URL('/index.html',origin),request));
-  if(!r.ok) return r;
+  if(!r.ok) return hardened(r);
   let html=await r.text();
-  html=html.replace('/assets/home-approved-live.webp?v=20260917-3','/hero-top.jpg?v=2');
+  html=html.replace('/assets/home-approved-live.webp?v=20260917-3','/hero-top.jpg?v=3');
   const h=new Headers(r.headers);
   h.set('content-type','text/html;charset=utf-8');
   h.set('cache-control','no-store, max-age=0');
@@ -107,20 +115,14 @@ export default {
   async fetch(request,env){
     const u=new URL(request.url);
     try{
-      if(u.pathname==='/api/health') return json({ok:true,service:'ONE BOAT CUSTOMER',version:'2026-09-17.4',performance_scope:'public_only',hero:'hero-top.jpg'},200,'no-store');
+      if(u.pathname==='/api/health') return json({ok:true,service:'ONE BOAT CUSTOMER',version:'2026-09-17.5',performance_scope:'public_only',hero:'hero-top.jpg',html_handling:'none'},200,'no-store');
       if(u.pathname==='/api/public/stats') return json(await publicStats(),200,'public,max-age=30');
       if(u.pathname==='/api/public/today') return json(await publicToday(),200,'public,max-age=20');
       if(u.pathname==='/hero-top.jpg' || u.pathname==='/assets/home-approved-live.webp' || u.pathname==='/assets/home-approved-exact.webp') return await serveHero(request,env);
       if((u.pathname==='/' || u.pathname==='/index.html') && env?.ASSETS?.fetch) return await serveIndex(request,env);
       if(env?.ASSETS?.fetch){
-        let res=await env.ASSETS.fetch(request);
-        if(res.status===404 && request.method==='GET') return await serveIndex(request,env);
-        const h=new Headers(res.headers);
-        h.set('x-frame-options','DENY');
-        h.set('referrer-policy','strict-origin-when-cross-origin');
-        h.set('x-content-type-options','nosniff');
-        if((h.get('content-type')||'').includes('text/html'))h.set('cache-control','no-store');
-        return new Response(res.body,{status:res.status,headers:h});
+        const res=await env.ASSETS.fetch(request);
+        return hardened(res);
       }
       return json({ok:false,error:'not_found'},404);
     }catch(e){
