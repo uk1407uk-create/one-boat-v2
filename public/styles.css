@@ -7,8 +7,7 @@
 @import url('/result-screen.css?v=eaef5bb2');
 @import url('/performance-screen.css?v=d5960233');
 
-/* iPhone/Safari: use the document itself as the only vertical scroller.
-   Nested 100dvh + overflow containers get clipped behind Safari chrome. */
+/* iPhone/Safari: use the document itself as the normal vertical scroller. */
 html{min-height:100%;height:auto;overflow-x:hidden;overflow-y:auto;-webkit-text-size-adjust:100%}
 body{min-height:100%;height:auto;overflow-x:hidden;overflow-y:auto;padding-bottom:calc(96px + env(safe-area-inset-bottom))!important}
 .app{min-height:100vh;height:auto!important;overflow:visible!important;display:block!important}
@@ -22,7 +21,6 @@ main{min-height:0;height:auto!important;overflow:visible!important;padding-botto
 /* Bottom navigation stays fixed during normal browsing. */
 .bottomNav{position:fixed!important;left:50%!important;bottom:0!important;transform:translateX(-50%)!important;width:min(100%,430px)!important;padding-bottom:calc(5px + env(safe-area-inset-bottom))!important}
 
-/* Give the last content real physical scroll room, not only CSS padding. */
 #obHistList::after{content:"";display:block;width:100%;height:220px;pointer-events:none}
 #performanceContent::after{content:"";display:block;width:100%;height:140px;pointer-events:none}
 #detailContent::after,#resultContent::after{content:"";display:block;width:100%;height:120px;pointer-events:none}
@@ -36,12 +34,40 @@ main{min-height:0;height:auto!important;overflow:visible!important;padding-botto
   #screen-performance{padding-bottom:100px!important}
   #performanceContent,#obHistList,#detailContent,#resultContent{overflow:visible!important}
 
-  /* When a saved prediction is expanded, remove the app footer completely.
-     The real spacer below the list lets the final ticket/result scroll well above Safari's toolbar. */
-  body:has(#obHistList .obHistCard.open){padding-bottom:calc(48px + env(safe-area-inset-bottom))!important}
+  /* Expanded saved prediction becomes its own Safari-safe panel.
+     The panel physically stops above Safari's bottom browser controls, so
+     tickets/results never sit behind the address/toolbar area while scrolling. */
+  body:has(#obHistList .obHistCard.open){overflow:hidden!important;padding-bottom:0!important}
   body:has(#obHistList .obHistCard.open) .bottomNav{display:none!important}
-  body:has(#obHistList .obHistCard.open) #obHistList::after{height:280px}
-  #obHistList .obHistCard.open{scroll-margin-top:16px}
+  #obHistList .obHistCard.open{
+    position:fixed!important;
+    z-index:9999!important;
+    top:calc(92px + env(safe-area-inset-top))!important;
+    bottom:calc(170px + env(safe-area-inset-bottom))!important;
+    left:16px!important;
+    right:16px!important;
+    width:auto!important;
+    max-width:680px!important;
+    margin:0 auto!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    -webkit-overflow-scrolling:touch!important;
+    overscroll-behavior:contain!important;
+    background:#071b2f!important;
+    border:1px solid #17628f!important;
+    border-radius:16px!important;
+    box-shadow:0 22px 60px rgba(0,0,0,.72),0 0 0 9999px rgba(0,8,18,.76)!important;
+  }
+  #obHistList .obHistCard.open .obHistHead{
+    position:sticky!important;
+    top:0!important;
+    z-index:3!important;
+    background:linear-gradient(180deg,#071d32,#051522)!important;
+    border-bottom:1px solid #174264!important;
+  }
+  #obHistList .obHistCard.open .obHistDetails{padding-bottom:42px!important}
+  #obHistList .obHistCard.open::after{content:"";display:block;height:34px;width:100%}
+  #obHistList .obHistCard.open{scroll-padding-bottom:48px}
 }
 
 /* OBPE detail navigation: keep the three tabs reachable while scrolling on iPhone. */
