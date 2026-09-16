@@ -6,14 +6,14 @@
 <meta name="theme-color" content="#ffffff" />
 <title>ONE BOAT｜ボートレースデータ分析</title>
 <meta name="description" content="ONE BOATは、データをもとに公開対象レースを選定するボートレース分析サービスです。" />
-<link rel="stylesheet" href="/styles.css?v=20260916-7" />
+<link rel="stylesheet" href="/styles.css?v=20260917-1" />
 </head>
 <body>
-<header class="site-header premium-header">
-  <div class="header-inner premium-header-inner">
-    <a class="wordmark premium-wordmark" href="#top" aria-label="ONE BOAT home">ONE BO<span class="brand-a">A</span>T</a>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="wordmark" href="#top" aria-label="ONE BOAT home">ONE BO<span class="brand-a">A</span>T</a>
     <div class="header-actions">
-      <a class="club-link premium-club" href="#club">CLUB</a>
+      <a class="club-link" href="#club">CLUB</a>
       <details class="mobile-menu">
         <summary aria-label="メニュー"><i></i><i></i><i></i></summary>
         <nav aria-label="メインメニュー">
@@ -29,14 +29,8 @@
 </header>
 
 <main>
-  <section class="hero-premium" id="top">
-    <div class="hero-visual">
-      <img src="/hero-reference.svg" alt="ONE BOAT ボートレースイメージ" />
-      <div class="hero-copy-on-image">
-        <strong>データが、<br>勝負を変えていく。</strong>
-        <small>ONE BOAT<br>BOAT RACE ANALYTICS</small>
-      </div>
-    </div>
+  <section class="hero" id="top">
+    <div class="hero-visual"><img src="/assets/hero-target.webp?v=1" alt="ONE BOAT ボートレースイメージ" /></div>
     <div class="hero-content">
       <span class="hero-kicker">BOAT RACE ANALYTICS</span>
       <h1>データで選ぶ。<br><em>買わないレースも選ぶ。</em></h1>
@@ -47,8 +41,8 @@
       </div>
       <div class="hero-features">
         <div><span class="feature-icon">▤</span><strong>公開予想</strong><small>厳選したレースのみ</small></div>
-        <div><span class="feature-icon">▥</span><strong>公開実績</strong><small>数字で透明に管理</small></div>
-        <div><span class="feature-icon">−</span><strong>見送り</strong><small>買わない判断も公開</small></div>
+        <div><span class="feature-icon bars">▥</span><strong>公開実績</strong><small>すべて公開・透明に</small></div>
+        <div><span class="feature-icon circle">−</span><strong>見送り</strong><small>買わない選択も公開</small></div>
       </div>
     </div>
   </section>
@@ -92,67 +86,27 @@
       <button class="venue-tile" type="button" data-code="24" data-venue="大村"><span class="venue-name">大村</span><span class="venue-dash">—</span><span class="venue-none">公開なし</span></button>
     </div>
 
-    <div class="section-title-row">
-      <div><small>ONE BOAT SELECT</small><h2>本日の公開予想</h2></div>
-      <span id="today-count" class="count-label">--</span>
-    </div>
+    <div class="section-title-row"><div><small>ONE BOAT SELECT</small><h2>本日の公開予想</h2></div><span id="today-count" class="count-label">--</span></div>
     <p class="lead">条件を満たしたレースだけを公開。無料枠では対象レースと結果の一部を確認できます。</p>
     <div id="today-list" class="race-list"><div class="skeleton"></div><div class="skeleton"></div></div>
-
-    <div id="paywall" class="member-gate" hidden>
-      <span class="member-tag">MEMBERS ONLY</span>
-      <h2>続きは ONE BOAT CLUB</h2>
-      <p>全対象レースの買い目・資金配分・最終判断を会員向けに公開します。</p>
-      <a href="#club" class="primary-action">ONE BOAT CLUBを見る</a>
-    </div>
+    <div id="paywall" class="member-gate" hidden><span class="member-tag">MEMBERS ONLY</span><h2>続きは ONE BOAT CLUB</h2><p>全対象レースの買い目・資金配分・最終判断を会員向けに公開します。</p><a href="#club" class="primary-action">ONE BOAT CLUBを見る</a></div>
   </section>
 
   <section class="page-section performance-section" id="performance">
-    <div class="section-title-row">
-      <div><small>PUBLIC PERFORMANCE</small><h2>公開実績</h2></div>
-      <span class="auto-label">自動更新</span>
-    </div>
+    <div class="section-title-row"><div><small>PUBLIC PERFORMANCE</small><h2>公開実績</h2></div><span class="auto-label">自動更新</span></div>
     <p class="lead">管理・テスト用の全予想ではなく、このサイトで公開したレースだけを集計します。</p>
-    <div class="period-tabs" role="tablist">
-      <button class="period active" data-period="today">今日</button>
-      <button class="period" data-period="days7">7日</button>
-      <button class="period" data-period="days30">30日</button>
-    </div>
-    <div class="stats-table">
-      <div><span>回収率</span><strong id="m-roi">--</strong></div>
-      <div><span>的中率</span><strong id="m-hit">--</strong></div>
-      <div><span>収支</span><strong id="m-profit">--</strong><small id="m-races">集計中</small></div>
-    </div>
+    <div class="period-tabs" role="tablist"><button class="period active" data-period="today">今日</button><button class="period" data-period="days7">7日</button><button class="period" data-period="days30">30日</button></div>
+    <div class="stats-table"><div><span>回収率</span><strong id="m-roi">--</strong></div><div><span>的中率</span><strong id="m-hit">--</strong></div><div><span>収支</span><strong id="m-profit">--</strong><small id="m-races">集計中</small></div></div>
   </section>
 
-  <section class="page-section" id="results">
-    <div class="section-title-row"><div><small>OPEN RESULTS</small><h2>直近の公開結果</h2></div></div>
-    <div id="result-list" class="result-list"><div class="skeleton"></div></div>
-    <p class="transparency">公開したレースは、的中・不的中を区別せずそのまま集計します。</p>
-  </section>
+  <section class="page-section" id="results"><div class="section-title-row"><div><small>OPEN RESULTS</small><h2>直近の公開結果</h2></div></div><div id="result-list" class="result-list"><div class="skeleton"></div></div><p class="transparency">公開したレースは、的中・不的中を区別せずそのまま集計します。</p></section>
 
-  <section class="club-panel" id="club">
-    <div class="club-panel-inner">
-      <span>ONE BOAT CLUB</span>
-      <h2>予想の核心は、会員向けに。</h2>
-      <p>買い目、資金配分、直前の最終判断まで。月額会員向け配信はnoteで運営予定です。</p>
-      <button id="note-btn" class="club-button disabled" type="button">note準備中</button>
-    </div>
-  </section>
+  <section class="club-panel" id="club"><div class="club-panel-inner"><span>ONE BOAT CLUB</span><h2>予想の核心は、会員向けに。</h2><p>買い目、資金配分、直前の最終判断まで。月額会員向け配信はnoteで運営予定です。</p><button id="note-btn" class="club-button disabled" type="button">note準備中</button></div></section>
 
-  <section class="page-section about-section" id="about">
-    <div class="section-title-row"><div><small>ABOUT ONE BOAT</small><h2>データで選ぶ。買わないレースも選ぶ。</h2></div></div>
-    <div class="about-grid">
-      <div><b>01</b><p>条件を満たしたレースだけ公開</p></div>
-      <div><b>02</b><p>不的中もそのまま残す</p></div>
-      <div><b>03</b><p>公開実績を数字で管理</p></div>
-    </div>
-  </section>
+  <section class="page-section about-section" id="about"><div class="section-title-row"><div><small>ABOUT ONE BOAT</small><h2>データで選ぶ。買わないレースも選ぶ。</h2></div></div><div class="about-grid"><div><b>01</b><p>条件を満たしたレースだけ公開</p></div><div><b>02</b><p>不的中もそのまま残す</p></div><div><b>03</b><p>公開実績を数字で管理</p></div></div></section>
 </main>
 
-<footer>
-  <strong>ONE BOAT</strong><span>BOAT RACE ANALYTICS</span><small>© ONE BOAT</small>
-</footer>
-<script src="/app.js?v=20260916-7" defer></script>
+<footer><strong>ONE BOAT</strong><span>BOAT RACE ANALYTICS</span><small>© ONE BOAT</small></footer>
+<script src="/app.js?v=20260917-1" defer></script>
 </body>
 </html>
