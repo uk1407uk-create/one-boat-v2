@@ -12,6 +12,7 @@ function renderMetrics(key='today'){
   $('#m-races').textContent=`公開 ${x.races}R / ${x.hits}的中`;
 }
 function deadlineText(v){if(!v)return '最終予想確定';const m=String(v).match(/(\d{1,2}:\d{2})/);return m?`締切 ${m[1]}`:'最終予想確定';}
+function deadlineTime(v){const m=String(v||'').match(/(\d{1,2}:\d{2})/);return m?m[1]:'--:--';}
 function raceCard(x,i){
   const settled=x.status==='SETTLED'&&x.settlement;
   const status=settled?(x.settlement.hit?'的中':'不的中'):'予想確定';
@@ -32,9 +33,32 @@ function renderFreeStrip(items){
   const pub=(items||[]).slice(0,3);
   $('#free-strip-list').innerHTML=pub.length?pub.map(x=>`<span class="free-chip">${x.venue_name} ${x.race_no}R　${deadlineText(x.deadline)}</span>`).join(''):'公開対象を確認中';
 }
-function markVenues(items){
-  const venues=new Set((items||[]).map(x=>String(x.venue_name||'').trim()).filter(Boolean));
-  document.querySelectorAll('.venue-tile').forEach(tile=>tile.classList.toggle('is-public',venues.has(tile.dataset.venue)));
+function renderVenueTiles(items){
+  const grouped=new Map();
+  (items||[]).forEach(x=>{
+    const name=String(x.venue_name||'').trim();
+    if(!name)return;
+    if(!grouped.has(name))grouped.set(name,[]);
+    grouped.get(name).push(x);
+  });
+  grouped.forEach(xs=>xs.sort((a,b)=>Number(a.race_no||0)-Number(b.race_no||0)));
+  document.querySelectorAll('.venue-tile').forEach(tile=>{
+    const name=tile.dataset.venue||'';
+    const code=(tile.dataset.code||tile.querySelector('b')?.textContent||'').padStart(2,'0');
+    tile.dataset.code=code;
+    const xs=grouped.get(name)||[];
+    const next=xs.find(x=>x.status!=='SETTLED')||xs[xs.length-1];
+    const active=xs.length>0;
+    tile.classList.toggle('is-public',active);
+    tile.classList.toggle('is-idle',!active);
+    tile.setAttribute('aria-label',active?`${name} 公開対象 ${xs.length}レース。${next?.race_no||''}R ${deadlineText(next?.deadline)}`:`${name} 本日の公開対象なし`);
+    if(active){
+      const state=next?.status==='SETTLED'?'結果公開':'公開予想';
+      tile.innerHTML=`<span class="venue-name">${name}</span><span class="venue-strip">${state}${xs.length>1?` ${xs.length}R`:''}</span><span class="venue-meta"><strong>${next?.race_no||'--'}R</strong><em>${deadlineTime(next?.deadline)}</em></span>`;
+    }else{
+      tile.innerHTML=`<span class="venue-name">${name}</span><span class="venue-dash">—</span><span class="venue-none">公開なし</span>`;
+    }
+  });
 }
 async function load(){
   try{
@@ -44,13 +68,14 @@ async function load(){
     $('#today-date').textContent=formatJpDate(t.date);
     $('#today-count').textContent=`公開 ${t.public_count??Math.min(3,items.length)}R`;
     renderFreeStrip(items);
-    markVenues(items);
+    renderVenueTiles(items);
     $('#today-list').innerHTML=items.length?items.slice(0,6).map(raceCard).join(''):'<div class="race-card"><div class="race-main"><strong>現在、公開対象なし</strong><small>対象レースが確定すると自動表示します</small></div></div>';
     $('#paywall').hidden=items.length<=3;
     $('#result-list').innerHTML=(s.latest||[]).slice(0,6).map(resultCard).join('')||'<div class="race-card"><div class="race-main"><strong>集計中</strong><small>公開レースの結果が反映されると表示します</small></div></div>';
   }catch(e){
     $('#today-count').textContent='更新待ち';
     $('#free-strip-list').textContent='データ更新中';
+    renderVenueTiles([]);
     $('#today-list').innerHTML='<div class="race-card"><div class="race-main"><strong>データ更新中</strong><small>少し時間をおいて再読み込みしてください</small></div></div>';
     $('#result-list').innerHTML='<div class="race-card"><div class="race-main"><strong>結果を取得中</strong><small>自動で更新されます</small></div></div>';
   }
