@@ -1,10 +1,7 @@
 import base from './worker_obpe_social.js';
 
 const APP_URL='https://one-boat-v2-pages.uk-1407-uk.workers.dev';
-const NTFY_TOPICS=[
-  'oneboat-IRL62UvsjkKYfHCuSjEuqr6qhRDtX9',
-  'oneboat-IRL62UvsjkKYfHCuSjEuqr6qh-RDtX9'
-];
+const NTFY_TOPIC='oneboat-IRL62UvsjkKYfHCuSjEuqr6qh-RDtX9';
 const VENUES=['','桐生','戸田','江戸川','平和島','多摩川','浜名湖','蒲郡','常滑','津','三国','びわこ','住之江','尼崎','鳴門','丸亀','児島','宮島','徳山','下関','若松','芦屋','福岡','唐津','大村'];
 
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -25,17 +22,20 @@ async function markSeen(kind,key){
 }
 
 async function sendNtfy({title,message,sequenceId,priority=4}){
-  const results=[];
-  for(const topic of NTFY_TOPICS){
-    const r=await fetch('https://ntfy.sh/',{
-      method:'POST',
-      headers:{'content-type':'application/json'},
-      body:JSON.stringify({topic,title,message,priority,click:APP_URL,sequence_id:`${sequenceId}-${topic.endsWith('-RDtX9')?'b':'a'}`})
-    });
-    if(!r.ok)throw new Error(`ntfy_${r.status}`);
-    results.push(await r.json().catch(()=>({ok:true,topic})));
-  }
-  return results;
+  const r=await fetch('https://ntfy.sh/',{
+    method:'POST',
+    headers:{'content-type':'application/json'},
+    body:JSON.stringify({
+      topic:NTFY_TOPIC,
+      title,
+      message,
+      priority,
+      click:APP_URL,
+      sequence_id:sequenceId
+    })
+  });
+  if(!r.ok)throw new Error(`ntfy_${r.status}`);
+  return r.json().catch(()=>({ok:true}));
 }
 
 async function getProgram(){
@@ -64,7 +64,7 @@ async function getSocial(){
 
 function predictionBody(item,closeText,left){
   const lines=(Array.isArray(item?.picks)?item.picks:[]).map(x=>`${x.ticket}　${yen(x.stake_yen)}`);
-  return [`締切 ${closeText}｜あと約${Math.max(0,Math.round(left))}分`,'',...lines,'',`投資 ${yen(item?.stake_total_yen)}`,'','ENTER最終予想です。','この通知が締切3分前を過ぎたレースは投稿対象外です。'].join('\n');
+  return [`締切 ${closeText}｜あと約${Math.max(0,Math.round(left))}分`,'',...lines,'',`投資 ${yen(item?.stake_total_yen)}`,'','ENTER最終予想です。','締切3分前を過ぎたレースは投稿対象外です。'].join('\n');
 }
 function resultBody(item){
   if(item?.result_text)return String(item.result_text);
@@ -95,21 +95,11 @@ async function runNotifications(){
   return sent;
 }
 
-async function notifyTest(){
-  return sendNtfy({title:'✅ ONE BOAT 通知テスト',message:'接続確認OKです。今後はENTERレースを締切5〜3分前に通知します。',sequenceId:'ob-startup-test-v3',priority:4});
-}
-async function startupTest(){
-  if(await seen('startup','v3'))return;
-  await notifyTest();
-  await markSeen('startup','v3');
-}
-
 export default {
   async fetch(request,env,ctx){return base.fetch(request,env,ctx);},
   async scheduled(controller,env,ctx){
     try{if(typeof base.scheduled==='function')await base.scheduled(controller,env,ctx)}catch{}
     ctx.waitUntil((async()=>{
-      try{await startupTest()}catch{}
       await sleep(6000);
       try{await runNotifications()}catch{}
       await sleep(7000);
