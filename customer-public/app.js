@@ -32,6 +32,10 @@ function renderFreeStrip(items){
   const pub=(items||[]).slice(0,3);
   $('#free-strip-list').innerHTML=pub.length?pub.map(x=>`<span class="free-chip">${x.venue_name} ${x.race_no}R　${deadlineText(x.deadline)}</span>`).join(''):'公開対象を確認中';
 }
+function markVenues(items){
+  const venues=new Set((items||[]).map(x=>String(x.venue_name||'').trim()).filter(Boolean));
+  document.querySelectorAll('.venue-tile').forEach(tile=>tile.classList.toggle('is-public',venues.has(tile.dataset.venue)));
+}
 async function load(){
   try{
     const [s,t]=await Promise.all([fetch('/api/public/stats',{cache:'no-store'}).then(r=>r.json()),fetch('/api/public/today',{cache:'no-store'}).then(r=>r.json())]);
@@ -40,6 +44,7 @@ async function load(){
     $('#today-date').textContent=formatJpDate(t.date);
     $('#today-count').textContent=`公開 ${t.public_count??Math.min(3,items.length)}R`;
     renderFreeStrip(items);
+    markVenues(items);
     $('#today-list').innerHTML=items.length?items.slice(0,6).map(raceCard).join(''):'<div class="race-card"><div class="race-main"><strong>現在、公開対象なし</strong><small>対象レースが確定すると自動表示します</small></div></div>';
     $('#paywall').hidden=items.length<=3;
     $('#result-list').innerHTML=(s.latest||[]).slice(0,6).map(resultCard).join('')||'<div class="race-card"><div class="race-main"><strong>集計中</strong><small>公開レースの結果が反映されると表示します</small></div></div>';
