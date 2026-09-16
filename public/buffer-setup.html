@@ -6,20 +6,20 @@
   <meta name="robots" content="noindex,nofollow" />
   <title>ONE BOAT｜Buffer接続</title>
   <style>
-    *{box-sizing:border-box}body{margin:0;background:#f5f7fb;color:#111;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;padding:20px}.card{max-width:560px;margin:32px auto;background:#fff;border-radius:22px;padding:24px;box-shadow:0 12px 38px rgba(0,0,0,.08)}.brand{font-size:13px;font-weight:800;letter-spacing:.08em;color:#5a6b82;margin-bottom:8px}h1{font-size:25px;margin:0 0 12px}.sub{font-size:15px;line-height:1.7;color:#59606b;margin:0 0 22px}.field{display:block;font-size:14px;font-weight:700;margin-bottom:8px}input{width:100%;font-size:16px;padding:15px;border:1px solid #cfd6df;border-radius:13px;outline:none}input:focus{border-color:#82c970;box-shadow:0 0 0 3px rgba(130,201,112,.16)}button{width:100%;margin-top:16px;padding:15px 18px;border:0;border-radius:13px;background:#a8e98d;color:#111;font-size:17px;font-weight:800}button:disabled{opacity:.55}.note{margin-top:15px;font-size:13px;line-height:1.6;color:#737b86}.status{display:none;margin-top:18px;padding:15px;border-radius:13px;font-size:15px;line-height:1.6}.status.ok{display:block;background:#edfbea;border:1px solid #a7dda0}.status.err{display:block;background:#fff1f1;border:1px solid #efb1b1}.small{font-size:12px;color:#8a919a;margin-top:14px}
+    *{box-sizing:border-box}body{margin:0;background:#f5f7fb;color:#111;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;padding:20px}.card{max-width:560px;margin:32px auto;background:#fff;border-radius:22px;padding:24px;box-shadow:0 12px 38px rgba(0,0,0,.08)}.brand{font-size:13px;font-weight:800;letter-spacing:.08em;color:#5a6b82;margin-bottom:8px}h1{font-size:25px;margin:0 0 12px}.sub{font-size:15px;line-height:1.7;color:#59606b;margin:0 0 22px}.field{display:block;font-size:14px;font-weight:700;margin-bottom:8px}input{width:100%;font-size:16px;padding:15px;border:1px solid #cfd6df;border-radius:13px;outline:none}input:focus{border-color:#82c970;box-shadow:0 0 0 3px rgba(130,201,112,.16)}button{width:100%;margin-top:16px;padding:15px 18px;border:0;border-radius:13px;background:#a8e98d;color:#111;font-size:17px;font-weight:800}button:disabled{opacity:.55}.note{margin-top:15px;font-size:13px;line-height:1.6;color:#737b86}.status{display:none;margin-top:18px;padding:15px;border-radius:13px;font-size:15px;line-height:1.6;white-space:pre-line}.status.ok{display:block;background:#edfbea;border:1px solid #a7dda0}.status.err{display:block;background:#fff1f1;border:1px solid #efb1b1}.small{font-size:12px;color:#8a919a;margin-top:14px}
   </style>
 </head>
 <body>
   <div class="card">
     <div class="brand">ONE BOAT</div>
     <h1>Buffer APIキーを接続</h1>
-    <p class="sub">BufferでコピーしたAPIキーを下に貼ってください。キーはこのページからONE BOATのSupabaseへ直接送信され、ChatGPTの会話には入りません。</p>
+    <p class="sub">BufferでコピーしたAPIキーを下に貼ってください。<b>画面に見えている「●●●●」を選択コピーするのではなく、Bufferの「コピー」アイコンを押してください。</b></p>
     <label class="field" for="key">Buffer API Key</label>
     <input id="key" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Buffer API Key" />
     <button id="save">安全に保存して接続確認</button>
     <div id="status" class="status"></div>
     <div class="note">※ 接続確認に成功すると、Threadsの <b>oneboat_ai</b> チャンネルを自動検出して保存します。</div>
-    <div class="small">この設定リンクは1回限りです。</div>
+    <div class="small">APIキーはChatGPTの会話には送信されません。</div>
   </div>
 <script>
 (function(){
@@ -29,20 +29,25 @@
   const status=document.getElementById('status');
   const endpoint='https://imhzjlxbnovjvqlyawmg.supabase.co/functions/v1/one-boat-buffer-key-setup?format=json&token='+encodeURIComponent(token);
   function show(msg,ok){status.className='status '+(ok?'ok':'err');status.textContent=msg}
+  function friendly(code){
+    if(code==='masked_key_detected'||code==='non_ascii_key_detected') return '貼り付けたのは実際のAPIキーではなく、画面に表示されている「●●●●」のマスク文字です。\n\nBufferのAPIキー画面に戻って、キー右側の「コピー」アイコンを押してから、ここへ貼り付けてください。';
+    if(code==='buffer_http_401') return 'APIキーが無効です。BufferのAPI設定でキーを「Regenerate」して、コピーアイコンから新しいキーをコピーしてください。';
+    if(code==='threads_channel_not_found') return 'Buffer APIには接続できましたが、Threadsの oneboat_ai が見つかりませんでした。Buffer側でThreads接続を確認してください。';
+    return code||'接続できませんでした';
+  }
   if(!token){show('設定用トークンがありません。ChatGPTから届いた専用リンクを開いてください。',false);btn.disabled=true;return}
   btn.addEventListener('click',async()=>{
     const v=key.value.trim();
     if(v.length<20){show('Buffer APIキーをコピーして貼り付けてください。',false);return}
     btn.disabled=true;btn.textContent='接続確認中…';status.className='status';
     try{
-      const body=new URLSearchParams({api_key:v});
-      const r=await fetch(endpoint,{method:'POST',headers:{'content-type':'application/x-www-form-urlencoded;charset=UTF-8'},body:body.toString()});
+      const r=await fetch(endpoint,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({api_key:v})});
       const data=await r.json().catch(()=>({ok:false,error:'invalid_response'}));
-      if(!r.ok||!data.ok)throw new Error(data.error||'接続できませんでした');
+      if(!r.ok||!data.ok)throw new Error(friendly(data.error));
       key.value='';
-      show('接続できました ✅  Threads：'+(data.channel?.name||'oneboat_ai')+'\n\nChatGPTに戻って「できた」と送ってください。',true);
+      show('接続できました ✅\nThreads：'+(data.channel?.name||'oneboat_ai')+'\n\nChatGPTに戻って「できた」と送ってください。',true);
       btn.textContent='設定完了';
-    }catch(e){show('接続確認で止まりました：'+String(e.message||e),false);btn.disabled=false;btn.textContent='安全に保存して接続確認'}
+    }catch(e){show('接続確認で止まりました：\n'+String(e.message||e),false);btn.disabled=false;btn.textContent='安全に保存して接続確認'}
   });
 })();
 </script>
