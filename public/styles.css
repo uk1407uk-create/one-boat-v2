@@ -7,40 +7,41 @@
 @import url('/result-screen.css?v=eaef5bb2');
 @import url('/performance-screen.css?v=d5960233');
 
-/* Critical iPhone fallbacks kept in the entry stylesheet so CI and first paint do not depend on nested imports. */
-body{padding-bottom:0}
-main{padding-bottom:calc(108px + env(safe-area-inset-bottom))}
-html,body{scroll-padding-bottom:calc(108px + env(safe-area-inset-bottom))}
-.screen{padding-bottom:24px}
-#screen-home{padding-bottom:24px}
-#screen-performance{padding-bottom:24px}
+/* iPhone/Safari: use the document itself as the only vertical scroller.
+   Nested 100dvh + overflow containers get clipped behind Safari chrome. */
+html{min-height:100%;height:auto;overflow-x:hidden;overflow-y:auto;-webkit-text-size-adjust:100%}
+body{min-height:100%;height:auto;overflow-x:hidden;overflow-y:auto;padding-bottom:calc(96px + env(safe-area-inset-bottom))!important}
+.app{min-height:100vh;height:auto!important;overflow:visible!important;display:block!important}
+main{min-height:0;height:auto!important;overflow:visible!important;padding-bottom:0!important}
+.topbar{position:sticky!important;top:0!important}
+.screen{padding-bottom:32px}
+#screen-home{padding-bottom:32px}
+#screen-performance{padding-bottom:80px!important}
 .venues{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
 
-/* Fixed bottom navigation must never trap the final card behind it on iPhone/Safari. */
-.bottomNav{padding-bottom:calc(5px + env(safe-area-inset-bottom))}
-#performanceContent>.card:last-child,#obHistList>.card:last-child,#detailContent>.card:last-child,#resultContent>.card:last-child{margin-bottom:18px}
+/* Bottom navigation stays fixed during normal browsing. */
+.bottomNav{position:fixed!important;left:50%!important;bottom:0!important;transform:translateX(-50%)!important;width:min(100%,430px)!important;padding-bottom:calc(5px + env(safe-area-inset-bottom))!important}
 
-/* On iPhone, use a real app shell: header and tab bar stay outside the scroll area. */
+/* Give the last content real physical scroll room, not only CSS padding. */
+#obHistList::after{content:"";display:block;width:100%;height:220px;pointer-events:none}
+#performanceContent::after{content:"";display:block;width:100%;height:140px;pointer-events:none}
+#detailContent::after,#resultContent::after{content:"";display:block;width:100%;height:120px;pointer-events:none}
+#performanceContent>.card:last-child,#obHistList>.card:last-child,#detailContent>.card:last-child,#resultContent>.card:last-child{margin-bottom:24px}
+
 @media(max-width:699px){
-  html,body{height:100%;overflow:hidden;scroll-padding-bottom:0}
-  body{padding-bottom:0!important}
-  .app{height:100dvh;min-height:100dvh;display:flex;flex-direction:column;overflow:hidden}
-  .topbar{position:relative;top:auto;flex:0 0 auto}
-  main{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding-bottom:0;scroll-padding-bottom:160px}
+  html,body{height:auto!important;min-height:100%!important;overflow-y:auto!important}
+  .app{height:auto!important;min-height:100vh!important;overflow:visible!important}
+  main{display:block!important;height:auto!important;min-height:0!important;overflow:visible!important;-webkit-overflow-scrolling:auto!important;overscroll-behavior-y:auto!important}
   .screen,#screen-home{padding-bottom:40px}
-  #screen-performance{padding-bottom:180px!important}
-  #performanceContent{padding-bottom:140px}
-  #obHistList{padding-bottom:180px}
-  #detailContent,#resultContent{padding-bottom:120px}
-  .bottomNav{position:relative;left:auto;right:auto;bottom:auto;transform:none;width:100%;flex:0 0 auto}
-  #performanceContent>.card:last-child,#obHistList>.card:last-child,#detailContent>.card:last-child,#resultContent>.card:last-child{margin-bottom:32px}
+  #screen-performance{padding-bottom:100px!important}
+  #performanceContent,#obHistList,#detailContent,#resultContent{overflow:visible!important}
 
-  /* When a saved prediction is open, remove the footer entirely so no ticket/result can be covered. */
+  /* When a saved prediction is expanded, remove the app footer completely.
+     The real spacer below the list lets the final ticket/result scroll well above Safari's toolbar. */
+  body:has(#obHistList .obHistCard.open){padding-bottom:calc(48px + env(safe-area-inset-bottom))!important}
   body:has(#obHistList .obHistCard.open) .bottomNav{display:none!important}
-  body:has(#obHistList .obHistCard.open) #screen-performance{padding-bottom:56px!important}
-  body:has(#obHistList .obHistCard.open) #performanceContent,
-  body:has(#obHistList .obHistCard.open) #obHistList{padding-bottom:56px!important}
-  #obHistList .obHistCard.open{scroll-margin-top:12px}
+  body:has(#obHistList .obHistCard.open) #obHistList::after{height:280px}
+  #obHistList .obHistCard.open{scroll-margin-top:16px}
 }
 
 /* OBPE detail navigation: keep the three tabs reachable while scrolling on iPhone. */
