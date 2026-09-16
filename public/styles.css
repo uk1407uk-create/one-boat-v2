@@ -5,7 +5,7 @@
 @import url('/race-list-fix.css?v=463adb6f');
 @import url('/race-screen-v2.css?v=da51fbec');
 @import url('/result-screen.css?v=eaef5bb2');
-@import url('/performance-screen.css?v=d5960233');
+@import url('/performance-screen.css?v=2670fdeb');
 
 /* iPhone/Safari: use the document itself as the normal vertical scroller. */
 html{min-height:100%;height:auto;overflow-x:hidden;overflow-y:auto;-webkit-text-size-adjust:100%}
