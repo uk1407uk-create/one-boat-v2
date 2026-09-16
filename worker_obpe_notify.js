@@ -35,6 +35,19 @@ async function sendNtfy({title,message,sequenceId,priority=4}){
   return r.json().catch(()=>({ok:true}));
 }
 
+async function cronProof(){
+  const key='cloudflare-cron-v1-20260916';
+  if(await seen('proof',key))return false;
+  await sendNtfy({
+    title:'✅ ONE BOAT 実運用通知ルート確認',
+    message:'Cloudflareの1分監視 → ntfy → iPhone の本番経路から送信しました。次のENTER予想もこの経路で通知します。',
+    sequenceId:'ob-cloudflare-cron-proof-20260916-v1',
+    priority:4
+  });
+  await markSeen('proof',key);
+  return true;
+}
+
 async function getProgram(){
   const r=await fetch('https://boatraceopenapi.github.io/api/v1/today.json',{headers:{accept:'application/json','user-agent':'ONE-BOAT-NOTIFY/1.1'},cache:'no-store'});
   if(!r.ok)throw new Error(`official_${r.status}`);
@@ -160,6 +173,7 @@ export default {
   async scheduled(controller,env,ctx){
     try{if(typeof base.scheduled==='function')await base.scheduled(controller,env,ctx)}catch{}
     ctx.waitUntil((async()=>{
+      try{await cronProof()}catch{}
       await sleep(10000);
       try{await runNotifications()}catch{}
       await sleep(12000);
