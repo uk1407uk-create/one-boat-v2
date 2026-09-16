@@ -88,9 +88,9 @@ function hardened(res){
 async function serveHero(request,env){
   if(!env?.ASSETS?.fetch) return new Response('image unavailable',{status:503});
   const origin=new URL(request.url).origin;
-  const r=await env.ASSETS.fetch(new Request(new URL('/hero-top.jpg',origin),request));
+  const r=await env.ASSETS.fetch(new Request(new URL('/hero-top.webp',origin),request));
   const h=new Headers(r.headers);
-  h.set('content-type','image/jpeg');
+  h.set('content-type','image/webp');
   h.set('cache-control','no-store, max-age=0');
   h.set('x-content-type-options','nosniff');
   return new Response(r.body,{status:r.status,headers:h});
@@ -101,7 +101,7 @@ async function serveIndex(request,env){
   const r=await env.ASSETS.fetch(new Request(new URL('/index.html',origin),request));
   if(!r.ok) return hardened(r);
   let html=await r.text();
-  html=html.replace('/assets/home-approved-live.webp?v=20260917-3','/hero-top.jpg?v=3');
+  html=html.replace('/assets/home-approved-live.webp?v=20260917-3','/hero-top.webp?v=4');
   const h=new Headers(r.headers);
   h.set('content-type','text/html;charset=utf-8');
   h.set('cache-control','no-store, max-age=0');
@@ -115,10 +115,10 @@ export default {
   async fetch(request,env){
     const u=new URL(request.url);
     try{
-      if(u.pathname==='/api/health') return json({ok:true,service:'ONE BOAT CUSTOMER',version:'2026-09-17.5',performance_scope:'public_only',hero:'hero-top.jpg',html_handling:'none'},200,'no-store');
+      if(u.pathname==='/api/health') return json({ok:true,service:'ONE BOAT CUSTOMER',version:'2026-09-17.6',performance_scope:'public_only',hero:'hero-top.webp',html_handling:'none'},200,'no-store');
       if(u.pathname==='/api/public/stats') return json(await publicStats(),200,'public,max-age=30');
       if(u.pathname==='/api/public/today') return json(await publicToday(),200,'public,max-age=20');
-      if(u.pathname==='/hero-top.jpg' || u.pathname==='/assets/home-approved-live.webp' || u.pathname==='/assets/home-approved-exact.webp') return await serveHero(request,env);
+      if(u.pathname==='/hero-top.webp' || u.pathname==='/hero-top.jpg' || u.pathname==='/assets/home-approved-live.webp' || u.pathname==='/assets/home-approved-exact.webp') return await serveHero(request,env);
       if((u.pathname==='/' || u.pathname==='/index.html') && env?.ASSETS?.fetch) return await serveIndex(request,env);
       if(env?.ASSETS?.fetch){
         const res=await env.ASSETS.fetch(request);
