@@ -25,10 +25,13 @@ jobs:
       - name: Rebuild approved high-resolution hero
         run: |
           set -euo pipefail
-          cat customer-public/assets/home-exact-{00..09}.txt | tr -d '\r\n' | base64 -d > customer-public/hero-top.webp
           python - <<'PY'
           from pathlib import Path
-          b=Path('customer-public/hero-top.webp').read_bytes()
+          import base64
+          s=''.join(Path(f'customer-public/assets/home-exact-{i:02d}.txt').read_text().strip() for i in range(10))
+          s += '=' * ((4 - len(s) % 4) % 4)
+          b=base64.b64decode(s)
+          Path('customer-public/hero-top.webp').write_bytes(b)
           assert b[:4] == b'RIFF' and b[8:12] == b'WEBP', f'not webp: {b[:16]!r}'
           assert len(b) > 80000, f'hero too small: {len(b)} bytes'
           print('rebuilt_hero_webp_ok', len(b))
