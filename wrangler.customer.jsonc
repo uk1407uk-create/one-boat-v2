@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "one-boat-customer",
-  "main": "worker_customer.js",
+  "main": "worker_customer_hero.js",
   "compatibility_date": "2026-09-16",
   "assets": {
     "directory": "./customer-public",
