@@ -19,38 +19,17 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           set -euo pipefail
-          if [ -z "${CLOUDFLARE_API_TOKEN:-}" ] || [ -z "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then
-            echo 'cloudflare_credentials=missing'
-            exit 2
-          fi
-          AUTH=(-H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" -H 'Content-Type: application/json')
-          RESP=$(curl -fsS "${AUTH[@]}" 'https://api.cloudflare.com/client/v4/zones?name=one-boat-club.jp')
-          ZONE_ID=$(python - <<'PY' "$RESP"
-import json,sys
-d=json.loads(sys.argv[1]); rs=d.get('result') or []
-print(rs[0].get('id','') if rs else '')
-PY
-          )
+          test -n "${CLOUDFLARE_API_TOKEN:-}"
+          test -n "${CLOUDFLARE_ACCOUNT_ID:-}"
+          RESP=$(curl -fsS -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" -H 'Content-Type: application/json' 'https://api.cloudflare.com/client/v4/zones?name=one-boat-club.jp')
+          ZONE_ID=$(printf '%s' "$RESP" | jq -r '.result[0].id // empty')
           if [ -z "$ZONE_ID" ]; then
-            BODY=$(python - <<'PY'
-import json,os
-print(json.dumps({'account':{'id':os.environ['CLOUDFLARE_ACCOUNT_ID']},'name':'one-boat-club.jp','type':'full'}))
-PY
-            )
-            RESP=$(curl -fsS -X POST "${AUTH[@]}" --data "$BODY" 'https://api.cloudflare.com/client/v4/zones')
+            BODY=$(jq -nc --arg account "$CLOUDFLARE_ACCOUNT_ID" '{account:{id:$account},name:"one-boat-club.jp",type:"full"}')
+            RESP=$(curl -fsS -X POST -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" -H 'Content-Type: application/json' --data "$BODY" 'https://api.cloudflare.com/client/v4/zones')
           fi
-          python - <<'PY' "$RESP"
-import json,sys
-d=json.loads(sys.argv[1])
-print('api_success='+str(bool(d.get('success'))).lower())
-rs=d.get('result')
-if isinstance(rs,list): z=rs[0] if rs else None
-else: z=rs
-print('zone_found='+str(bool(z)).lower())
-if z:
-    print('zone_status='+str(z.get('status')))
-    print('zone_id='+str(z.get('id')))
-    print('name_servers='+','.join(z.get('name_servers') or []))
-if d.get('errors'):
-    print('errors='+json.dumps(d.get('errors'),ensure_ascii=False))
-PY
+          echo "api_success=$(printf '%s' "$RESP" | jq -r '.success')"
+          echo "zone_status=$(printf '%s' "$RESP" | jq -r 'if (.result|type)=="array" then (.result[0].status // "missing") else (.result.status // "missing") end')"
+          echo "zone_id=$(printf '%s' "$RESP" | jq -r 'if (.result|type)=="array" then (.result[0].id // "") else (.result.id // "") end')"
+          echo "name_servers=$(printf '%s' "$RESP" | jq -r 'if (.result|type)=="array" then ((.result[0].name_servers // [])|join(",")) else ((.result.name_servers // [])|join(",")) end')"
+          ERRORS=$(printf '%s' "$RESP" | jq -c '.errors // []')
+          if [ "$ERRORS" != '[]' ]; then echo "errors=$ERRORS"; fi
