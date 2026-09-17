@@ -4,71 +4,30 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="theme-color" content="#ffffff" />
+<meta name="color-scheme" content="light" />
 <title>ONE BOAT｜ボートレースデータ分析</title>
-<meta name="description" content="ONE BOATは、データをもとに公開対象レースを選定するボートレース分析サービスです。" />
-<link rel="stylesheet" href="/styles.css?v=20260917-24v1" />
-<link rel="stylesheet" href="/landing.css?v=20260917-24v1" />
-<link rel="stylesheet" href="/free-progress.css?v=20260917-1" />
+<meta name="description" content="ONE BOAT｜データで選ぶ。買わないレースも選ぶ。" />
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#fff}
+  body{min-height:100vh;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;overflow-x:hidden}
+  .oneboat-top{position:relative;width:min(100%,432px);margin:0 auto;background:#fff;line-height:0}
+  .oneboat-top>img{display:block;width:100%;height:auto;margin:0;padding:0;border:0;user-select:none;-webkit-user-drag:none}
+  .tap{position:absolute;display:block;background:transparent;border:0;padding:0;margin:0;z-index:3;-webkit-tap-highlight-color:transparent}
+  .tap-club{left:69.5%;top:2.15%;width:17.5%;height:4.8%}
+  .tap-menu{left:89.5%;top:2.35%;width:7.6%;height:4.5%}
+  .tap-today{left:4.8%;top:69.4%;width:90.4%;height:6.0%}
+  .tap-results{left:4.8%;top:75.9%;width:90.4%;height:5.8%}
+  @media (min-width:433px){body{background:#fff}}
+</style>
 </head>
 <body>
-<section class="approved-home" id="top" aria-label="ONE BOAT トップ">
-  <img src="/hero-top.jpg?v=2" alt="ONE BOAT | データで選ぶ。買わないレースも選ぶ。">
-  <a class="hotspot hotspot-club" href="#club" aria-label="ONE BOAT CLUB"></a>
-  <a class="hotspot hotspot-today" href="#today" aria-label="本日の予想を見る"></a>
-  <a class="hotspot hotspot-performance" href="#performance" aria-label="実績を見る"></a>
-  <details class="image-menu"><summary aria-label="メニュー"></summary><nav aria-label="メインメニュー"><a href="#top">HOME</a><a href="#today">本日の予想</a><a href="#performance">無料公開実績</a><a href="#about">ONE BOATについて</a><a href="#club">ONE BOAT CLUB</a></nav></details>
-</section>
-
-<main>
-<section class="free-strip" aria-label="本日の公開状況"><div class="free-strip-title">本日の公開状況</div><div id="free-strip-list" class="free-strip-list">開催情報を確認中</div></section>
-
-<section class="page-section today-section" id="today">
-  <div class="date-row"><button class="date-nav muted" type="button" disabled>‹ 前日</button><div><small>TODAY</small><strong id="today-date">本日のレース</strong></div><button class="date-nav muted" type="button" disabled>翌日 ›</button></div>
-  <div class="section-title-row"><div><small>24 BOAT RACE STADIUMS</small><h2>本日の24場</h2></div><span id="today-count" class="count-label">確認中</span></div>
-  <p class="lead">場をタップすると1R〜12Rの状態を確認できます。管理用ONE BOATで確定した内容だけを表示します。</p>
-  <div class="venue-legend"><span><i class="lg-live"></i>予想公開</span><span><i class="lg-watch"></i>様子見</span><span><i class="lg-skip"></i>見送り</span><span><i class="lg-idle"></i>非開催/終了</span></div>
-  <div class="venue-grid" id="venue-grid" aria-label="全国24場"></div>
-
-  <div class="section-title-row public-title"><div><small>ONE BOAT SELECT</small><h2>本日の公開予想</h2></div><span id="public-count" class="count-label">--</span></div>
-  <p class="lead">decision=ENTER かつ投資額が確定したレースのみ公開対象です。</p>
-  <div id="today-list" class="race-list"><div class="skeleton"></div><div class="skeleton"></div></div>
-</section>
-
-<section class="page-section performance-section" id="performance">
-  <div class="section-title-row"><div><small>FREE PUBLIC PERFORMANCE</small><h2>Threads無料公開実績</h2></div><span class="auto-label">自動更新</span></div>
-  <p class="lead">Threadsで実際に無料公開した予想だけを集計しています。未公開レース・見送り・様子見は含めません。</p>
-
-  <div class="validation-card" aria-label="無料公開100R検証">
-    <div class="validation-head"><div><small>VALIDATION PHASE</small><strong>無料公開100R検証</strong></div><b id="free-progress-label">-- / 100R</b></div>
-    <div class="validation-bar"><i id="free-progress-bar"></i></div>
-    <p id="free-progress-note">販売開始前に、まず無料公開実績を積み上げています。</p>
-  </div>
-
-  <div class="period-tabs" role="tablist"><button class="period active" data-period="today">今日</button><button class="period" data-period="days7">7日</button><button class="period" data-period="days30">30日</button><button class="period" data-period="all">累計</button></div>
-  <div class="stats-table"><div><span>回収率</span><strong id="m-roi">--</strong></div><div><span>的中率</span><strong id="m-hit">--</strong></div><div><span>収支</span><strong id="m-profit">--</strong><small id="m-races">集計中</small></div></div>
-</section>
-
-<section class="page-section" id="results"><div class="section-title-row"><div><small>OPEN RESULTS</small><h2>直近の無料公開結果</h2></div></div><div id="result-list" class="result-list"><div class="skeleton"></div></div><p class="transparency">無料公開したレースは、的中・不的中を区別せずそのまま残します。</p></section>
-
-<section class="club-panel" id="club"><div class="club-panel-inner"><span>ONE BOAT CLUB</span><h2>ONE BOAT CLUB</h2><p>現在は無料公開100Rの検証期間です。実績を確認したうえで、会員機能・詳細分析・有料プランの提供可否を判断します。</p><button id="note-btn" class="club-button disabled" type="button">準備中</button></div></section>
-<section class="page-section about-section" id="about"><div class="section-title-row"><div><small>ABOUT ONE BOAT</small><h2>データで選ぶ。買わないレースも選ぶ。</h2></div></div><div class="about-grid"><div><b>01</b><p>条件を満たしたレースだけ公開</p></div><div><b>02</b><p>見送りも判断として残す</p></div><div><b>03</b><p>結果・収支をそのまま公開</p></div></div></section>
-</main>
-
-<div id="sheet-backdrop" class="sheet-backdrop" hidden></div>
-<section id="venue-sheet" class="bottom-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="venue-sheet-title">
-  <div class="sheet-handle"></div>
-  <div class="sheet-head"><button id="venue-close" class="sheet-back" type="button">×</button><div><small>BOAT RACE</small><h2 id="venue-sheet-title">場詳細</h2></div><span id="venue-sheet-state" class="sheet-state">--</span></div>
-  <div id="venue-sheet-meta" class="venue-sheet-meta"></div>
-  <div id="venue-races" class="venue-races"></div>
-</section>
-
-<section id="race-sheet" class="bottom-sheet race-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="race-sheet-title">
-  <div class="sheet-handle"></div>
-  <div class="sheet-head"><button id="race-back" class="sheet-back" type="button">‹</button><div><small>RACE DETAIL</small><h2 id="race-sheet-title">レース詳細</h2></div><span id="race-sheet-state" class="sheet-state">--</span></div>
-  <div id="race-detail" class="race-detail"></div>
-</section>
-
-<footer><strong>ONE BOAT</strong><span>BOAT RACE ANALYTICS</span><small>© ONE BOAT</small></footer>
-<script src="/app.js?v=20260917-24v1" defer></script>
-<script src="/free-progress.js?v=20260917-1" defer></script>
-</body></html>
+  <main class="oneboat-top" aria-label="ONE BOAT トップ">
+    <img src="/top-screen.webp?v=20260917-exact1" alt="ONE BOAT｜データで選ぶ。買わないレースも選ぶ。" width="864" height="1536" />
+    <a class="tap tap-club" href="#" onclick="return false" aria-label="ONE BOAT CLUB"></a>
+    <a class="tap tap-menu" href="#" onclick="return false" aria-label="メニュー"></a>
+    <a class="tap tap-today" href="#" onclick="return false" aria-label="本日の予想を見る"></a>
+    <a class="tap tap-results" href="#" onclick="return false" aria-label="実績を見る"></a>
+  </main>
+</body>
+</html>
