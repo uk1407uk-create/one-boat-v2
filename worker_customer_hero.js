@@ -24,6 +24,28 @@ async function exactHero(request, env) {
   });
 }
 
+async function exactTop(request, env) {
+  const origin = new URL(request.url).origin;
+  const parts = [];
+  for (let i = 0; i < 10; i++) {
+    const r = await env.ASSETS.fetch(new Request(new URL(`/assets/home-exact-${String(i).padStart(2,'0')}.txt`, origin), request));
+    if (!r.ok) return new Response('top unavailable', { status: 503 });
+    parts.push((await r.text()).trim());
+  }
+  const bin = atob(parts.join(''));
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new Response(bytes, {
+    status: 200,
+    headers: {
+      'content-type': 'image/webp',
+      'cache-control': 'no-store, max-age=0',
+      'x-content-type-options': 'nosniff',
+      'x-one-boat-top': 'exact-reference'
+    }
+  });
+}
+
 async function freePublicStats() {
   try {
     const r = await fetch(THREADS_STATS, { headers: { accept: 'application/json' }, cache: 'no-store' });
@@ -50,6 +72,9 @@ async function freePublicStats() {
 export default {
   async fetch(request, env, ctx) {
     const u = new URL(request.url);
+    if (u.pathname === '/top-screen.webp') {
+      return exactTop(request, env);
+    }
     if (u.pathname === '/hero-top.webp' || u.pathname === '/hero-top.jpg' || u.pathname === '/assets/home-approved-live.webp' || u.pathname === '/assets/home-approved-exact.webp') {
       return exactHero(request, env);
     }
