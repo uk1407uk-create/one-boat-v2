@@ -12,7 +12,20 @@
 .top-logo{display:flex;align-items:center;gap:1px;text-decoration:none;color:#082f59;font-weight:800;font-size:22px;line-height:1;letter-spacing:.045em;white-space:nowrap}.top-logo .accent{color:#13a9df;font-weight:700}.top-club{min-width:66px;height:36px;border:1.5px solid #8dccef;border-radius:999px;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:11px;font-weight:900;letter-spacing:.22em;color:#0b4f80;background:rgba(255,255,255,.78);box-shadow:0 2px 10px rgba(16,112,172,.05)}
 .top-menu-button{width:38px;height:38px;border:0;background:transparent;padding:8px 4px;display:flex;flex-direction:column;justify-content:center;gap:5px;-webkit-tap-highlight-color:transparent}.top-menu-button span{display:block;width:25px;height:3px;border-radius:99px;background:#082f59;margin-left:auto}.top-menu-panel{display:none;position:absolute;right:16px;top:64px;z-index:60;width:205px;background:rgba(255,255,255,.98);border:1px solid #d8eaf5;border-radius:17px;box-shadow:0 18px 42px rgba(4,47,84,.18);padding:7px;backdrop-filter:blur(14px)}.top-menu-panel.open{display:block}.top-menu-panel a{display:block;text-decoration:none;color:#123f66;font-size:13px;font-weight:850;padding:12px;border-radius:11px}.top-menu-panel a:active{background:#eef8ff}
 .today-intro{max-width:880px;margin:0 auto;padding:20px 14px 0}.today-intro .eyebrow{display:block;color:#20a4d8;font-size:9px;font-weight:900;letter-spacing:.22em;margin-bottom:4px}.today-intro h1{font-size:27px;margin:0;color:#0e365d;letter-spacing:-.03em}.today-intro p{font-size:12px;color:#708798;line-height:1.75;margin:7px 0 12px}.performance-section{scroll-margin-top:76px}
-@media(max-width:380px){.top-header{padding-left:15px;padding-right:14px;gap:10px}.top-logo{font-size:20px}.today-intro h1{font-size:25px}}
+/* TELEBOATのスマホ開催一覧で使われる情報密度を参考に、ONE BOAT向けに再設計。サイズは従来の4列正方形を維持 */
+.venue-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin:6px -2px 30px}
+.venue-tile{aspect-ratio:1;border-radius:7px;background:#fff;border:1px solid #cfd9e1;box-shadow:0 1px 3px rgba(19,50,75,.08);overflow:hidden}
+.venue-name{height:38%;padding:4px 2px 2px;background:#fff;color:#182f43;font-size:15px;font-weight:900;letter-spacing:-.035em;border-bottom:1px solid #e5ebef}
+.venue-strip{height:20%;font-size:8px;font-weight:900;letter-spacing:.015em;background:#7f909d;color:#fff}
+.venue-meta{height:42%;grid-template-columns:.82fr 1.7fr;background:#fff;border-top:0;color:#243444}
+.venue-meta strong{font-size:16px;line-height:1;font-weight:900;border-right:1px solid #e2e8ed;color:#163b5d}
+.venue-meta em{font-size:8.5px;line-height:1.2;font-weight:900;padding:0 3px;color:#52697b}
+.venue-tile.live{border:2px solid #268ed2;background:#fff;box-shadow:0 2px 7px rgba(30,126,187,.16)}.venue-tile.live .venue-name{background:#fff;color:#103a5e}.venue-tile.live .venue-strip{background:#168bd1}
+.venue-tile.watch{border-color:#e1b64d}.venue-tile.watch .venue-strip{background:#d99a1f}
+.venue-tile.skip .venue-strip{background:#748797}.venue-tile.settled .venue-strip{background:#188e69}
+.venue-tile.pending .venue-strip{background:#879ba9}
+.venue-tile.idle{opacity:1;border-color:#d8dde1;background:#f1f3f4;box-shadow:none}.venue-tile.idle .venue-name,.venue-tile.idle .venue-meta{background:#f1f3f4;color:#8c979f}.venue-tile.idle .venue-name{border-bottom-color:#e0e3e5}.venue-tile.idle .venue-strip{background:#aeb7bd}.venue-tile.idle .venue-meta strong,.venue-tile.idle .venue-meta em{color:#8c979f}
+@media(max-width:380px){.top-header{padding-left:15px;padding-right:14px;gap:10px}.top-logo{font-size:20px}.today-intro h1{font-size:25px}.venue-grid{gap:4px}.venue-name{font-size:14px}.venue-meta strong{font-size:15px}.venue-meta em{font-size:7.5px}}
 </style>
 </head>
 <body>
