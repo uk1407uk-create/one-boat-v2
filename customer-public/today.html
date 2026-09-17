@@ -75,7 +75,7 @@ body>header,body>main,body>footer,.bottom-app-nav{width:min(100%,432px);margin-l
 /* quick nav: inspired by compact betting-app information architecture, not a copy */
 .quick-nav{
   width:min(100%,432px);margin:0 auto;background:#fff;border-bottom:1px solid #d5e4ee;
-  display:grid;grid-template-columns:repeat(4,1fr);position:relative;z-index:60
+  display:grid;grid-template-columns:repeat(4,1fr);position:sticky;top:64px;z-index:60
 }
 .quick-nav a{
   min-height:52px;text-decoration:none;color:#58738a;display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -151,7 +151,7 @@ body>header,body>main,body>footer,.bottom-app-nav{width:min(100%,432px);margin-l
   font-size:15px!important;font-weight:900;letter-spacing:-.035em;border-bottom:1px solid #d8e4ec!important
 }
 .venue-strip{
-  height:20px!important;font-size:8px!important;font-weight:900;letter-spacing:0;background:#8495a4;color:#fff
+  height:20px!important;font-size:8px!important;font-weight:900;letter-spacing:0;background:#5f91b4;color:#fff
 }
 .venue-meta{
   min-height:32px!important;height:auto!important;grid-template-columns:.85fr 1.55fr;background:#fff!important;color:#243f57
@@ -168,7 +168,7 @@ body>header,body>main,body>footer,.bottom-app-nav{width:min(100%,432px);margin-l
 .venue-tile.watch{border-color:#ddb45a!important}.venue-tile.watch .venue-name{background:#fff9e9!important}.venue-tile.watch .venue-strip{background:#d59c24!important}
 .venue-tile.skip .venue-name{background:#f5f8fa!important}.venue-tile.skip .venue-strip{background:#778a99!important}
 .venue-tile.settled{border-color:#84b8a9!important}.venue-tile.settled .venue-name{background:#eef9f5!important}.venue-tile.settled .venue-strip{background:#238b70!important}
-.venue-tile.pending .venue-name{background:#f4f7f9!important}.venue-tile.pending .venue-strip{background:#91a2ad!important}
+.venue-tile.pending .venue-name{background:#f1f8fc!important}.venue-tile.pending .venue-strip{background:#5f91b4!important}
 .venue-tile.idle{opacity:.57!important;background:#f0f3f5!important;border-color:#d8dfe4!important;box-shadow:none!important}
 .venue-tile.idle .venue-name,.venue-tile.idle .venue-meta{background:#f2f4f5!important;color:#95a2aa!important}
 .venue-tile.idle .venue-strip{background:#aab4bb!important}
