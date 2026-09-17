@@ -6,19 +6,33 @@
 <meta name="theme-color" content="#ffffff" />
 <title>本日の予想｜ONE BOAT</title>
 <meta name="description" content="ONE BOAT 本日の24場・公開予想・実績" />
-<link rel="stylesheet" href="/styles.css?v=20260917-hd1" />
+<link rel="stylesheet" href="/styles.css?v=20260918-teleboat1" />
 <style>
-.today-header{position:sticky;top:0;z-index:20;height:58px;padding:env(safe-area-inset-top,0) 14px 0;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;background:rgba(255,255,255,.94);backdrop-filter:blur(14px);border-bottom:1px solid #deedf6}.today-header a{width:38px;height:38px;display:flex;align-items:center;justify-content:center;border:1px solid #d8e9f4;border-radius:50%;color:#0b4a78;text-decoration:none;font-size:23px}.today-brand{text-align:center;line-height:1.15}.today-brand strong{display:block;color:#08345f;font-size:18px;letter-spacing:.08em}.today-brand small{display:block;color:#1a9bd5;font-size:8px;letter-spacing:.17em;font-weight:900;margin-top:2px}.header-spacer{width:38px}.today-intro{max-width:880px;margin:0 auto;padding:20px 14px 0}.today-intro h1{font-size:27px;margin:0;color:#0e365d;letter-spacing:-.03em}.today-intro p{font-size:12px;color:#708798;line-height:1.75;margin:7px 0 12px}.performance-section{scroll-margin-top:70px}@media(max-width:380px){.today-header{height:54px}.today-intro h1{font-size:25px}}
+.top-header{height:68px;display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:14px;padding:calc(10px + env(safe-area-inset-top,0px)) 20px 0;position:sticky;top:0;z-index:50;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border-bottom:1px solid rgba(218,235,245,.72)}
+.top-logo{display:flex;align-items:center;gap:1px;text-decoration:none;color:#082f59;font-weight:800;font-size:22px;line-height:1;letter-spacing:.045em;white-space:nowrap}.top-logo .accent{color:#13a9df;font-weight:700}.top-club{min-width:66px;height:36px;border:1.5px solid #8dccef;border-radius:999px;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:11px;font-weight:900;letter-spacing:.22em;color:#0b4f80;background:rgba(255,255,255,.78);box-shadow:0 2px 10px rgba(16,112,172,.05)}
+.top-menu-button{width:38px;height:38px;border:0;background:transparent;padding:8px 4px;display:flex;flex-direction:column;justify-content:center;gap:5px;-webkit-tap-highlight-color:transparent}.top-menu-button span{display:block;width:25px;height:3px;border-radius:99px;background:#082f59;margin-left:auto}.top-menu-panel{display:none;position:absolute;right:16px;top:64px;z-index:60;width:205px;background:rgba(255,255,255,.98);border:1px solid #d8eaf5;border-radius:17px;box-shadow:0 18px 42px rgba(4,47,84,.18);padding:7px;backdrop-filter:blur(14px)}.top-menu-panel.open{display:block}.top-menu-panel a{display:block;text-decoration:none;color:#123f66;font-size:13px;font-weight:850;padding:12px;border-radius:11px}.top-menu-panel a:active{background:#eef8ff}
+.today-intro{max-width:880px;margin:0 auto;padding:20px 14px 0}.today-intro .eyebrow{display:block;color:#20a4d8;font-size:9px;font-weight:900;letter-spacing:.22em;margin-bottom:4px}.today-intro h1{font-size:27px;margin:0;color:#0e365d;letter-spacing:-.03em}.today-intro p{font-size:12px;color:#708798;line-height:1.75;margin:7px 0 12px}.performance-section{scroll-margin-top:76px}
+@media(max-width:380px){.top-header{padding-left:15px;padding-right:14px;gap:10px}.top-logo{font-size:20px}.today-intro h1{font-size:25px}}
 </style>
 </head>
 <body>
-<header class="today-header"><a href="/" aria-label="トップへ戻る">‹</a><div class="today-brand"><strong>ONE BOAT</strong><small>BOAT RACE ANALYTICS</small></div><span class="header-spacer"></span></header>
+<header class="top-header">
+  <a class="top-logo" href="/" aria-label="ONE BOAT トップ">ONE BO<span class="accent">A</span>T</a>
+  <a class="top-club" href="#club">CLUB</a>
+  <button class="top-menu-button" id="topMenuButton" type="button" aria-label="メニュー" aria-expanded="false"><span></span><span></span><span></span></button>
+  <nav class="top-menu-panel" id="topMenuPanel" aria-label="メインメニュー">
+    <a href="/">HOME</a>
+    <a href="/today.html">本日の予想</a>
+    <a href="#performance">実績</a>
+    <a href="#club">ONE BOAT CLUB</a>
+  </nav>
+</header>
 <main>
-  <div class="today-intro"><h1>本日の予想</h1><p>全国24場から確認できます。管理用ONE BOATで確定した情報だけを表示します。</p></div>
+  <div class="today-intro"><span class="eyebrow">BOAT RACE ANALYTICS</span><h1>本日の予想</h1><p>全国24場から確認できます。管理用ONE BOATで確定した情報だけを表示します。</p></div>
   <section class="free-strip" aria-label="本日の公開状況"><div class="free-strip-title">本日の公開状況</div><div id="free-strip-list" class="free-strip-list">開催情報を確認中</div></section>
   <section class="page-section today-section" id="today">
     <div class="date-row"><button class="date-nav muted" type="button" disabled>‹ 前日</button><div><small>TODAY</small><strong id="today-date">本日のレース</strong></div><button class="date-nav muted" type="button" disabled>翌日 ›</button></div>
-    <div class="section-title-row"><div><small>24 BOAT RACE STADIUMS</small><h2>本日の24場</h2></div><span id="today-count" class="count-label">確認中</span></div>
+    <div class="section-title-row"><div><small>RACE STADIUMS</small><h2>開催一覧</h2></div><span id="today-count" class="count-label">確認中</span></div>
     <p class="lead">場をタップすると1R〜12Rの状態を確認できます。</p>
     <div class="venue-legend"><span><i class="lg-live"></i>予想公開</span><span><i class="lg-watch"></i>様子見</span><span><i class="lg-skip"></i>見送り</span><span><i class="lg-idle"></i>非開催/終了</span></div>
     <div class="venue-grid" id="venue-grid" aria-label="全国24場"></div>
@@ -39,5 +53,12 @@
 <section id="venue-sheet" class="bottom-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="venue-sheet-title"><div class="sheet-handle"></div><div class="sheet-head"><button id="venue-close" class="sheet-back" type="button">×</button><div><small>BOAT RACE</small><h2 id="venue-sheet-title">場詳細</h2></div><span id="venue-sheet-state" class="sheet-state">--</span></div><div id="venue-sheet-meta" class="venue-sheet-meta"></div><div id="venue-races" class="venue-races"></div></section>
 <section id="race-sheet" class="bottom-sheet race-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="race-sheet-title"><div class="sheet-handle"></div><div class="sheet-head"><button id="race-back" class="sheet-back" type="button">‹</button><div><small>RACE DETAIL</small><h2 id="race-sheet-title">レース詳細</h2></div><span id="race-sheet-state" class="sheet-state">--</span></div><div id="race-detail" class="race-detail"></div></section>
 <footer><strong>ONE BOAT</strong><span>BOAT RACE ANALYTICS</span><small>© ONE BOAT</small></footer>
-<script src="/app.js?v=20260917-hd1" defer></script>
+<script src="/app.js?v=20260918-teleboat1" defer></script>
+<script>
+const mb=document.getElementById('topMenuButton'),mp=document.getElementById('topMenuPanel');
+function closeTopMenu(){mp.classList.remove('open');mb.setAttribute('aria-expanded','false')}
+mb.addEventListener('click',e=>{e.stopPropagation();const open=mp.classList.toggle('open');mb.setAttribute('aria-expanded',String(open))});
+document.addEventListener('click',e=>{if(!mp.contains(e.target)&&!mb.contains(e.target))closeTopMenu()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTopMenu()});
+</script>
 </body></html>
