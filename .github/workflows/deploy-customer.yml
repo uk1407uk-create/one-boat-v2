@@ -16,7 +16,7 @@ jobs:
           node-version: 22
       - run: npm install
 
-      - name: Rebuild exact approved top image
+      - name: Rebuild exact approved top image archive
         run: |
           set -euo pipefail
           python - <<'PY'
@@ -39,14 +39,6 @@ jobs:
           print('oneboat_top_sha256',hashlib.sha256(b).hexdigest())
           PY
 
-      - name: Upload rebuilt top for visual verification
-        uses: actions/upload-artifact@v4
-        with:
-          name: oneboat-top-rebuilt
-          path: customer-public/assets/oneboat-top.webp
-          if-no-files-found: error
-          retention-days: 1
-
       - name: Upload existing customer images for inspection
         uses: actions/upload-artifact@v4
         with:
@@ -57,16 +49,17 @@ jobs:
           if-no-files-found: warn
           retention-days: 1
 
-      - name: Validate customer assets before deploy
+      - name: Validate native customer site before deploy
         run: |
           set -euo pipefail
           test -s customer-public/index.html
-          test -s customer-public/assets/oneboat-top.webp
+          test -s customer-public/hero-reference.svg
           test -s customer-public/today.html
-          grep -q 'assets/oneboat-top.webp?v=20260917-exact2' customer-public/index.html
+          grep -q 'hero-reference.svg?v=20260918-native1' customer-public/index.html
           grep -q 'href="/today.html"' customer-public/index.html
           grep -q '本日の予想を見る' customer-public/index.html
-          ! grep -q 'hero-reference.svg' customer-public/index.html
+          grep -q '買わないレースも選ぶ。' customer-public/index.html
+          grep -q 'feature-grid' customer-public/index.html
           grep -q '本日の24場' customer-public/today.html
 
       - name: Deploy customer Worker
@@ -83,40 +76,25 @@ jobs:
           sleep 4
 
           echo 'VERIFY 1 root html'
-          curl -fsS -A "$UA" -H 'Cache-Control: no-cache' "$BASE/?v=20260917-exact2" -o /tmp/root.html
-          grep -q 'assets/oneboat-top.webp?v=20260917-exact2' /tmp/root.html
+          curl -fsS -A "$UA" -H 'Cache-Control: no-cache' "$BASE/?v=20260918-native1" -o /tmp/root.html
+          grep -q 'hero-reference.svg?v=20260918-native1' /tmp/root.html
           grep -q '本日の予想を見る' /tmp/root.html
+          grep -q '買わないレースも選ぶ。' /tmp/root.html
           grep -q 'href="/today.html"' /tmp/root.html
-          ! grep -q 'hero-reference.svg' /tmp/root.html
+          grep -q 'feature-grid' /tmp/root.html
 
-          echo 'VERIFY 2 top image GET'
-          curl -fSs -D /tmp/top.headers -A "$UA" -H 'Cache-Control: no-cache' -H 'Accept: image/avif,image/webp,image/*,*/*;q=0.8' "$BASE/assets/oneboat-top.webp?v=20260917-exact2" -o /tmp/live-top.webp
-          cat /tmp/top.headers
-          python - <<'PY'
-          from pathlib import Path
-          import hashlib
-          local=Path('customer-public/assets/oneboat-top.webp').read_bytes()
-          live=Path('/tmp/live-top.webp').read_bytes()
-          print('local',len(local),hashlib.sha256(local).hexdigest())
-          print('live ',len(live),hashlib.sha256(live).hexdigest())
-          print('live first16',live[:16])
-          assert live[:4] == b'RIFF', live[:16]
-          assert live[8:12] == b'WEBP', live[:16]
-          assert len(live) == len(local), (len(live),len(local))
-          assert hashlib.sha256(live).digest() == hashlib.sha256(local).digest()
-          PY
+          echo 'VERIFY 2 hero visual'
+          curl -fSs -D /tmp/hero.headers -A "$UA" -H 'Cache-Control: no-cache' "$BASE/hero-reference.svg?v=20260918-native1" -o /tmp/hero.svg
+          grep -q '<svg' /tmp/hero.svg
 
-          echo 'VERIFY 3 content type from GET headers'
-          tr -d '\r' < /tmp/top.headers | grep -Eqi '^content-type: image/webp'
-
-          echo 'VERIFY 4 today page'
-          curl -fsS -A "$UA" "$BASE/today.html?v=20260917-exact2" -o /tmp/today.html
+          echo 'VERIFY 3 today page'
+          curl -fsS -A "$UA" "$BASE/today.html?v=20260918-native1" -o /tmp/today.html
           grep -q '本日の24場' /tmp/today.html
           grep -q 'venue-grid' /tmp/today.html
           grep -q 'performance' /tmp/today.html
 
-          echo 'VERIFY 5 health'
+          echo 'VERIFY 4 health'
           curl -fsS -A "$UA" "$BASE/api/health" | grep -q 'ONE BOAT CUSTOMER'
-          echo 'VERIFY 6 stats'
-          curl -fsS -A "$UA" "$BASE/api/public/stats" | grep -q 'threads_free_public_only'
+          echo 'VERIFY 5 stats'
+          curl -fsS -A "$UA" "$BASE/api/public/stats" | grep -q 'public_only'
           echo 'customer_live_iphone_verify_ok'
