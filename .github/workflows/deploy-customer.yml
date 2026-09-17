@@ -47,6 +47,16 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
+      - name: Upload existing customer images for inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: customer-image-assets
+          path: |
+            customer-public/assets/*.webp
+            customer-public/hero-reference.svg
+          if-no-files-found: warn
+          retention-days: 1
+
       - name: Validate customer assets before deploy
         run: |
           set -euo pipefail
