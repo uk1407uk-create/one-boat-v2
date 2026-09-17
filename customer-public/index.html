@@ -8,6 +8,7 @@
 <meta name="description" content="ONE BOATは、データをもとに公開対象レースを選定するボートレース分析サービスです。" />
 <link rel="stylesheet" href="/styles.css?v=20260917-24v1" />
 <link rel="stylesheet" href="/landing.css?v=20260917-24v1" />
+<link rel="stylesheet" href="/free-progress.css?v=20260917-1" />
 </head>
 <body>
 <section class="approved-home" id="top" aria-label="ONE BOAT トップ">
@@ -15,7 +16,7 @@
   <a class="hotspot hotspot-club" href="#club" aria-label="ONE BOAT CLUB"></a>
   <a class="hotspot hotspot-today" href="#today" aria-label="本日の予想を見る"></a>
   <a class="hotspot hotspot-performance" href="#performance" aria-label="実績を見る"></a>
-  <details class="image-menu"><summary aria-label="メニュー"></summary><nav aria-label="メインメニュー"><a href="#top">HOME</a><a href="#today">本日の予想</a><a href="#performance">実績</a><a href="#about">ONE BOATについて</a><a href="#club">ONE BOAT CLUB</a></nav></details>
+  <details class="image-menu"><summary aria-label="メニュー"></summary><nav aria-label="メインメニュー"><a href="#top">HOME</a><a href="#today">本日の予想</a><a href="#performance">無料公開実績</a><a href="#about">ONE BOATについて</a><a href="#club">ONE BOAT CLUB</a></nav></details>
 </section>
 
 <main>
@@ -34,15 +35,22 @@
 </section>
 
 <section class="page-section performance-section" id="performance">
-  <div class="section-title-row"><div><small>PUBLIC PERFORMANCE</small><h2>公開実績</h2></div><span class="auto-label">自動更新</span></div>
-  <p class="lead">公開対象レースだけを集計し、見送り・様子見・投資0円は収支に含めません。</p>
+  <div class="section-title-row"><div><small>FREE PUBLIC PERFORMANCE</small><h2>Threads無料公開実績</h2></div><span class="auto-label">自動更新</span></div>
+  <p class="lead">Threadsで実際に無料公開した予想だけを集計しています。未公開レース・見送り・様子見は含めません。</p>
+
+  <div class="validation-card" aria-label="無料公開100R検証">
+    <div class="validation-head"><div><small>VALIDATION PHASE</small><strong>無料公開100R検証</strong></div><b id="free-progress-label">-- / 100R</b></div>
+    <div class="validation-bar"><i id="free-progress-bar"></i></div>
+    <p id="free-progress-note">販売開始前に、まず無料公開実績を積み上げています。</p>
+  </div>
+
   <div class="period-tabs" role="tablist"><button class="period active" data-period="today">今日</button><button class="period" data-period="days7">7日</button><button class="period" data-period="days30">30日</button><button class="period" data-period="all">累計</button></div>
   <div class="stats-table"><div><span>回収率</span><strong id="m-roi">--</strong></div><div><span>的中率</span><strong id="m-hit">--</strong></div><div><span>収支</span><strong id="m-profit">--</strong><small id="m-races">集計中</small></div></div>
 </section>
 
-<section class="page-section" id="results"><div class="section-title-row"><div><small>OPEN RESULTS</small><h2>直近の公開結果</h2></div></div><div id="result-list" class="result-list"><div class="skeleton"></div></div><p class="transparency">公開したレースは、的中・不的中を区別せずそのまま残します。</p></section>
+<section class="page-section" id="results"><div class="section-title-row"><div><small>OPEN RESULTS</small><h2>直近の無料公開結果</h2></div></div><div id="result-list" class="result-list"><div class="skeleton"></div></div><p class="transparency">無料公開したレースは、的中・不的中を区別せずそのまま残します。</p></section>
 
-<section class="club-panel" id="club"><div class="club-panel-inner"><span>ONE BOAT CLUB</span><h2>ONE BOAT CLUB</h2><p>会員限定情報・詳細分析・通知機能などへ拡張できる設計で準備しています。</p><button id="note-btn" class="club-button disabled" type="button">準備中</button></div></section>
+<section class="club-panel" id="club"><div class="club-panel-inner"><span>ONE BOAT CLUB</span><h2>ONE BOAT CLUB</h2><p>現在は無料公開100Rの検証期間です。実績を確認したうえで、会員機能・詳細分析・有料プランの提供可否を判断します。</p><button id="note-btn" class="club-button disabled" type="button">準備中</button></div></section>
 <section class="page-section about-section" id="about"><div class="section-title-row"><div><small>ABOUT ONE BOAT</small><h2>データで選ぶ。買わないレースも選ぶ。</h2></div></div><div class="about-grid"><div><b>01</b><p>条件を満たしたレースだけ公開</p></div><div><b>02</b><p>見送りも判断として残す</p></div><div><b>03</b><p>結果・収支をそのまま公開</p></div></div></section>
 </main>
 
@@ -62,4 +70,5 @@
 
 <footer><strong>ONE BOAT</strong><span>BOAT RACE ANALYTICS</span><small>© ONE BOAT</small></footer>
 <script src="/app.js?v=20260917-24v1" defer></script>
+<script src="/free-progress.js?v=20260917-1" defer></script>
 </body></html>
