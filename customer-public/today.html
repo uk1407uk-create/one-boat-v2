@@ -6,77 +6,73 @@
 <meta name="theme-color" content="#ffffff" />
 <title>本日の予想｜ONE BOAT</title>
 <meta name="description" content="ONE BOAT 本日の24場・公開予想・実績" />
-<link rel="stylesheet" href="/styles.css?v=20260918-oneboat2" />
+<link rel="stylesheet" href="/styles.css?v=20260918-obfull1" />
 <style>
+:root{--ob-navy:#062b52;--ob-navy2:#073f70;--ob-blue:#087fd5;--ob-cyan:#16b6e8;--ob-ice:#eef9ff;--ob-line:#d8eaf4}
+body{background:linear-gradient(180deg,#fff 0,#f9fdff 36%,#eff9ff 100%)}
 .top-header{height:68px;display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:14px;padding:calc(10px + env(safe-area-inset-top,0px)) 20px 0;position:sticky;top:0;z-index:50;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border-bottom:1px solid rgba(218,235,245,.72)}
 .top-logo{display:flex;align-items:center;gap:1px;text-decoration:none;color:#082f59;font-weight:800;font-size:22px;line-height:1;letter-spacing:.045em;white-space:nowrap}.top-logo .accent{color:#13a9df;font-weight:700}.top-club{min-width:66px;height:36px;border:1.5px solid #8dccef;border-radius:999px;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:11px;font-weight:900;letter-spacing:.22em;color:#0b4f80;background:rgba(255,255,255,.78);box-shadow:0 2px 10px rgba(16,112,172,.05)}
 .top-menu-button{width:38px;height:38px;border:0;background:transparent;padding:8px 4px;display:flex;flex-direction:column;justify-content:center;gap:5px;-webkit-tap-highlight-color:transparent}.top-menu-button span{display:block;width:25px;height:3px;border-radius:99px;background:#082f59;margin-left:auto}.top-menu-panel{display:none;position:absolute;right:16px;top:64px;z-index:60;width:205px;background:rgba(255,255,255,.98);border:1px solid #d8eaf5;border-radius:17px;box-shadow:0 18px 42px rgba(4,47,84,.18);padding:7px;backdrop-filter:blur(14px)}.top-menu-panel.open{display:block}.top-menu-panel a{display:block;text-decoration:none;color:#123f66;font-size:13px;font-weight:850;padding:12px;border-radius:11px}.top-menu-panel a:active{background:#eef8ff}
-.today-intro{max-width:880px;margin:0 auto;padding:21px 14px 0}.today-intro .eyebrow{display:block;color:#20a4d8;font-size:9px;font-weight:900;letter-spacing:.22em;margin-bottom:4px}.today-intro h1{font-size:27px;margin:0;color:#0e365d;letter-spacing:-.03em}.today-intro p{font-size:12px;color:#708798;line-height:1.75;margin:7px 0 12px}.performance-section{scroll-margin-top:76px}
-/* 24場のサイズと情報量は維持し、白・ネイビー・シアン中心のONE BOATらしい抑えた表現に統一 */
-.free-strip{background:linear-gradient(90deg,#f9fdff,#eff9ff);border-top:1px solid #e5f1f8;border-bottom:1px solid #dfeef7}.free-strip-title{color:#0d5e95}.free-chip{border-color:#cfe7f4;box-shadow:0 2px 8px rgba(24,98,145,.04)}
-.date-nav{border-color:#dcebf4;box-shadow:0 2px 8px rgba(20,86,128,.03)}
-.count-label{background:linear-gradient(90deg,#159bd8,#0d7fcf);box-shadow:0 4px 12px rgba(18,130,196,.10)}
-.venue-legend{color:#758a9b}
-.venue-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:7px -2px 30px}
-.venue-tile{aspect-ratio:1;border-radius:11px;background:#fff;border:1px solid #d9e8f1;box-shadow:0 4px 12px rgba(20,77,116,.055);overflow:hidden;transition:transform .08s ease,box-shadow .15s ease,border-color .15s ease}
-.venue-name{height:38%;padding:4px 2px 2px;background:linear-gradient(180deg,#ffffff,#fbfdff);color:#0e355b;font-size:15px;font-weight:900;letter-spacing:-.035em;border-bottom:1px solid #e7f0f5}
-.venue-strip{height:20%;font-size:8px;font-weight:900;letter-spacing:.015em;background:#8297a7;color:#fff}
+.today-intro{max-width:880px;margin:0 auto;padding:18px 14px 0}.today-brand-panel{position:relative;overflow:hidden;border-radius:20px;padding:21px 20px 20px;color:#fff;background:linear-gradient(135deg,#052c55 0%,#075487 64%,#0a82bd 100%);box-shadow:0 16px 32px rgba(8,74,118,.15)}.today-brand-panel:before{content:"";position:absolute;width:170px;height:170px;border-radius:50%;right:-52px;top:-72px;border:1px solid rgba(111,220,255,.28);box-shadow:0 0 0 22px rgba(95,211,249,.06),0 0 0 46px rgba(95,211,249,.035)}.today-brand-panel:after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,#21c8ef,#2e99f0,#21c8ef)}.today-intro .eyebrow{position:relative;display:block;color:#79ddfb;font-size:9px;font-weight:900;letter-spacing:.22em;margin-bottom:5px}.today-intro h1{position:relative;font-size:30px;margin:0;color:#fff;letter-spacing:-.035em;line-height:1.15}.today-intro p{position:relative;font-size:12px;color:#d7eaf6;line-height:1.75;margin:9px 0 0;max-width:540px}.brand-chips{position:relative;display:flex;gap:7px;margin-top:14px;overflow:auto}.brand-chips span{flex:0 0 auto;font-size:9px;font-weight:900;letter-spacing:.05em;padding:7px 9px;border:1px solid rgba(139,225,253,.26);background:rgba(255,255,255,.07);border-radius:999px;color:#e8f8ff}
+.free-strip{margin-top:14px;background:linear-gradient(90deg,#f8fdff,#eef9ff);border-top:1px solid #e3f1f8;border-bottom:1px solid #dcecf5}.free-strip-title{color:#0c5d93}.free-chip{border-color:#c8e6f5;background:#fff;box-shadow:0 3px 10px rgba(18,92,139,.04)}
+.page-section.today-section{padding-top:20px}.date-row{margin-bottom:22px}.date-row>div{padding:2px 14px}.date-row small{color:#16a2d8}.date-row strong{color:#0a355e}.date-nav{border-color:#d8e9f3;background:rgba(255,255,255,.9);box-shadow:0 3px 10px rgba(22,81,119,.04)}
+.section-title-row small{color:#159fd7}.section-title-row h2{font-size:25px;color:#082f59}.count-label{background:linear-gradient(90deg,#16afe0,#0b78d6);box-shadow:0 5px 13px rgba(16,133,199,.15)}
+.lead{color:#6a8397}.venue-legend{color:#6c8395}
+.venue-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:8px -2px 32px}
+.venue-tile{aspect-ratio:1;border-radius:13px;background:#fff;border:1px solid #d9e9f2;box-shadow:0 6px 17px rgba(17,71,108,.07);overflow:hidden;transition:transform .08s ease,box-shadow .15s ease,border-color .15s ease}
+.venue-tile:active{transform:scale(.965)}
+.venue-name{height:38%;padding:4px 2px 2px;background:linear-gradient(180deg,#fff,#f8fcff);color:#082f59;font-size:15px;font-weight:950;letter-spacing:-.035em;border-bottom:1px solid #e5eff5}
+.venue-strip{height:20%;font-size:8px;font-weight:950;letter-spacing:.02em;background:#7d93a5;color:#fff}
 .venue-meta{height:42%;grid-template-columns:.82fr 1.7fr;background:#fff;border-top:0;color:#243f57}
-.venue-meta strong{font-size:16px;line-height:1;font-weight:900;border-right:1px solid #e5edf2;color:#0f416a}
-.venue-meta em{font-size:8.5px;line-height:1.2;font-weight:900;padding:0 3px;color:#60798d}
-.venue-tile.live{border:1.5px solid #7bc4ea;background:#fff;box-shadow:0 7px 18px rgba(21,137,199,.12)}.venue-tile.live .venue-name{background:linear-gradient(180deg,#ffffff,#f4fbff);color:#0a3d67}.venue-tile.live .venue-strip{background:linear-gradient(90deg,#1aaddf,#0d7fd4)}
-.venue-tile.watch{border-color:#e6c776}.venue-tile.watch .venue-strip{background:#dca331}
-.venue-tile.skip .venue-strip{background:#788d9d}.venue-tile.settled .venue-strip{background:#178f6a}
-.venue-tile.pending .venue-strip{background:#8da0ae}
-.venue-tile.idle{opacity:.76;border-color:#e0e7ec;background:#f8fafb;box-shadow:none}.venue-tile.idle .venue-name,.venue-tile.idle .venue-meta{background:#f8fafb;color:#91a0aa}.venue-tile.idle .venue-name{border-bottom-color:#e7ecef}.venue-tile.idle .venue-strip{background:#b4bdc3}.venue-tile.idle .venue-meta strong,.venue-tile.idle .venue-meta em{color:#8f9da7}
-.race-card,.result-card{border-color:#deebf3;box-shadow:0 5px 16px rgba(28,83,121,.045)}
-@media(max-width:380px){.top-header{padding-left:15px;padding-right:14px;gap:10px}.top-logo{font-size:20px}.today-intro h1{font-size:25px}.venue-grid{gap:4px}.venue-name{font-size:14px}.venue-meta strong{font-size:15px}.venue-meta em{font-size:7.5px}}
+.venue-meta strong{font-size:16px;line-height:1;font-weight:950;border-right:1px solid #e5edf2;color:#0b416d}.venue-meta em{font-size:8.5px;line-height:1.2;font-weight:900;padding:0 3px;color:#5f788d}
+.venue-tile.live{border:1.5px solid #56bde9;box-shadow:0 9px 22px rgba(18,142,204,.16)}.venue-tile.live .venue-name{background:linear-gradient(180deg,#fff,#effaff);color:#063d67}.venue-tile.live .venue-strip{background:linear-gradient(90deg,#20bee8,#0a7cd6)}
+.venue-tile.watch{border-color:#e7c56b}.venue-tile.watch .venue-strip{background:#dba22b}.venue-tile.skip .venue-strip{background:#70899d}.venue-tile.settled .venue-strip{background:#148e68}.venue-tile.pending .venue-strip{background:#8ea2b1}
+.venue-tile.idle{opacity:.72;border-color:#e2e9ed;background:#f8fafb;box-shadow:none}.venue-tile.idle .venue-name,.venue-tile.idle .venue-meta{background:#f8fafb;color:#92a0aa}.venue-tile.idle .venue-strip{background:#b2bcc3}.venue-tile.idle .venue-meta strong,.venue-tile.idle .venue-meta em{color:#8f9ca5}
+.public-title{position:relative;margin-top:12px;padding-top:22px}.public-title:before{content:"";position:absolute;left:0;top:0;width:54px;height:3px;border-radius:99px;background:linear-gradient(90deg,#16b7e6,#0b7ed6)}
+.race-card,.result-card{border-color:#dceaf3;border-radius:16px;box-shadow:0 7px 20px rgba(20,75,112,.055)}.race-card-button{position:relative;overflow:hidden}.race-card-button:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#18b9e6,#0a7ed7)}
+.performance-section{background:linear-gradient(135deg,#062e57,#084b79);color:#fff;border:0;padding-top:34px;padding-bottom:34px}.performance-section .section-title-row h2{color:#fff}.performance-section .section-title-row small{color:#71daf9}.performance-section .lead{color:#c9deeb}.performance-section .auto-label{background:rgba(255,255,255,.09);color:#ccefff;border-color:rgba(150,221,247,.22)}.performance-section .period-tabs{border-color:rgba(180,225,244,.25);background:rgba(255,255,255,.05)}.performance-section .period{background:rgba(255,255,255,.04);border-color:rgba(180,225,244,.18);color:#c6dbe8}.performance-section .period.active{background:linear-gradient(90deg,#19b7e2,#0c84d7);color:#fff}.performance-section .stats-table{border-color:rgba(176,221,241,.22);background:rgba(255,255,255,.07);backdrop-filter:blur(6px)}.performance-section .stats-table>div{border-color:rgba(176,221,241,.16)}.performance-section .stats-table span,.performance-section .stats-table small{color:#bcd3e1}.performance-section .stats-table strong{color:#fff}
+.club-panel{background:linear-gradient(135deg,#071f3d,#073c69 58%,#0877a6);position:relative;overflow:hidden}.club-panel:after{content:"";position:absolute;width:190px;height:190px;border-radius:50%;right:-82px;top:-70px;border:1px solid rgba(87,211,248,.2);box-shadow:0 0 0 25px rgba(87,211,248,.04)}.club-panel-inner{position:relative;z-index:1}.club-button{display:flex;align-items:center;justify-content:center;text-decoration:none}
+@media(max-width:380px){.top-header{padding-left:15px;padding-right:14px;gap:10px}.top-logo{font-size:20px}.today-intro{padding-left:12px;padding-right:12px}.today-brand-panel{padding:19px 16px}.today-intro h1{font-size:27px}.venue-grid{gap:4px}.venue-name{font-size:14px}.venue-meta strong{font-size:15px}.venue-meta em{font-size:7.5px}}
 </style>
 </head>
 <body>
 <header class="top-header">
   <a class="top-logo" href="/" aria-label="ONE BOAT トップ">ONE BO<span class="accent">A</span>T</a>
-  <a class="top-club" href="#club">CLUB</a>
+  <a class="top-club" href="/club.html">CLUB</a>
   <button class="top-menu-button" id="topMenuButton" type="button" aria-label="メニュー" aria-expanded="false"><span></span><span></span><span></span></button>
   <nav class="top-menu-panel" id="topMenuPanel" aria-label="メインメニュー">
-    <a href="/">HOME</a>
-    <a href="/today.html">本日の予想</a>
-    <a href="#performance">実績</a>
-    <a href="#club">ONE BOAT CLUB</a>
+    <a href="/">HOME</a><a href="/today.html">本日の予想</a><a href="#performance">実績</a><a href="/club.html">ONE BOAT CLUB</a>
   </nav>
 </header>
 <main>
-  <div class="today-intro"><span class="eyebrow">BOAT RACE ANALYTICS</span><h1>本日の予想</h1><p>全国24場から確認できます。管理用ONE BOATで確定した情報だけを表示します。</p></div>
+  <div class="today-intro">
+    <div class="today-brand-panel"><span class="eyebrow">ONE BOAT / BOAT RACE ANALYTICS</span><h1>本日の予想</h1><p>データで選ぶ。買わないレースも選ぶ。管理用ONE BOATで確定した判断だけを全国24場へ反映します。</p><div class="brand-chips"><span>DATA DRIVEN</span><span>SELECTIVE ENTRY</span><span>OPEN RESULTS</span></div></div>
+  </div>
   <section class="free-strip" aria-label="本日の公開状況"><div class="free-strip-title">本日の公開状況</div><div id="free-strip-list" class="free-strip-list">開催情報を確認中</div></section>
   <section class="page-section today-section" id="today">
     <div class="date-row"><button class="date-nav muted" type="button" disabled>‹ 前日</button><div><small>TODAY</small><strong id="today-date">本日のレース</strong></div><button class="date-nav muted" type="button" disabled>翌日 ›</button></div>
-    <div class="section-title-row"><div><small>RACE STADIUMS</small><h2>開催一覧</h2></div><span id="today-count" class="count-label">確認中</span></div>
-    <p class="lead">場をタップすると1R〜12Rの状態を確認できます。</p>
+    <div class="section-title-row"><div><small>24 BOAT RACE STADIUMS</small><h2>全国24場</h2></div><span id="today-count" class="count-label">確認中</span></div>
+    <p class="lead">場をタップすると1R〜12RのONE BOAT判定を確認できます。</p>
     <div class="venue-legend"><span><i class="lg-live"></i>予想公開</span><span><i class="lg-watch"></i>様子見</span><span><i class="lg-skip"></i>見送り</span><span><i class="lg-idle"></i>非開催/終了</span></div>
     <div class="venue-grid" id="venue-grid" aria-label="全国24場"></div>
     <div class="section-title-row public-title"><div><small>ONE BOAT SELECT</small><h2>本日の公開予想</h2></div><span id="public-count" class="count-label">--</span></div>
-    <p class="lead">ENTERかつ投資額が確定したレースのみ公開します。</p>
-    <div id="today-list" class="race-list"><div class="skeleton"></div><div class="skeleton"></div></div>
+    <p class="lead">ENTERかつ投資額が確定したレースのみ公開します。</p><div id="today-list" class="race-list"><div class="skeleton"></div><div class="skeleton"></div></div>
   </section>
   <section class="page-section performance-section" id="performance">
-    <div class="section-title-row"><div><small>PUBLIC PERFORMANCE</small><h2>実績</h2></div><span class="auto-label">自動更新</span></div>
-    <p class="lead">公開対象レースだけを集計し、見送り・様子見・投資0円は収支に含めません。</p>
+    <div class="section-title-row"><div><small>PUBLIC PERFORMANCE</small><h2>公開実績</h2></div><span class="auto-label">自動更新</span></div>
+    <p class="lead">的中だけを切り取らず、公開対象レースをそのまま集計します。</p>
     <div class="period-tabs" role="tablist"><button class="period active" data-period="today">今日</button><button class="period" data-period="days7">7日</button><button class="period" data-period="days30">30日</button><button class="period" data-period="all">累計</button></div>
     <div class="stats-table"><div><span>回収率</span><strong id="m-roi">--</strong></div><div><span>的中率</span><strong id="m-hit">--</strong></div><div><span>収支</span><strong id="m-profit">--</strong><small id="m-races">集計中</small></div></div>
   </section>
   <section class="page-section" id="results"><div class="section-title-row"><div><small>OPEN RESULTS</small><h2>直近の公開結果</h2></div></div><div id="result-list" class="result-list"><div class="skeleton"></div></div><p class="transparency">公開したレースは、的中・不的中を区別せずそのまま残します。</p></section>
-  <section class="club-panel" id="club"><div class="club-panel-inner"><span>ONE BOAT CLUB</span><h2>ONE BOAT CLUB</h2><p>会員限定情報・詳細分析・通知機能などへ拡張できる設計で準備しています。</p><button id="note-btn" class="club-button disabled" type="button">準備中</button></div></section>
+  <section class="club-panel" id="club"><div class="club-panel-inner"><span>ONE BOAT CLUB</span><h2>もっと深く、ONE BOATへ。</h2><p>無料会員、1日パス、CLUB月額。使い方に合わせてONE BOATの分析を広げられます。</p><a class="club-button" href="/club.html">CLUBを見る</a></div></section>
 </main>
 <div id="sheet-backdrop" class="sheet-backdrop" hidden></div>
 <section id="venue-sheet" class="bottom-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="venue-sheet-title"><div class="sheet-handle"></div><div class="sheet-head"><button id="venue-close" class="sheet-back" type="button">×</button><div><small>BOAT RACE</small><h2 id="venue-sheet-title">場詳細</h2></div><span id="venue-sheet-state" class="sheet-state">--</span></div><div id="venue-sheet-meta" class="venue-sheet-meta"></div><div id="venue-races" class="venue-races"></div></section>
 <section id="race-sheet" class="bottom-sheet race-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="race-sheet-title"><div class="sheet-handle"></div><div class="sheet-head"><button id="race-back" class="sheet-back" type="button">‹</button><div><small>RACE DETAIL</small><h2 id="race-sheet-title">レース詳細</h2></div><span id="race-sheet-state" class="sheet-state">--</span></div><div id="race-detail" class="race-detail"></div></section>
 <footer><strong>ONE BOAT</strong><span>BOAT RACE ANALYTICS</span><small>© ONE BOAT</small></footer>
-<script src="/app.js?v=20260918-oneboat2" defer></script>
+<script src="/app.js?v=20260918-obfull1" defer></script>
 <script>
-const mb=document.getElementById('topMenuButton'),mp=document.getElementById('topMenuPanel');
-function closeTopMenu(){mp.classList.remove('open');mb.setAttribute('aria-expanded','false')}
-mb.addEventListener('click',e=>{e.stopPropagation();const open=mp.classList.toggle('open');mb.setAttribute('aria-expanded',String(open))});
-document.addEventListener('click',e=>{if(!mp.contains(e.target)&&!mb.contains(e.target))closeTopMenu()});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTopMenu()});
+const mb=document.getElementById('topMenuButton'),mp=document.getElementById('topMenuPanel');function closeTopMenu(){mp.classList.remove('open');mb.setAttribute('aria-expanded','false')}mb.addEventListener('click',e=>{e.stopPropagation();const open=mp.classList.toggle('open');mb.setAttribute('aria-expanded',String(open))});document.addEventListener('click',e=>{if(!mp.contains(e.target)&&!mb.contains(e.target))closeTopMenu()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTopMenu()});
 </script>
 </body></html>
