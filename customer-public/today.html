@@ -6,25 +6,30 @@
 <meta name="theme-color" content="#ffffff" />
 <title>本日の予想｜ONE BOAT</title>
 <meta name="description" content="ONE BOAT 本日の24場・公開予想・実績" />
-<link rel="stylesheet" href="/styles.css?v=20260918-teleboat1" />
+<link rel="stylesheet" href="/styles.css?v=20260918-oneboat2" />
 <style>
 .top-header{height:68px;display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:14px;padding:calc(10px + env(safe-area-inset-top,0px)) 20px 0;position:sticky;top:0;z-index:50;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border-bottom:1px solid rgba(218,235,245,.72)}
 .top-logo{display:flex;align-items:center;gap:1px;text-decoration:none;color:#082f59;font-weight:800;font-size:22px;line-height:1;letter-spacing:.045em;white-space:nowrap}.top-logo .accent{color:#13a9df;font-weight:700}.top-club{min-width:66px;height:36px;border:1.5px solid #8dccef;border-radius:999px;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:11px;font-weight:900;letter-spacing:.22em;color:#0b4f80;background:rgba(255,255,255,.78);box-shadow:0 2px 10px rgba(16,112,172,.05)}
 .top-menu-button{width:38px;height:38px;border:0;background:transparent;padding:8px 4px;display:flex;flex-direction:column;justify-content:center;gap:5px;-webkit-tap-highlight-color:transparent}.top-menu-button span{display:block;width:25px;height:3px;border-radius:99px;background:#082f59;margin-left:auto}.top-menu-panel{display:none;position:absolute;right:16px;top:64px;z-index:60;width:205px;background:rgba(255,255,255,.98);border:1px solid #d8eaf5;border-radius:17px;box-shadow:0 18px 42px rgba(4,47,84,.18);padding:7px;backdrop-filter:blur(14px)}.top-menu-panel.open{display:block}.top-menu-panel a{display:block;text-decoration:none;color:#123f66;font-size:13px;font-weight:850;padding:12px;border-radius:11px}.top-menu-panel a:active{background:#eef8ff}
-.today-intro{max-width:880px;margin:0 auto;padding:20px 14px 0}.today-intro .eyebrow{display:block;color:#20a4d8;font-size:9px;font-weight:900;letter-spacing:.22em;margin-bottom:4px}.today-intro h1{font-size:27px;margin:0;color:#0e365d;letter-spacing:-.03em}.today-intro p{font-size:12px;color:#708798;line-height:1.75;margin:7px 0 12px}.performance-section{scroll-margin-top:76px}
-/* TELEBOATのスマホ開催一覧で使われる情報密度を参考に、ONE BOAT向けに再設計。サイズは従来の4列正方形を維持 */
-.venue-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin:6px -2px 30px}
-.venue-tile{aspect-ratio:1;border-radius:7px;background:#fff;border:1px solid #cfd9e1;box-shadow:0 1px 3px rgba(19,50,75,.08);overflow:hidden}
-.venue-name{height:38%;padding:4px 2px 2px;background:#fff;color:#182f43;font-size:15px;font-weight:900;letter-spacing:-.035em;border-bottom:1px solid #e5ebef}
-.venue-strip{height:20%;font-size:8px;font-weight:900;letter-spacing:.015em;background:#7f909d;color:#fff}
-.venue-meta{height:42%;grid-template-columns:.82fr 1.7fr;background:#fff;border-top:0;color:#243444}
-.venue-meta strong{font-size:16px;line-height:1;font-weight:900;border-right:1px solid #e2e8ed;color:#163b5d}
-.venue-meta em{font-size:8.5px;line-height:1.2;font-weight:900;padding:0 3px;color:#52697b}
-.venue-tile.live{border:2px solid #268ed2;background:#fff;box-shadow:0 2px 7px rgba(30,126,187,.16)}.venue-tile.live .venue-name{background:#fff;color:#103a5e}.venue-tile.live .venue-strip{background:#168bd1}
-.venue-tile.watch{border-color:#e1b64d}.venue-tile.watch .venue-strip{background:#d99a1f}
-.venue-tile.skip .venue-strip{background:#748797}.venue-tile.settled .venue-strip{background:#188e69}
-.venue-tile.pending .venue-strip{background:#879ba9}
-.venue-tile.idle{opacity:1;border-color:#d8dde1;background:#f1f3f4;box-shadow:none}.venue-tile.idle .venue-name,.venue-tile.idle .venue-meta{background:#f1f3f4;color:#8c979f}.venue-tile.idle .venue-name{border-bottom-color:#e0e3e5}.venue-tile.idle .venue-strip{background:#aeb7bd}.venue-tile.idle .venue-meta strong,.venue-tile.idle .venue-meta em{color:#8c979f}
+.today-intro{max-width:880px;margin:0 auto;padding:21px 14px 0}.today-intro .eyebrow{display:block;color:#20a4d8;font-size:9px;font-weight:900;letter-spacing:.22em;margin-bottom:4px}.today-intro h1{font-size:27px;margin:0;color:#0e365d;letter-spacing:-.03em}.today-intro p{font-size:12px;color:#708798;line-height:1.75;margin:7px 0 12px}.performance-section{scroll-margin-top:76px}
+/* 24場のサイズと情報量は維持し、白・ネイビー・シアン中心のONE BOATらしい抑えた表現に統一 */
+.free-strip{background:linear-gradient(90deg,#f9fdff,#eff9ff);border-top:1px solid #e5f1f8;border-bottom:1px solid #dfeef7}.free-strip-title{color:#0d5e95}.free-chip{border-color:#cfe7f4;box-shadow:0 2px 8px rgba(24,98,145,.04)}
+.date-nav{border-color:#dcebf4;box-shadow:0 2px 8px rgba(20,86,128,.03)}
+.count-label{background:linear-gradient(90deg,#159bd8,#0d7fcf);box-shadow:0 4px 12px rgba(18,130,196,.10)}
+.venue-legend{color:#758a9b}
+.venue-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:7px -2px 30px}
+.venue-tile{aspect-ratio:1;border-radius:11px;background:#fff;border:1px solid #d9e8f1;box-shadow:0 4px 12px rgba(20,77,116,.055);overflow:hidden;transition:transform .08s ease,box-shadow .15s ease,border-color .15s ease}
+.venue-name{height:38%;padding:4px 2px 2px;background:linear-gradient(180deg,#ffffff,#fbfdff);color:#0e355b;font-size:15px;font-weight:900;letter-spacing:-.035em;border-bottom:1px solid #e7f0f5}
+.venue-strip{height:20%;font-size:8px;font-weight:900;letter-spacing:.015em;background:#8297a7;color:#fff}
+.venue-meta{height:42%;grid-template-columns:.82fr 1.7fr;background:#fff;border-top:0;color:#243f57}
+.venue-meta strong{font-size:16px;line-height:1;font-weight:900;border-right:1px solid #e5edf2;color:#0f416a}
+.venue-meta em{font-size:8.5px;line-height:1.2;font-weight:900;padding:0 3px;color:#60798d}
+.venue-tile.live{border:1.5px solid #7bc4ea;background:#fff;box-shadow:0 7px 18px rgba(21,137,199,.12)}.venue-tile.live .venue-name{background:linear-gradient(180deg,#ffffff,#f4fbff);color:#0a3d67}.venue-tile.live .venue-strip{background:linear-gradient(90deg,#1aaddf,#0d7fd4)}
+.venue-tile.watch{border-color:#e6c776}.venue-tile.watch .venue-strip{background:#dca331}
+.venue-tile.skip .venue-strip{background:#788d9d}.venue-tile.settled .venue-strip{background:#178f6a}
+.venue-tile.pending .venue-strip{background:#8da0ae}
+.venue-tile.idle{opacity:.76;border-color:#e0e7ec;background:#f8fafb;box-shadow:none}.venue-tile.idle .venue-name,.venue-tile.idle .venue-meta{background:#f8fafb;color:#91a0aa}.venue-tile.idle .venue-name{border-bottom-color:#e7ecef}.venue-tile.idle .venue-strip{background:#b4bdc3}.venue-tile.idle .venue-meta strong,.venue-tile.idle .venue-meta em{color:#8f9da7}
+.race-card,.result-card{border-color:#deebf3;box-shadow:0 5px 16px rgba(28,83,121,.045)}
 @media(max-width:380px){.top-header{padding-left:15px;padding-right:14px;gap:10px}.top-logo{font-size:20px}.today-intro h1{font-size:25px}.venue-grid{gap:4px}.venue-name{font-size:14px}.venue-meta strong{font-size:15px}.venue-meta em{font-size:7.5px}}
 </style>
 </head>
@@ -66,7 +71,7 @@
 <section id="venue-sheet" class="bottom-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="venue-sheet-title"><div class="sheet-handle"></div><div class="sheet-head"><button id="venue-close" class="sheet-back" type="button">×</button><div><small>BOAT RACE</small><h2 id="venue-sheet-title">場詳細</h2></div><span id="venue-sheet-state" class="sheet-state">--</span></div><div id="venue-sheet-meta" class="venue-sheet-meta"></div><div id="venue-races" class="venue-races"></div></section>
 <section id="race-sheet" class="bottom-sheet race-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="race-sheet-title"><div class="sheet-handle"></div><div class="sheet-head"><button id="race-back" class="sheet-back" type="button">‹</button><div><small>RACE DETAIL</small><h2 id="race-sheet-title">レース詳細</h2></div><span id="race-sheet-state" class="sheet-state">--</span></div><div id="race-detail" class="race-detail"></div></section>
 <footer><strong>ONE BOAT</strong><span>BOAT RACE ANALYTICS</span><small>© ONE BOAT</small></footer>
-<script src="/app.js?v=20260918-teleboat1" defer></script>
+<script src="/app.js?v=20260918-oneboat2" defer></script>
 <script>
 const mb=document.getElementById('topMenuButton'),mp=document.getElementById('topMenuPanel');
 function closeTopMenu(){mp.classList.remove('open');mb.setAttribute('aria-expanded','false')}
