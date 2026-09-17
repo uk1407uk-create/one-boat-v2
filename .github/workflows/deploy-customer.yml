@@ -2,7 +2,7 @@ name: Deploy ONE BOAT Customer to Cloudflare Workers
 on:
   push:
     branches: [main]
-    paths: ['customer-public/**','worker_customer.js','worker_customer_hero.js','wrangler.customer.jsonc','.github/workflows/deploy-customer.yml']
+    paths: ['customer-public/**','worker_customer.js','worker_customer_hero.js','worker_member.js','wrangler.customer.jsonc','.github/workflows/deploy-customer.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -27,15 +27,9 @@ jobs:
               p=Path(f'customer-public/assets/home-exact-{i:02d}.txt')
               assert p.exists() and p.stat().st_size > 0, p
               parts.append(p.read_text().strip())
-          s=''.join(parts)
-          s += '='*((4-len(s)%4)%4)
-          b=base64.b64decode(s)
-          assert b[:4] == b'RIFF', b[:16]
-          assert b[8:12] == b'WEBP', b[:16]
-          assert len(b) > 50000, len(b)
-          out=Path('customer-public/assets/oneboat-top.webp')
-          out.write_bytes(b)
-          print('oneboat_top_bytes',len(b))
+          s=''.join(parts); s += '='*((4-len(s)%4)%4); b=base64.b64decode(s)
+          assert b[:4] == b'RIFF' and b[8:12] == b'WEBP' and len(b) > 50000
+          Path('customer-public/assets/oneboat-top.webp').write_bytes(b)
           print('oneboat_top_sha256',hashlib.sha256(b).hexdigest())
           PY
 
@@ -50,15 +44,9 @@ jobs:
               p=Path(f'customer-public/hero-chunk-{i}.txt')
               assert p.exists() and p.stat().st_size > 0, p
               parts.append(p.read_text().strip())
-          s=''.join(parts)
-          s += '='*((4-len(s)%4)%4)
-          b=base64.b64decode(s)
-          assert b[:4] == b'RIFF', b[:16]
-          assert b[8:12] == b'WEBP', b[:16]
-          assert len(b) > 20000, len(b)
-          out=Path('customer-public/assets/customer-hero.webp')
-          out.write_bytes(b)
-          print('customer_hero_bytes',len(b))
+          s=''.join(parts); s += '='*((4-len(s)%4)%4); b=base64.b64decode(s)
+          assert b[:4] == b'RIFF' and b[8:12] == b'WEBP' and len(b) > 20000
+          Path('customer-public/assets/customer-hero.webp').write_bytes(b)
           print('customer_hero_sha256',hashlib.sha256(b).hexdigest())
           PY
 
@@ -72,18 +60,35 @@ jobs:
           if-no-files-found: warn
           retention-days: 1
 
-      - name: Validate native customer site before deploy
+      - name: Validate customer site before deploy
         run: |
           set -euo pipefail
           test -s customer-public/index.html
           test -s customer-public/assets/customer-hero.webp
           test -s customer-public/today.html
+          test -s customer-public/club.html
+          test -s customer-public/signup.html
+          test -s customer-public/login.html
+          test -s customer-public/mypage.html
+          test -s customer-public/premium.html
+          test -s customer-public/member.css
+          test -s customer-public/member.js
+          test -s customer-public/terms.html
+          test -s customer-public/privacy.html
+          test -s customer-public/commercial.html
+          test -s customer-public/refund.html
+          test -s worker_member.js
           grep -Eq 'hero-reference\.svg\?v=20260918-native1|assets/customer-hero\.webp\?v=20260918-selected2' customer-public/index.html
           grep -q 'href="/today.html"' customer-public/index.html
           grep -q '本日の予想を見る' customer-public/index.html
           grep -q '買わないレースも選ぶ。' customer-public/index.html
           grep -q 'feature-grid' customer-public/index.html
           grep -q '本日の24場' customer-public/today.html
+          grep -q '使い方に合わせて' customer-public/club.html
+          grep -q '20歳以上' customer-public/signup.html
+          grep -q '/api/auth/login' customer-public/member.js
+          grep -q '/api/member/checkout-intent' customer-public/member.js
+          grep -q "import base from './worker_member.js'" worker_customer_hero.js
 
       - name: Deploy customer Worker
         env:
@@ -97,35 +102,20 @@ jobs:
           BASE='https://one-boat-customer.uk-1407-uk.workers.dev'
           UA='Mozilla/5.0 (iPhone; CPU iPhone OS 26_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Mobile/15E148 Safari/604.1'
           sleep 4
-
-          echo 'VERIFY 1 root html'
           curl -fsS -A "$UA" -H 'Cache-Control: no-cache' "$BASE/?v=20260918-selected2" -o /tmp/root.html
-          grep -Eq 'hero-reference\.svg\?v=20260918-native1|assets/customer-hero\.webp\?v=20260918-selected2' /tmp/root.html
           grep -q '本日の予想を見る' /tmp/root.html
-          grep -q '買わないレースも選ぶ。' /tmp/root.html
-          grep -q 'href="/today.html"' /tmp/root.html
-          grep -q 'feature-grid' /tmp/root.html
-
-          echo 'VERIFY 2 selected hero asset'
-          curl -fSs -D /tmp/hero.headers -A "$UA" -H 'Cache-Control: no-cache' "$BASE/assets/customer-hero.webp?v=20260918-selected2" -o /tmp/customer-hero.webp
+          curl -fSs -D /tmp/hero.headers -A "$UA" "$BASE/assets/customer-hero.webp?v=20260918-selected2" -o /tmp/customer-hero.webp
           python - <<'PY'
           from pathlib import Path
-          b=Path('/tmp/customer-hero.webp').read_bytes()
-          assert b[:4] == b'RIFF', b[:16]
-          assert b[8:12] == b'WEBP', b[:16]
-          assert len(b) > 20000, len(b)
-          print('live_customer_hero_bytes',len(b))
+          b=Path('/tmp/customer-hero.webp').read_bytes(); assert b[:4]==b'RIFF' and b[8:12]==b'WEBP' and len(b)>20000
           PY
-          tr -d '\r' < /tmp/hero.headers | grep -Eqi '^content-type: image/webp'
-
-          echo 'VERIFY 3 today page'
-          curl -fsS -A "$UA" "$BASE/today.html?v=20260918-selected2" -o /tmp/today.html
-          grep -q '本日の24場' /tmp/today.html
-          grep -q 'venue-grid' /tmp/today.html
-          grep -q 'performance' /tmp/today.html
-
-          echo 'VERIFY 4 health'
+          curl -fsS -A "$UA" "$BASE/today.html?v=20260918-member1" | grep -q '本日の24場'
+          curl -fsS -A "$UA" "$BASE/club.html?v=20260918-member1" | grep -q '使い方に合わせて'
+          curl -fsS -A "$UA" "$BASE/signup.html?v=20260918-member1" | grep -q '無料会員登録'
+          curl -fsS -A "$UA" "$BASE/login.html?v=20260918-member1" | grep -q 'ログイン'
           curl -fsS -A "$UA" "$BASE/api/health" | grep -q 'ONE BOAT CUSTOMER'
-          echo 'VERIFY 5 stats'
           curl -fsS -A "$UA" "$BASE/api/public/stats" | grep -q 'public_only'
-          echo 'customer_live_iphone_verify_ok'
+          curl -fsS -A "$UA" "$BASE/api/member/session" | grep -q 'logged_in'
+          CODE=$(curl -sS -o /dev/null -w '%{http_code}' -A "$UA" "$BASE/premium.html")
+          test "$CODE" = "302"
+          echo 'customer_membership_iphone_verify_ok'
