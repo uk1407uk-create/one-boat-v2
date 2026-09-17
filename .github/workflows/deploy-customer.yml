@@ -39,6 +39,14 @@ jobs:
           print('oneboat_top_sha256',hashlib.sha256(b).hexdigest())
           PY
 
+      - name: Upload rebuilt top for visual verification
+        uses: actions/upload-artifact@v4
+        with:
+          name: oneboat-top-rebuilt
+          path: customer-public/assets/oneboat-top.webp
+          if-no-files-found: error
+          retention-days: 1
+
       - name: Validate customer assets before deploy
         run: |
           set -euo pipefail
@@ -50,7 +58,6 @@ jobs:
           grep -q '本日の予想を見る' customer-public/index.html
           ! grep -q 'hero-reference.svg' customer-public/index.html
           grep -q '本日の24場' customer-public/today.html
-          sha256sum customer-public/assets/oneboat-top.webp > /tmp/oneboat-top.sha256
 
       - name: Deploy customer Worker
         env:
@@ -65,31 +72,41 @@ jobs:
           UA='Mozilla/5.0 (iPhone; CPU iPhone OS 26_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Mobile/15E148 Safari/604.1'
           sleep 4
 
+          echo 'VERIFY 1 root html'
           curl -fsS -A "$UA" -H 'Cache-Control: no-cache' "$BASE/?v=20260917-exact2" -o /tmp/root.html
           grep -q 'assets/oneboat-top.webp?v=20260917-exact2' /tmp/root.html
           grep -q '本日の予想を見る' /tmp/root.html
           grep -q 'href="/today.html"' /tmp/root.html
           ! grep -q 'hero-reference.svg' /tmp/root.html
 
-          curl -fsS -A "$UA" -H 'Accept: image/avif,image/webp,image/*,*/*;q=0.8' "$BASE/assets/oneboat-top.webp?v=20260917-exact2" -o /tmp/live-top.webp
+          echo 'VERIFY 2 top image GET'
+          curl -fSs -D /tmp/top.headers -A "$UA" -H 'Cache-Control: no-cache' -H 'Accept: image/avif,image/webp,image/*,*/*;q=0.8' "$BASE/assets/oneboat-top.webp?v=20260917-exact2" -o /tmp/live-top.webp
+          cat /tmp/top.headers
           python - <<'PY'
           from pathlib import Path
           import hashlib
           local=Path('customer-public/assets/oneboat-top.webp').read_bytes()
           live=Path('/tmp/live-top.webp').read_bytes()
+          print('local',len(local),hashlib.sha256(local).hexdigest())
+          print('live ',len(live),hashlib.sha256(live).hexdigest())
+          print('live first16',live[:16])
           assert live[:4] == b'RIFF', live[:16]
           assert live[8:12] == b'WEBP', live[:16]
           assert len(live) == len(local), (len(live),len(local))
           assert hashlib.sha256(live).digest() == hashlib.sha256(local).digest()
-          print('live_top_exact_match',len(live),hashlib.sha256(live).hexdigest())
           PY
-          curl -fsSI -A "$UA" "$BASE/assets/oneboat-top.webp?v=20260917-exact2" | tr -d '\r' | grep -Eqi '^content-type: image/webp'
 
+          echo 'VERIFY 3 content type from GET headers'
+          tr -d '\r' < /tmp/top.headers | grep -Eqi '^content-type: image/webp'
+
+          echo 'VERIFY 4 today page'
           curl -fsS -A "$UA" "$BASE/today.html?v=20260917-exact2" -o /tmp/today.html
           grep -q '本日の24場' /tmp/today.html
           grep -q 'venue-grid' /tmp/today.html
           grep -q 'performance' /tmp/today.html
 
+          echo 'VERIFY 5 health'
           curl -fsS -A "$UA" "$BASE/api/health" | grep -q 'ONE BOAT CUSTOMER'
+          echo 'VERIFY 6 stats'
           curl -fsS -A "$UA" "$BASE/api/public/stats" | grep -q 'threads_free_public_only'
           echo 'customer_live_iphone_verify_ok'
