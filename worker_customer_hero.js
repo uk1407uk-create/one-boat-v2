@@ -1,7 +1,27 @@
 import base from './worker_member.js';
 
 const THREADS_STATS='https://imhzjlxbnovjvqlyawmg.supabase.co/functions/v1/one-boat-public-threads-stats';
+const CANONICAL_ORIGIN='https://one-boat-club.jp';
 const VENUES=['桐生','戸田','江戸川','平和島','多摩川','浜名湖','蒲郡','常滑','津','三国','びわこ','住之江','尼崎','鳴門','丸亀','児島','宮島','徳山','下関','若松','芦屋','福岡','唐津','大村'];
+
+function canonicalRedirect(request){
+  const u=new URL(request.url);
+  if(u.hostname!=='www.one-boat-club.jp') return null;
+  return Response.redirect(`${CANONICAL_ORIGIN}${u.pathname}${u.search}`,308);
+}
+
+async function assetPage(request,env,path){
+  const u=new URL(request.url);
+  u.pathname=path;
+  u.search='';
+  const r=await env.ASSETS.fetch(new Request(u,{method:'GET',headers:{accept:'text/html,*/*;q=0.8'}}));
+  const h=new Headers(r.headers);
+  h.set('content-type','text/html;charset=utf-8');
+  h.set('cache-control','no-store, max-age=0, must-revalidate');
+  h.set('pragma','no-cache');
+  h.set('x-content-type-options','nosniff');
+  return new Response(r.body,{status:r.status,headers:h});
+}
 
 async function freshLanding(request, env) {
   const origin=new URL(request.url).origin;
@@ -55,8 +75,12 @@ async function freePublicStats(){
 
 export default{
   async fetch(request,env,ctx){
+    const canonical=canonicalRedirect(request);
+    if(canonical) return canonical;
     const u=new URL(request.url);
     if(u.pathname==='/'||u.pathname==='/index.html') return freshLanding(request,env);
+    if(u.pathname==='/register'||u.pathname==='/register/') return assetPage(request,env,'/signup.html');
+    if(u.pathname==='/login'||u.pathname==='/login/') return assetPage(request,env,'/login.html');
     if(u.pathname==='/top-screen.webp') return legacyTopFallback(request,env);
     if(u.pathname==='/hero-top.jpg'||u.pathname==='/assets/home-approved-live.webp'||u.pathname==='/assets/home-approved-exact.webp') return exactHero(request,env);
     if(u.pathname==='/api/public/stats'){
