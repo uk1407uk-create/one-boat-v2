@@ -6,10 +6,11 @@
 <meta name="theme-color" content="#0877d7">
 <meta name="robots" content="noindex,follow">
 <title>レース分析｜ONE BOAT</title>
-<meta name="description" content="ONE BOAT レース分析。選手・展示・水面・正式エンジン評価を確認し、自分用のMY予想を組み立てられます。">
+<meta name="description" content="ONE BOAT レース分析。専用APIの正式データだけを使い、選手・展示・オッズを確認して自分用のMY予想を組み立てられます。">
 <link rel="stylesheet" href="/analysis.css?v=20260918-analysis1">
+<link rel="stylesheet" href="/analysis-api.css?v=20260918-api2">
 </head>
-<body>
+<body aria-busy="true">
 <header class="app-header">
   <a class="back-link" href="/today.html" aria-label="本日の予想へ戻る">‹</a>
   <div class="app-title"><small>ONE BOAT</small><strong>RACE ANALYSIS</strong></div>
@@ -22,9 +23,9 @@
       <div>
         <p class="eyebrow">SELF ANALYSIS</p>
         <h1 id="race-title">レース情報を読み込み中</h1>
-        <p id="race-subtitle" class="subline">選手・展示・水面データを確認しています</p>
+        <p id="race-subtitle" class="subline">専用APIから正式データを取得しています</p>
       </div>
-      <span id="race-state" class="state-badge pending">確認中</span>
+      <span id="race-state" class="state-badge pending">取得中</span>
     </div>
     <div class="hero-meta">
       <div><span>開催日</span><strong id="race-date">—</strong></div>
@@ -46,33 +47,34 @@
   <div id="page-message" class="page-message" hidden></div>
 
   <section class="tab-panel active" data-panel="racers">
-    <div class="section-head"><div><small>RACERS</small><h2>選手・モーター</h2></div><span>6艇比較</span></div>
-    <p class="section-help">全国・当地・STを中心に、モーター/ボート情報を1艇ずつ比較できます。</p>
+    <div class="section-head"><div><small>RACERS</small><h2>選手・成績</h2></div><span>6艇比較</span></div>
+    <p class="section-help">登録番号・全体成績・平均ST・現在進入に対応するコース別ST情報を、専用APIの正式値だけで比較します。</p>
     <div id="racer-list" class="racer-list"><div class="skeleton tall"></div><div class="skeleton tall"></div></div>
   </section>
 
   <section class="tab-panel" data-panel="exhibition">
-    <div class="section-head"><div><small>EXHIBITION</small><h2>展示・スタート</h2></div><span id="exhibition-status">取得状況</span></div>
-    <p class="section-help">公式に取得できた値だけを表示します。未取得項目を推測で補完しません。</p>
+    <div class="section-head"><div><small>EXHIBITION</small><h2>展示・スタート</h2></div><span id="exhibition-status">取得中</span></div>
+    <p class="section-help">展示タイム・進入・スタート展示・オリジナル展示・一周/半周/まわり足/直線を、取得できた正式値だけ表示します。</p>
     <div id="exhibition-list" class="data-card"><div class="skeleton"></div></div>
     <div id="exhibition-note" class="data-note"></div>
   </section>
 
   <section class="tab-panel" data-panel="surface">
-    <div class="section-head"><div><small>WATER & WEATHER</small><h2>水面・気象</h2></div><span>直前情報</span></div>
+    <div class="section-head"><div><small>WATER & WEATHER</small><h2>水面・気象</h2></div><span>正式値のみ</span></div>
     <div id="surface-grid" class="surface-grid"><div class="skeleton"></div><div class="skeleton"></div></div>
     <div id="tide-note" class="data-note"></div>
   </section>
 
   <section class="tab-panel" data-panel="engine">
     <div class="section-head"><div><small>ONE BOAT ENGINE</small><h2>正式エンジン評価</h2></div><span class="official-tag">公式値のみ</span></div>
-    <p class="section-help">④側で評価を作り直しません。予想エンジンが持つ正式データがある項目だけを表示します。</p>
+    <p class="section-help">展示・ST・モーター・コース・総合評価は、正式な score_breakdown に存在する値だけ表示します。④側で再計算しません。</p>
     <div id="engine-summary" class="engine-summary"></div>
     <div id="engine-rankings" class="engine-rankings"></div>
   </section>
 
   <section class="tab-panel" data-panel="odds">
     <div class="section-head"><div><small>TRIFECTA ODDS</small><h2>3連単オッズ</h2></div><span id="odds-updated">更新 —</span></div>
+    <p class="section-help">最大120通り。APIの現在値と更新時刻をそのまま表示し、過去値や推測値では補完しません。</p>
     <div id="odds-content" class="empty-card"><strong>オッズを確認中</strong><p>取得できた正式データのみ表示します。</p></div>
   </section>
 
@@ -101,6 +103,6 @@
   <a href="/club.html"><b>◎</b><span>CLUB</span></a>
 </nav>
 
-<script src="/analysis.js?v=20260918-analysis1" defer></script>
+<script src="/analysis.js?v=20260918-api2" defer></script>
 </body>
 </html>
