@@ -15,15 +15,6 @@ jobs:
         with:
           node-version: 22
       - run: npm install
-      - name: Rebuild hero source
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          import base64
-          s=''.join(Path(f'customer-public/assets/home-exact-{i:02d}.txt').read_text().strip() for i in range(10))
-          s += '='*((4-len(s)%4)%4)
-          Path('customer-public/hero-top.webp').write_bytes(base64.b64decode(s))
-          PY
       - name: Deploy customer Worker
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -33,17 +24,27 @@ jobs:
         run: |
           set -euo pipefail
           BASE='https://one-boat-customer.uk-1407-uk.workers.dev'
-          sleep 3
-          curl -fsS "$BASE/?v=20260917-exact1" -o /tmp/root.html
-          grep -q '/top-screen.webp?v=20260917-exact1' /tmp/root.html
-          curl -fsS "$BASE/top-screen.webp?v=20260917-exact1" -o /tmp/top.webp
-          python - <<'PY'
-          from pathlib import Path
-          b=Path('/tmp/top.webp').read_bytes()
-          assert b[:4]==b'RIFF', b[:16]
-          assert b[8:12]==b'WEBP', b[:16]
-          assert len(b)>50000, len(b)
-          print('top_webp_ok',len(b))
-          PY
+          sleep 4
+
+          curl -fsS "$BASE/?v=20260917-native1" -o /tmp/root.html
+          grep -q 'hero-reference.svg?v=20260917-native1' /tmp/root.html
+          grep -q 'href="/today.html"' /tmp/root.html
+          grep -q '本日の予想を見る' /tmp/root.html
+          if grep -q 'top-screen.webp' /tmp/root.html; then
+            echo 'old fragile top image reference is still present' >&2
+            exit 1
+          fi
+
+          curl -fsS "$BASE/hero-reference.svg?v=20260917-native1" -o /tmp/hero.svg
+          grep -q '<svg' /tmp/hero.svg
+          test "$(wc -c < /tmp/hero.svg)" -gt 10000
+
+          curl -fsS "$BASE/today.html?v=20260917-native1" -o /tmp/today.html
+          grep -q '本日の24場' /tmp/today.html
+          grep -q 'venue-grid' /tmp/today.html
+          grep -q 'performance' /tmp/today.html
+
           curl -fsS "$BASE/api/health" | grep -q 'ONE BOAT CUSTOMER'
           curl -fsS "$BASE/api/public/stats" | grep -q 'threads_free_public_only'
+
+          echo 'customer_live_verify_ok'
