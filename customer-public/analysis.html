@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0877d7">
+<meta name="robots" content="noindex,follow">
+<title>レース分析｜ONE BOAT</title>
+<meta name="description" content="ONE BOAT レース分析。選手・展示・水面・正式エンジン評価を確認し、自分用のMY予想を組み立てられます。">
+<link rel="stylesheet" href="/analysis.css?v=20260918-analysis1">
+</head>
+<body>
+<header class="app-header">
+  <a class="back-link" href="/today.html" aria-label="本日の予想へ戻る">‹</a>
+  <div class="app-title"><small>ONE BOAT</small><strong>RACE ANALYSIS</strong></div>
+  <a class="club-link" href="/club.html">CLUB</a>
+</header>
+
+<main class="analysis-shell">
+  <section class="race-hero" aria-labelledby="race-title">
+    <div class="hero-top">
+      <div>
+        <p class="eyebrow">SELF ANALYSIS</p>
+        <h1 id="race-title">レース情報を読み込み中</h1>
+        <p id="race-subtitle" class="subline">選手・展示・水面データを確認しています</p>
+      </div>
+      <span id="race-state" class="state-badge pending">確認中</span>
+    </div>
+    <div class="hero-meta">
+      <div><span>開催日</span><strong id="race-date">—</strong></div>
+      <div><span>締切</span><strong id="race-deadline">—</strong></div>
+      <div><span>更新</span><strong id="race-updated">—</strong></div>
+    </div>
+    <div class="separation-note"><i></i><span>この画面の「MY予想」はあなた専用です。ONE BOAT公式予想・ENTER成績・回収率には一切反映されません。</span></div>
+  </section>
+
+  <nav class="analysis-tabs" id="analysis-tabs" aria-label="レース分析メニュー">
+    <button class="analysis-tab active" type="button" data-tab="racers">選手</button>
+    <button class="analysis-tab" type="button" data-tab="exhibition">展示</button>
+    <button class="analysis-tab" type="button" data-tab="surface">水面</button>
+    <button class="analysis-tab" type="button" data-tab="engine">評価</button>
+    <button class="analysis-tab" type="button" data-tab="odds">オッズ</button>
+    <button class="analysis-tab" type="button" data-tab="my">MY予想</button>
+  </nav>
+
+  <div id="page-message" class="page-message" hidden></div>
+
+  <section class="tab-panel active" data-panel="racers">
+    <div class="section-head"><div><small>RACERS</small><h2>選手・モーター</h2></div><span>6艇比較</span></div>
+    <p class="section-help">全国・当地・STを中心に、モーター/ボート情報を1艇ずつ比較できます。</p>
+    <div id="racer-list" class="racer-list"><div class="skeleton tall"></div><div class="skeleton tall"></div></div>
+  </section>
+
+  <section class="tab-panel" data-panel="exhibition">
+    <div class="section-head"><div><small>EXHIBITION</small><h2>展示・スタート</h2></div><span id="exhibition-status">取得状況</span></div>
+    <p class="section-help">公式に取得できた値だけを表示します。未取得項目を推測で補完しません。</p>
+    <div id="exhibition-list" class="data-card"><div class="skeleton"></div></div>
+    <div id="exhibition-note" class="data-note"></div>
+  </section>
+
+  <section class="tab-panel" data-panel="surface">
+    <div class="section-head"><div><small>WATER & WEATHER</small><h2>水面・気象</h2></div><span>直前情報</span></div>
+    <div id="surface-grid" class="surface-grid"><div class="skeleton"></div><div class="skeleton"></div></div>
+    <div id="tide-note" class="data-note"></div>
+  </section>
+
+  <section class="tab-panel" data-panel="engine">
+    <div class="section-head"><div><small>ONE BOAT ENGINE</small><h2>正式エンジン評価</h2></div><span class="official-tag">公式値のみ</span></div>
+    <p class="section-help">④側で評価を作り直しません。予想エンジンが持つ正式データがある項目だけを表示します。</p>
+    <div id="engine-summary" class="engine-summary"></div>
+    <div id="engine-rankings" class="engine-rankings"></div>
+  </section>
+
+  <section class="tab-panel" data-panel="odds">
+    <div class="section-head"><div><small>TRIFECTA ODDS</small><h2>3連単オッズ</h2></div><span id="odds-updated">更新 —</span></div>
+    <div id="odds-content" class="empty-card"><strong>オッズを確認中</strong><p>取得できた正式データのみ表示します。</p></div>
+  </section>
+
+  <section class="tab-panel" data-panel="my">
+    <div class="section-head"><div><small>MY PICK</small><h2>MY予想</h2></div><span class="my-tag">端末内のみ</span></div>
+    <p class="section-help">1着・2着・3着を選んで、自分用の3連単を組み立てます。実際の舟券購入機能はありません。</p>
+    <div class="my-picker">
+      <div class="pick-row"><div class="pick-label"><b>1</b><span>1着</span></div><div class="lane-buttons" data-place="first"></div></div>
+      <div class="pick-row"><div class="pick-label"><b>2</b><span>2着</span></div><div class="lane-buttons" data-place="second"></div></div>
+      <div class="pick-row"><div class="pick-label"><b>3</b><span>3着</span></div><div class="lane-buttons" data-place="third"></div></div>
+    </div>
+    <div class="my-result"><small>MY予想</small><strong id="my-ticket">— - — - —</strong><button id="clear-my" type="button">クリア</button></div>
+    <p class="local-only">この内容はこの端末のブラウザ内だけに保存され、ONE BOATの公式予想・結果・収支・検証データには送信されません。</p>
+  </section>
+
+  <section class="official-cta">
+    <div><small>OFFICIAL PREDICTION</small><h2>ONE BOAT公式予想</h2><p>公式予想は予想エンジンで確定した正式データだけを表示します。MY予想とは完全に別管理です。</p></div>
+    <a id="official-link" href="/today.html">ONE BOAT公式予想を見る <b>›</b></a>
+  </section>
+</main>
+
+<nav class="bottom-nav" aria-label="下部ナビゲーション">
+  <a href="/"><b>⌂</b><span>ホーム</span></a>
+  <a href="/today.html" class="active"><b>▦</b><span>本日の予想</span></a>
+  <a href="/today.html#performance"><b>↗</b><span>実績</span></a>
+  <a href="/club.html"><b>◎</b><span>CLUB</span></a>
+</nav>
+
+<script src="/analysis.js?v=20260918-analysis1" defer></script>
+</body>
+</html>
