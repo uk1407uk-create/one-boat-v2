@@ -15,35 +15,63 @@ jobs:
         with:
           node-version: 22
       - run: npm install
-      - name: Rebuild hero source
+      - name: Rebuild and validate static top image
         run: |
+          set -euo pipefail
+          python -m pip install --quiet pillow
           python - <<'PY'
           from pathlib import Path
-          import base64
-          s=''.join(Path(f'customer-public/assets/home-exact-{i:02d}.txt').read_text().strip() for i in range(10))
+          from PIL import Image
+          import base64, hashlib
+
+          parts=[]
+          for i in range(10):
+              p=Path(f'customer-public/assets/home-exact-{i:02d}.txt')
+              if not p.exists():
+                  raise SystemExit(f'missing {p}')
+              parts.append(p.read_text().strip())
+          s=''.join(parts)
           s += '='*((4-len(s)%4)%4)
-          Path('customer-public/hero-top.webp').write_bytes(base64.b64decode(s))
+          out=Path('customer-public/top-screen.webp')
+          out.write_bytes(base64.b64decode(s, validate=False))
+          with Image.open(out) as im:
+              im.load()
+              if im.size != (864,1536):
+                  raise SystemExit(f'bad dimensions: {im.size}')
+              if im.format != 'WEBP':
+                  raise SystemExit(f'bad format: {im.format}')
+          sha=hashlib.sha256(out.read_bytes()).hexdigest()
+          Path('/tmp/top.sha').write_text(sha)
+          print('top_image_ok', out.stat().st_size, sha)
           PY
+          echo "TOP_SHA=$(cat /tmp/top.sha)" >> "$GITHUB_ENV"
       - name: Deploy customer Worker
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: npx wrangler deploy --config wrangler.customer.jsonc
-      - name: Verify deployed customer site
+      - name: Verify deployed customer site like an iPhone image request
         run: |
           set -euo pipefail
           BASE='https://one-boat-customer.uk-1407-uk.workers.dev'
-          sleep 3
-          curl -fsS "$BASE/?v=20260917-exact1" -o /tmp/root.html
-          grep -q '/top-screen.webp?v=20260917-exact1' /tmp/root.html
-          curl -fsS "$BASE/top-screen.webp?v=20260917-exact1" -o /tmp/top.webp
+          sleep 4
+          curl -fsS "$BASE/?v=20260917-static3" -o /tmp/root.html
+          grep -q '/top-screen.webp?v=20260917-static3' /tmp/root.html
+          curl -fsS \
+            -H 'Accept: image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8' \
+            -H 'Sec-Fetch-Dest: image' \
+            -H 'Sec-Fetch-Mode: no-cors' \
+            "$BASE/top-screen.webp?v=20260917-static3" -o /tmp/top.webp
+          ACTUAL_SHA=$(sha256sum /tmp/top.webp | awk '{print $1}')
+          test "$ACTUAL_SHA" = "$TOP_SHA"
           python - <<'PY'
-          from pathlib import Path
-          b=Path('/tmp/top.webp').read_bytes()
-          assert b[:4]==b'RIFF', b[:16]
-          assert b[8:12]==b'WEBP', b[:16]
-          assert len(b)>50000, len(b)
-          print('top_webp_ok',len(b))
+          from PIL import Image
+          with Image.open('/tmp/top.webp') as im:
+              im.load()
+              assert im.size == (864,1536), im.size
+              assert im.format == 'WEBP', im.format
+          print('deployed_top_decode_ok')
           PY
+          curl -fsSI "$BASE/top-screen.webp?v=20260917-static3" | tr -d '\r' | grep -qi '^content-type: image/webp'
           curl -fsS "$BASE/api/health" | grep -q 'ONE BOAT CUSTOMER'
           curl -fsS "$BASE/api/public/stats" | grep -q 'threads_free_public_only'
