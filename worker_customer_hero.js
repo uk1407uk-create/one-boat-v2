@@ -3,11 +3,26 @@ import base from './worker_customer.js';
 const THREADS_STATS='https://imhzjlxbnovjvqlyawmg.supabase.co/functions/v1/one-boat-public-threads-stats';
 const VENUES=['桐生','戸田','江戸川','平和島','多摩川','浜名湖','蒲郡','常滑','津','三国','びわこ','住之江','尼崎','鳴門','丸亀','児島','宮島','徳山','下関','若松','芦屋','福岡','唐津','大村'];
 
+async function staticTop(request, env) {
+  const origin = new URL(request.url).origin;
+  const r = await env.ASSETS.fetch(new Request(new URL('/top-screen.webp', origin), {
+    method: 'GET',
+    headers: { accept: 'image/webp,image/*,*/*;q=0.8' }
+  }));
+  if (!r.ok) return new Response('top unavailable', { status: 503 });
+  const h = new Headers(r.headers);
+  h.set('content-type', 'image/webp');
+  h.set('cache-control', 'public,max-age=31536000,immutable');
+  h.set('x-content-type-options', 'nosniff');
+  h.set('x-one-boat-top', 'static-build-asset');
+  return new Response(r.body, { status: 200, headers: h });
+}
+
 async function exactHero(request, env) {
   const origin = new URL(request.url).origin;
   const parts = [];
   for (let i = 0; i < 5; i++) {
-    const r = await env.ASSETS.fetch(new Request(new URL(`/hero-chunk-${i}.txt`, origin), request));
+    const r = await env.ASSETS.fetch(new Request(new URL(`/hero-chunk-${i}.txt`, origin), { method: 'GET' }));
     if (!r.ok) return new Response('hero unavailable', { status: 503 });
     parts.push((await r.text()).trim());
   }
@@ -20,28 +35,6 @@ async function exactHero(request, env) {
       'content-type': 'image/jpeg',
       'cache-control': 'no-store, max-age=0',
       'x-content-type-options': 'nosniff'
-    }
-  });
-}
-
-async function exactTop(request, env) {
-  const origin = new URL(request.url).origin;
-  const parts = [];
-  for (let i = 0; i < 10; i++) {
-    const r = await env.ASSETS.fetch(new Request(new URL(`/assets/home-exact-${String(i).padStart(2,'0')}.txt`, origin), request));
-    if (!r.ok) return new Response('top unavailable', { status: 503 });
-    parts.push((await r.text()).trim());
-  }
-  const bin = atob(parts.join(''));
-  const bytes = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-  return new Response(bytes, {
-    status: 200,
-    headers: {
-      'content-type': 'image/webp',
-      'cache-control': 'no-store, max-age=0',
-      'x-content-type-options': 'nosniff',
-      'x-one-boat-top': 'exact-reference'
     }
   });
 }
@@ -73,9 +66,9 @@ export default {
   async fetch(request, env, ctx) {
     const u = new URL(request.url);
     if (u.pathname === '/top-screen.webp') {
-      return exactTop(request, env);
+      return staticTop(request, env);
     }
-    if (u.pathname === '/hero-top.webp' || u.pathname === '/hero-top.jpg' || u.pathname === '/assets/home-approved-live.webp' || u.pathname === '/assets/home-approved-exact.webp') {
+    if (u.pathname === '/hero-top.jpg' || u.pathname === '/assets/home-approved-live.webp' || u.pathname === '/assets/home-approved-exact.webp') {
       return exactHero(request, env);
     }
     if (u.pathname === '/api/public/stats') {
