@@ -34,16 +34,16 @@ jobs:
           set -euo pipefail
           BASE='https://one-boat-customer.uk-1407-uk.workers.dev'
           sleep 3
-          curl -fsS "$BASE/?v=20260917-free-public" -o /tmp/root.html
-          grep -q '/hero-top.jpg?v=2' /tmp/root.html
-          grep -q 'Threads無料公開実績' /tmp/root.html
-          curl -fsS "$BASE/hero-top.jpg?v=2" -o /tmp/hero.jpg
+          curl -fsS "$BASE/?v=20260917-exact1" -o /tmp/root.html
+          grep -q '/top-screen.webp?v=20260917-exact1' /tmp/root.html
+          curl -fsS "$BASE/top-screen.webp?v=20260917-exact1" -o /tmp/top.webp
           python - <<'PY'
           from pathlib import Path
-          b=Path('/tmp/hero.jpg').read_bytes()
-          assert b[:2]==b'\xff\xd8', b[:16]
-          assert len(b)>25000, len(b)
-          print('jpg_ok',len(b))
+          b=Path('/tmp/top.webp').read_bytes()
+          assert b[:4]==b'RIFF', b[:16]
+          assert b[8:12]==b'WEBP', b[:16]
+          assert len(b)>50000, len(b)
+          print('top_webp_ok',len(b))
           PY
           curl -fsS "$BASE/api/health" | grep -q 'ONE BOAT CUSTOMER'
           curl -fsS "$BASE/api/public/stats" | grep -q 'threads_free_public_only'
