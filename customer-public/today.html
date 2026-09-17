@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#ffffff" />
+<title>本日の予想｜ONE BOAT</title>
+<meta name="description" content="ONE BOAT 本日の24場・公開予想・実績" />
+<link rel="stylesheet" href="/styles.css?v=20260917-hd1" />
+<style>
+.today-header{position:sticky;top:0;z-index:20;height:58px;padding:env(safe-area-inset-top,0) 14px 0;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;background:rgba(255,255,255,.94);backdrop-filter:blur(14px);border-bottom:1px solid #deedf6}.today-header a{width:38px;height:38px;display:flex;align-items:center;justify-content:center;border:1px solid #d8e9f4;border-radius:50%;color:#0b4a78;text-decoration:none;font-size:23px}.today-brand{text-align:center;line-height:1.15}.today-brand strong{display:block;color:#08345f;font-size:18px;letter-spacing:.08em}.today-brand small{display:block;color:#1a9bd5;font-size:8px;letter-spacing:.17em;font-weight:900;margin-top:2px}.header-spacer{width:38px}.today-intro{max-width:880px;margin:0 auto;padding:20px 14px 0}.today-intro h1{font-size:27px;margin:0;color:#0e365d;letter-spacing:-.03em}.today-intro p{font-size:12px;color:#708798;line-height:1.75;margin:7px 0 12px}.performance-section{scroll-margin-top:70px}@media(max-width:380px){.today-header{height:54px}.today-intro h1{font-size:25px}}
+</style>
+</head>
+<body>
+<header class="today-header"><a href="/" aria-label="トップへ戻る">‹</a><div class="today-brand"><strong>ONE BOAT</strong><small>BOAT RACE ANALYTICS</small></div><span class="header-spacer"></span></header>
+<main>
+  <div class="today-intro"><h1>本日の予想</h1><p>全国24場から確認できます。管理用ONE BOATで確定した情報だけを表示します。</p></div>
+  <section class="free-strip" aria-label="本日の公開状況"><div class="free-strip-title">本日の公開状況</div><div id="free-strip-list" class="free-strip-list">開催情報を確認中</div></section>
+  <section class="page-section today-section" id="today">
+    <div class="date-row"><button class="date-nav muted" type="button" disabled>‹ 前日</button><div><small>TODAY</small><strong id="today-date">本日のレース</strong></div><button class="date-nav muted" type="button" disabled>翌日 ›</button></div>
+    <div class="section-title-row"><div><small>24 BOAT RACE STADIUMS</small><h2>本日の24場</h2></div><span id="today-count" class="count-label">確認中</span></div>
+    <p class="lead">場をタップすると1R〜12Rの状態を確認できます。</p>
+    <div class="venue-legend"><span><i class="lg-live"></i>予想公開</span><span><i class="lg-watch"></i>様子見</span><span><i class="lg-skip"></i>見送り</span><span><i class="lg-idle"></i>非開催/終了</span></div>
+    <div class="venue-grid" id="venue-grid" aria-label="全国24場"></div>
+    <div class="section-title-row public-title"><div><small>ONE BOAT SELECT</small><h2>本日の公開予想</h2></div><span id="public-count" class="count-label">--</span></div>
+    <p class="lead">ENTERかつ投資額が確定したレースのみ公開します。</p>
+    <div id="today-list" class="race-list"><div class="skeleton"></div><div class="skeleton"></div></div>
+  </section>
+  <section class="page-section performance-section" id="performance">
+    <div class="section-title-row"><div><small>PUBLIC PERFORMANCE</small><h2>実績</h2></div><span class="auto-label">自動更新</span></div>
+    <p class="lead">公開対象レースだけを集計し、見送り・様子見・投資0円は収支に含めません。</p>
+    <div class="period-tabs" role="tablist"><button class="period active" data-period="today">今日</button><button class="period" data-period="days7">7日</button><button class="period" data-period="days30">30日</button><button class="period" data-period="all">累計</button></div>
+    <div class="stats-table"><div><span>回収率</span><strong id="m-roi">--</strong></div><div><span>的中率</span><strong id="m-hit">--</strong></div><div><span>収支</span><strong id="m-profit">--</strong><small id="m-races">集計中</small></div></div>
+  </section>
+  <section class="page-section" id="results"><div class="section-title-row"><div><small>OPEN RESULTS</small><h2>直近の公開結果</h2></div></div><div id="result-list" class="result-list"><div class="skeleton"></div></div><p class="transparency">公開したレースは、的中・不的中を区別せずそのまま残します。</p></section>
+  <section class="club-panel" id="club"><div class="club-panel-inner"><span>ONE BOAT CLUB</span><h2>ONE BOAT CLUB</h2><p>会員限定情報・詳細分析・通知機能などへ拡張できる設計で準備しています。</p><button id="note-btn" class="club-button disabled" type="button">準備中</button></div></section>
+</main>
+<div id="sheet-backdrop" class="sheet-backdrop" hidden></div>
+<section id="venue-sheet" class="bottom-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="venue-sheet-title"><div class="sheet-handle"></div><div class="sheet-head"><button id="venue-close" class="sheet-back" type="button">×</button><div><small>BOAT RACE</small><h2 id="venue-sheet-title">場詳細</h2></div><span id="venue-sheet-state" class="sheet-state">--</span></div><div id="venue-sheet-meta" class="venue-sheet-meta"></div><div id="venue-races" class="venue-races"></div></section>
+<section id="race-sheet" class="bottom-sheet race-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="race-sheet-title"><div class="sheet-handle"></div><div class="sheet-head"><button id="race-back" class="sheet-back" type="button">‹</button><div><small>RACE DETAIL</small><h2 id="race-sheet-title">レース詳細</h2></div><span id="race-sheet-state" class="sheet-state">--</span></div><div id="race-detail" class="race-detail"></div></section>
+<footer><strong>ONE BOAT</strong><span>BOAT RACE ANALYTICS</span><small>© ONE BOAT</small></footer>
+<script src="/app.js?v=20260917-hd1" defer></script>
+</body></html>
