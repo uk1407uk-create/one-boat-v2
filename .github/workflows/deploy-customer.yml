@@ -102,20 +102,28 @@ jobs:
           BASE='https://one-boat-customer.uk-1407-uk.workers.dev'
           UA='Mozilla/5.0 (iPhone; CPU iPhone OS 26_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Mobile/15E148 Safari/604.1'
           sleep 4
-          curl -fsS -A "$UA" -H 'Cache-Control: no-cache' "$BASE/?v=20260918-selected2" -o /tmp/root.html
+          get_text() { curl -fsS -A "$UA" -H 'Cache-Control: no-cache' "$1" -o "$2"; }
+          get_text "$BASE/?v=20260918-selected2" /tmp/root.html
           grep -q '本日の予想を見る' /tmp/root.html
           curl -fSs -D /tmp/hero.headers -A "$UA" "$BASE/assets/customer-hero.webp?v=20260918-selected2" -o /tmp/customer-hero.webp
           python - <<'PY'
           from pathlib import Path
           b=Path('/tmp/customer-hero.webp').read_bytes(); assert b[:4]==b'RIFF' and b[8:12]==b'WEBP' and len(b)>20000
           PY
-          curl -fsS -A "$UA" "$BASE/today.html?v=20260918-member1" | grep -q '本日の24場'
-          curl -fsS -A "$UA" "$BASE/club.html?v=20260918-member1" | grep -q '使い方に合わせて'
-          curl -fsS -A "$UA" "$BASE/signup.html?v=20260918-member1" | grep -q '無料会員登録'
-          curl -fsS -A "$UA" "$BASE/login.html?v=20260918-member1" | grep -q 'ログイン'
-          curl -fsS -A "$UA" "$BASE/api/health" | grep -q 'ONE BOAT CUSTOMER'
-          curl -fsS -A "$UA" "$BASE/api/public/stats" | grep -q 'public_only'
-          curl -fsS -A "$UA" "$BASE/api/member/session" | grep -q 'logged_in'
+          get_text "$BASE/today.html?v=20260918-member1" /tmp/today.html
+          grep -q '本日の24場' /tmp/today.html
+          get_text "$BASE/club.html?v=20260918-member1" /tmp/club.html
+          grep -q '使い方に合わせて' /tmp/club.html
+          get_text "$BASE/register?v=20260918-domain1" /tmp/register.html
+          grep -q '無料会員登録' /tmp/register.html
+          get_text "$BASE/login?v=20260918-domain1" /tmp/login.html
+          grep -q 'ログイン' /tmp/login.html
+          get_text "$BASE/api/health" /tmp/health.json
+          grep -q 'ONE BOAT CUSTOMER' /tmp/health.json
+          get_text "$BASE/api/public/stats" /tmp/stats.json
+          grep -q 'public_only' /tmp/stats.json
+          get_text "$BASE/api/member/session" /tmp/session.json
+          grep -q 'logged_in' /tmp/session.json
           CODE=$(curl -sS -o /dev/null -w '%{http_code}' -A "$UA" "$BASE/premium.html")
           test "$CODE" = "302"
           echo 'customer_membership_iphone_verify_ok'
