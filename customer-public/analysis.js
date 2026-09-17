@@ -1,61 +1,51 @@
 const $=s=>document.querySelector(s);
+const API='https://imhzjlxbnovjvqlyawmg.supabase.co/functions/v1/one-boat-race-analysis-api';
+const VENUES=['桐生','戸田','江戸川','平和島','多摩川','浜名湖','蒲郡','常滑','津','三国','びわこ','住之江','尼崎','鳴門','丸亀','児島','宮島','徳山','下関','若松','芦屋','福岡','唐津','大村'];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const params=new URLSearchParams(location.search);
-const CODE=Number(params.get('code'));
+const CODE=Number(params.get('venue')||params.get('code'));
 const RACE=Number(params.get('race'));
+const jstDate=()=>new Date(Date.now()+32400000).toISOString().slice(0,10);
+const DATE=/^\d{4}-\d{2}-\d{2}$/.test(params.get('date')||'')?params.get('date'):jstDate();
 let DATA=null;
 let MY={first:null,second:null,third:null};
 
-function value(v,suffix=''){return v===null||v===undefined||v===''?'—':`${v}${suffix}`}
-function fixed(v,d=2,suffix=''){if(v===null||v===undefined||!Number.isFinite(Number(v)))return'—';return `${Number(v).toFixed(d)}${suffix}`}
-function pct(v){return v===null||v===undefined||!Number.isFinite(Number(v))?'—':`${Number(v).toFixed(1)}%`}
+function missing(v){return v===null||v===undefined||v===''}
+function value(v,suffix=''){return missing(v)?'—':`${v}${suffix}`}
+function fixed(v,d=2,suffix=''){if(missing(v)||!Number.isFinite(Number(v)))return'—';return `${Number(v).toFixed(d)}${suffix}`}
+function pct(v){return missing(v)||!Number.isFinite(Number(v))?'—':`${Number(v).toFixed(1)}%`}
 function hm(v){const m=String(v||'').match(/(\d{1,2}:\d{2})/);return m?m[1]:'—'}
 function dateJp(v){if(!v)return'—';const m=String(v).match(/(\d{4})-(\d{2})-(\d{2})/);return m?`${Number(m[2])}/${Number(m[3])}`:String(v)}
-function updated(v){if(!v)return'—';const d=new Date(v);if(Number.isNaN(d.getTime()))return'—';return new Intl.DateTimeFormat('ja-JP',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Tokyo'}).format(d)}
-function stateLabel(s){return {PUBLIC:'予想公開',WATCH:'様子見',SKIP:'見送り',SETTLED:'結果確定',FINISHED:'本日終了',CLOSED:'終了',NOEVENT:'非開催',PENDING:'未判定'}[s]||'未判定'}
-function stateClass(s){return {PUBLIC:'live',WATCH:'watch',SKIP:'skip',SETTLED:'settled',FINISHED:'idle',CLOSED:'idle',NOEVENT:'idle',PENDING:'pending'}[s]||'pending'}
+function updated(v){if(!v)return'—';const d=new Date(v);if(Number.isNaN(d.getTime()))return String(v);return new Intl.DateTimeFormat('ja-JP',{hour:'2-digit',minute:'2-digit',second:'2-digit',timeZone:'Asia/Tokyo'}).format(d)}
 function laneBadge(n){return `<span class="lane-box lane-${n}">${n}</span>`}
-function courseText(r){if(r.course===null||r.course===undefined)return'—';return `${r.course}コース`}
-function stText(v){if(v===null||v===undefined||!Number.isFinite(Number(v)))return'—';const n=Number(v);return n<0?`F${Math.abs(n).toFixed(2)}`:n.toFixed(2)}
+function stText(v){if(missing(v)||!Number.isFinite(Number(v)))return'—';const n=Number(v);return n<0?`F${Math.abs(n).toFixed(2)}`:n.toFixed(2)}
+function venueName(){return VENUES[CODE-1]||`場${CODE}`}
+function exMap(d){return new Map((d?.exhibition_detail?.boats||[]).map(x=>[Number(x.lane),x]))}
 
-function renderRacers(xs){$('#racer-list').innerHTML=(xs||[]).map(r=>`<article class="racer-card">
-  <div class="racer-main">${laneBadge(r.lane)}<div class="racer-name"><strong>${esc(r.name||'選手情報待ち')}</strong><small>${r.racer_id?`${esc(r.racer_id)}番`:'登録番号 —'} ・ ${courseText(r)}</small></div><span class="racer-grade">${esc(r.grade||'—')}</span></div>
-  <div class="racer-stats"><div><span>全国勝率</span><b>${fixed(r.national_win_rate,2)}</b></div><div><span>当地勝率</span><b>${fixed(r.local_win_rate,2)}</b></div><div><span>平均ST</span><b>${fixed(r.average_st,2)}</b></div><div><span>コースST</span><b>${fixed(r.course_st,3)}</b></div></div>
-  <div class="equipment-row"><div><span>モーター</span><strong>${value(r.motor_number,'号')} / 2連 ${pct(r.motor_top2_rate)}</strong></div><div><span>ボート</span><strong>${value(r.boat_number,'号')} / 2連 ${pct(r.boat_top2_rate)}</strong></div><div><span>コース標本</span><strong>${r.course_sample===null||r.course_sample===undefined?'連携待ち':`${r.course_sample}走`}</strong></div></div>
-</article>`).join('')||'<div class="empty-card"><strong>選手情報を取得できません</strong><p>データ更新後に再度確認してください。</p></div>'}
+function renderRacers(d){const xs=d?.racers||[],em=exMap(d);$('#racer-list').innerHTML=xs.map(r=>{const o=r.overall||{},course=em.get(Number(r.lane))?.course??null,c=course===null?null:r.by_course?.[String(course)]||null;return `<article class="racer-card">
+  <div class="racer-main">${laneBadge(r.lane)}<div class="racer-name"><strong>${esc(r.name||'選手情報待ち')}</strong><small>${r.racer_id?`${esc(r.racer_id)}番`:'登録番号 —'} ・ ${course===null?'進入 —':`${course}コース`}</small></div><span class="racer-grade">${course===null?'—':`${course}C`}</span></div>
+  <div class="racer-stats"><div><span>全体勝率</span><b>${pct(o.win_rate)}</b></div><div><span>2連対率</span><b>${pct(o.top2_rate)}</b></div><div><span>3連対率</span><b>${pct(o.top3_rate)}</b></div><div><span>平均ST</span><b>${fixed(o.avg_st,3)}</b></div></div>
+  <div class="equipment-row"><div><span>全体サンプル</span><strong>${missing(o.sample_count)?'—':`${o.sample_count}走`}</strong></div><div><span>コース別平均ST</span><strong>${fixed(c?.avg_st,3)}</strong></div><div><span>コース別サンプル</span><strong>${missing(c?.sample_count)?'—':`${c.sample_count}走`}</strong></div><div><span>STばらつき</span><strong>${fixed(c?.st_sd,3)}</strong></div></div>
+</article>`}).join('')||'<div class="empty-card"><strong>選手情報はデータ未連携です</strong><p>正式APIに値が入るまで推測値は表示しません。</p></div>'}
 
-function renderExhibition(xs,a){$('#exhibition-list').innerHTML=`<div class="ex-head"><span>艇</span><span>進入</span><span>展示ST</span><span>展示タイム</span></div>${(xs||[]).map(r=>`<div class="ex-row">${laneBadge(r.lane)}<span>${r.course??'—'}</span><span>${stText(r.start_exhibition_st)}</span><span>${fixed(r.exhibition_time,2)}</span><div class="ex-sub"><div><span>オリジナル</span><b>${r.original_exhibition??'—'}</b></div><div><span>一周</span><b>${r.lap_time??'—'}</b></div><div><span>半周</span><b>${r.half_lap_time??'—'}</b></div><div><span>まわり足</span><b>${r.turn_time??'—'}</b></div></div></div>`).join('')}`;
-  const notes=[];
-  if(a?.original_exhibition==='not_provided')notes.push('江戸川はオリジナル展示の提供対象外です。');
-  else if(a?.original_exhibition==='not_connected')notes.push('オリジナル展示は現在データ連携準備中です。');
-  if(a?.lap_time==='not_connected'||a?.half_lap_time==='not_connected'||a?.turn_time==='not_connected')notes.push('一周タイム・半周タイム・まわり足は取得元の連携後に表示します。');
-  $('#exhibition-note').textContent=notes.join(' ');
-  const live=(xs||[]).some(r=>r.exhibition_time!==null||r.start_exhibition_st!==null);
-  $('#exhibition-status').textContent=live?'取得済み項目あり':'直前データ待ち';
-}
+function originalText(original,lane){if(original?.available===false)return original?.reason==='not_provided_at_edogawa'?'非提供':'—';const boat=(original?.boats||[]).find(x=>Number(x.lane)===Number(lane));if(!boat?.values?.length)return'—';const xs=boat.values.filter(x=>!missing(x?.value));return xs.length?xs.map(x=>`${esc(x.label||'計測')} ${value(x.value)}`).join(' / '):'—'}
+function renderExhibition(d){const ex=d?.exhibition_detail||{},original=d?.original_exhibition||null,xs=ex.boats||[];$('#exhibition-list').innerHTML=`<div class="ex-head"><span>艇</span><span>進入</span><span>展示ST</span><span>展示タイム</span></div>${xs.map(r=>`<div class="ex-row">${laneBadge(r.lane)}<span>${value(r.course)}</span><span>${stText(r.start_timing)}</span><span>${fixed(r.exhibition_time,2)}</span><div class="ex-sub"><div class="wide"><span>オリジナル展示</span><b>${originalText(original,r.lane)}</b></div><div><span>一周</span><b>${fixed(r.lap_time,2)}</b></div><div><span>半周</span><b>${fixed(r.half_lap_time,2)}</b></div><div><span>まわり足</span><b>${fixed(r.turning,2)}</b></div><div><span>直線</span><b>${fixed(r.straight,2)}</b></div><div><span>チルト</span><b>${fixed(r.tilt,1)}</b></div></div></div>`).join('')}`;
+  const notes=[];if(CODE===3||original?.reason==='not_provided_at_edogawa')notes.push('江戸川はオリジナル展示の提供対象外です。');if(!xs.length)notes.push('展示データは現在未生成です。');if(ex.updated_at)notes.push(`展示更新 ${updated(ex.updated_at)}`);$('#exhibition-note').textContent=notes.join(' ');const live=xs.some(r=>!missing(r.exhibition_time)||!missing(r.start_timing)||!missing(r.course)||!missing(r.lap_time)||!missing(r.half_lap_time)||!missing(r.turning)||!missing(r.straight));$('#exhibition-status').textContent=live?'正式データ取得済み':'直前データ待ち'}
 
-function renderSurface(s,a){const cards=[['天気',s?.weather|| (s?.weather_code?`コード ${s.weather_code}`:'—'),''],['気温',value(s?.air_temperature,'℃'),''],['水温',value(s?.water_temperature,'℃'),''],['風向',s?.wind_direction||(s?.wind_direction_code?`コード ${s.wind_direction_code}`:'—'),''],['風速',value(s?.wind_speed,'m/s'),''],['波高',value(s?.wave_height,'cm'),''],['潮位',s?.tide_level??'—',''],['干満',s?.tide_phase??'—','']];
-  $('#surface-grid').innerHTML=cards.map(([label,val])=>`<div class="surface-card"><span>${label}</span><strong>${esc(val)}</strong></div>`).join('');
-  $('#tide-note').textContent=a?.tide==='not_connected'?'潮位・干満は現在の取得元では未連携です。取得可能になった時点で正式データだけを表示します。':'';
-}
+function renderSurface(d){const t=d?.tide||{};const cards=[['天気','—'],['気温','—'],['水温','—'],['風向','—'],['風速','—'],['波高','—'],['潮位',value(t.tide_level)],['潮状態',value(t.current_state)],['満潮',value(t.high_tide)],['干潮',value(t.low_tide)]];$('#surface-grid').innerHTML=cards.map(([label,val])=>`<div class="surface-card"><span>${label}</span><strong>${esc(val)}</strong></div>`).join('');const sui=d?.source_status?.sui;$('#tide-note').textContent=`気象・水面数値は専用APIの正式応答に含まれる項目だけを表示します。現在は${sui==='available'?'取得元あり・表示値未連携':'データ未連携'}です。潮位・干満は正式ソース未接続のため推測表示しません。`}
 
-function rankCard(title,xs){if(!xs?.length)return'';return `<div class="ranking-card"><div class="ranking-title">${title}</div><div class="ranking-list">${xs.map((x,i)=>`<div class="ranking-item"><b>${x.lane}号艇</b><span>${x.probability===null?'—':`${(x.probability*100).toFixed(1)}%`}</span></div>`).join('')}</div></div>`}
-function renderEngine(e){if(!e?.available){$('#engine-summary').innerHTML='';$('#engine-rankings').innerHTML='<div class="empty-card"><strong>正式評価データ待ち</strong><p>予想エンジンの正式データがまだ確定していません。④側で評価値を作って補完することはありません。</p></div>';return}
-  const comp=e.data_completeness===null?'—':`${(Number(e.data_completeness)*(Number(e.data_completeness)<=1?100:1)).toFixed(0)}%`;
-  const unc=e.uncertainty===null?'—':Number(e.uncertainty).toFixed(3);
-  $('#engine-summary').innerHTML=`<div class="engine-metric"><span>データ充足度</span><strong>${comp}</strong></div><div class="engine-metric"><span>不確実性</span><strong>${unc}</strong></div>`;
-  const r=e.candidate_rankings||{};$('#engine-rankings').innerHTML=rankCard('1着候補｜正式エンジン値',r.first)+rankCard('2着候補｜正式エンジン値',r.second)+rankCard('3着候補｜正式エンジン値',r.third)||'<div class="empty-card"><strong>順位評価は準備中</strong><p>正式値が存在する項目だけ表示します。</p></div>';
-}
+function evalValue(v){if(missing(v))return'—';if(typeof v==='number')return Number.isInteger(v)?String(v):Number(v).toFixed(2);return esc(v)}
+function renderEngine(e){const items=[['展示評価',e?.exhibition],['ST評価',e?.st],['モーター評価',e?.motor],['コース評価',e?.course],['総合評価',e?.total]];$('#engine-summary').innerHTML=items.map(([label,v])=>`<div class="engine-metric"><span>${label}</span><strong>${evalValue(v)}</strong></div>`).join('');const has=items.some(([,v])=>!missing(v));$('#engine-rankings').innerHTML=has?`<div class="data-note">予想エンジンの正式 score_breakdown に存在する値のみ表示しています。${e?.updated_at?` 更新 ${updated(e.updated_at)}`:''}</div>`:'<div class="empty-card"><strong>正式評価データ待ち</strong><p>現在の score_breakdown は空のため、展示・ST・モーター・コース・総合評価はすべて「—」が正式表示です。④側では再計算しません。</p></div>'}
 
-function renderOdds(o){$('#odds-updated').textContent=`更新 ${updated(o?.updated_at)}`;if(!o?.available||!Array.isArray(o.trifecta)||!o.trifecta.length){$('#odds-content').innerHTML='<strong>3連単オッズはデータ連携準備中</strong><p>ダミーの倍率は表示しません。現在取得可能な正式オッズが接続されるとここへ表示します。</p>';return}$('#odds-content').innerHTML=`<div class="ranking-list">${o.trifecta.map(x=>`<div class="ranking-item"><b>${esc(x.ticket||x.combination||'—')}</b><span>${fixed(x.odds,1,'倍')}</span></div>`).join('')}</div>`}
+function renderOdds(o){const items=Array.isArray(o?.items)?o.items:[];$('#odds-updated').textContent=`更新 ${updated(o?.updated_at)}${items.length?` ・ ${items.length}通り`:''}`;if(!items.length){$('#odds-content').className='empty-card';$('#odds-content').innerHTML='<strong>3連単オッズはデータ未生成です</strong><p>正式APIが返した値だけを表示します。過去オッズや推測倍率では補完しません。</p>';return}const sorted=items.slice().sort((a,b)=>String(a.combination||'').localeCompare(String(b.combination||''),'ja',{numeric:true}));$('#odds-content').className='odds-grid';$('#odds-content').innerHTML=sorted.map(x=>`<div class="odds-item"><b>${esc(x.combination||'—')}</b><span>${fixed(x.odds,1,'倍')}</span></div>`).join('')}
 
-function myKey(){return DATA?`oneboat_my_${DATA.date}_${DATA.venue_code}_${DATA.race_no}`:''}
+function myKey(){return DATA?`oneboat_my_${DATA.race.date}_${DATA.race.venue_code}_${DATA.race.race_no}`:''}
 function loadMy(){try{const x=JSON.parse(localStorage.getItem(myKey())||'{}');MY={first:Number(x.first)||null,second:Number(x.second)||null,third:Number(x.third)||null}}catch{MY={first:null,second:null,third:null}}}
 function saveMy(){try{localStorage.setItem(myKey(),JSON.stringify(MY))}catch{}renderMy()}
 function renderMy(){document.querySelectorAll('.lane-buttons').forEach(box=>{const place=box.dataset.place;box.innerHTML=[1,2,3,4,5,6].map(n=>{const selected=MY[place]===n,used=Object.entries(MY).some(([k,v])=>k!==place&&v===n);return `<button class="lane-choice${selected?' selected':''}" type="button" data-place="${place}" data-lane="${n}" ${used?'disabled':''}>${n}</button>`}).join('')});document.querySelectorAll('.lane-choice').forEach(b=>b.addEventListener('click',()=>{MY[b.dataset.place]=Number(b.dataset.lane);saveMy()}));$('#my-ticket').textContent=`${MY.first||'—'} - ${MY.second||'—'} - ${MY.third||'—'}`}
 
 function setupTabs(){document.querySelectorAll('.analysis-tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.analysis-tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tab-panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelector(`[data-panel="${b.dataset.tab}"]`)?.classList.add('active')}))}
-function render(d){DATA=d;$('#race-title').textContent=`${d.venue_name} ${d.race_no}R`;$('#race-subtitle').textContent=[d.title,d.subtitle].filter(Boolean).join(' / ')||'レース分析';$('#race-date').textContent=dateJp(d.date);$('#race-deadline').textContent=hm(d.deadline);$('#race-updated').textContent=updated(d.fetched_at);const st=$('#race-state');st.textContent=stateLabel(d.state);st.className=`state-badge ${stateClass(d.state)}`;$('#official-link').href=`/today.html?venue=${String(d.venue_code).padStart(2,'0')}&race=${d.race_no}`;renderRacers(d.racers);renderExhibition(d.racers,d.availability);renderSurface(d.surface,d.availability);renderEngine(d.engine);renderOdds(d.odds);loadMy();renderMy()}
-async function load(){if(!(CODE>=1&&CODE<=24&&RACE>=1&&RACE<=12)){const m=$('#page-message');m.hidden=false;m.textContent='場またはレース番号が正しくありません。本日の予想からレースを選び直してください。';return}try{const r=await fetch(`/api/public/analysis?code=${CODE}&race=${RACE}`,{cache:'no-store'}),d=await r.json();if(!r.ok||!d.ok)throw Error(d?.error||'analysis');render(d)}catch{const m=$('#page-message');m.hidden=false;m.textContent='レース分析データを取得できませんでした。少し時間をおいて再読み込みしてください。'}}
+function render(d){DATA=d;const race=d.race||{};$('#race-title').textContent=`${venueName()} ${race.race_no||RACE}R`;$('#race-subtitle').textContent='専用APIから取得した正式データだけを表示';$('#race-date').textContent=dateJp(race.date||DATE);$('#race-deadline').textContent='—';$('#race-updated').textContent=updated(d.trifecta_odds?.updated_at||d.exhibition_detail?.updated_at||d.original_exhibition?.updated_at);const st=$('#race-state');st.textContent='分析データ';st.className='state-badge live';$('#official-link').href=`/today.html?venue=${String(CODE).padStart(2,'0')}&race=${RACE}`;renderRacers(d);renderExhibition(d);renderSurface(d);renderEngine(d.official_evaluation);renderOdds(d.trifecta_odds);loadMy();renderMy();document.body.setAttribute('aria-busy','false')}
+async function load(){if(!(CODE>=1&&CODE<=24&&RACE>=1&&RACE<=12)){const m=$('#page-message');m.hidden=false;m.textContent='場またはレース番号が正しくありません。本日の予想からレースを選び直してください。';return}document.body.setAttribute('aria-busy','true');const normalized=`/analysis.html?date=${encodeURIComponent(DATE)}&venue=${CODE}&race=${RACE}`;if(location.pathname+location.search!==normalized)history.replaceState(null,'',normalized);try{const u=new URL(API);u.searchParams.set('date',DATE);u.searchParams.set('venue',String(CODE));u.searchParams.set('race',String(RACE));const r=await fetch(u,{cache:'no-store',headers:{accept:'application/json'}});let d=null;try{d=await r.json()}catch{}if(!r.ok||!d?.ok)throw Error(d?.error||`api_${r.status}`);render(d)}catch(e){document.body.setAttribute('aria-busy','false');const m=$('#page-message');m.hidden=false;m.textContent='レース分析APIから正式データを取得できませんでした。公式予想画面には影響ありません。少し時間をおいて再読み込みしてください。';$('#race-title').textContent=`${venueName()} ${RACE}R`;$('#race-subtitle').textContent='分析データ取得待ち';$('#race-date').textContent=dateJp(DATE);$('#race-deadline').textContent='—';$('#race-updated').textContent='—';const st=$('#race-state');st.textContent='取得待ち';st.className='state-badge pending';$('#official-link').href=`/today.html?venue=${String(CODE).padStart(2,'0')}&race=${RACE}`}}
 
 setupTabs();$('#clear-my').addEventListener('click',()=>{MY={first:null,second:null,third:null};try{localStorage.removeItem(myKey())}catch{}renderMy()});load();
