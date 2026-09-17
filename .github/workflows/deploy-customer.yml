@@ -39,6 +39,29 @@ jobs:
           print('oneboat_top_sha256',hashlib.sha256(b).hexdigest())
           PY
 
+      - name: Rebuild selected customer hero
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import base64, hashlib
+          parts=[]
+          for i in range(5):
+              p=Path(f'customer-public/hero-chunk-{i}.txt')
+              assert p.exists() and p.stat().st_size > 0, p
+              parts.append(p.read_text().strip())
+          s=''.join(parts)
+          s += '='*((4-len(s)%4)%4)
+          b=base64.b64decode(s)
+          assert b[:4] == b'RIFF', b[:16]
+          assert b[8:12] == b'WEBP', b[:16]
+          assert len(b) > 20000, len(b)
+          out=Path('customer-public/assets/customer-hero.webp')
+          out.write_bytes(b)
+          print('customer_hero_bytes',len(b))
+          print('customer_hero_sha256',hashlib.sha256(b).hexdigest())
+          PY
+
       - name: Upload existing customer images for inspection
         uses: actions/upload-artifact@v4
         with:
@@ -53,9 +76,9 @@ jobs:
         run: |
           set -euo pipefail
           test -s customer-public/index.html
-          test -s customer-public/hero-reference.svg
+          test -s customer-public/assets/customer-hero.webp
           test -s customer-public/today.html
-          grep -q 'hero-reference.svg?v=20260918-native1' customer-public/index.html
+          grep -Eq 'hero-reference\.svg\?v=20260918-native1|assets/customer-hero\.webp\?v=20260918-selected2' customer-public/index.html
           grep -q 'href="/today.html"' customer-public/index.html
           grep -q '本日の予想を見る' customer-public/index.html
           grep -q '買わないレースも選ぶ。' customer-public/index.html
@@ -76,19 +99,27 @@ jobs:
           sleep 4
 
           echo 'VERIFY 1 root html'
-          curl -fsS -A "$UA" -H 'Cache-Control: no-cache' "$BASE/?v=20260918-native1" -o /tmp/root.html
-          grep -q 'hero-reference.svg?v=20260918-native1' /tmp/root.html
+          curl -fsS -A "$UA" -H 'Cache-Control: no-cache' "$BASE/?v=20260918-selected2" -o /tmp/root.html
+          grep -Eq 'hero-reference\.svg\?v=20260918-native1|assets/customer-hero\.webp\?v=20260918-selected2' /tmp/root.html
           grep -q '本日の予想を見る' /tmp/root.html
           grep -q '買わないレースも選ぶ。' /tmp/root.html
           grep -q 'href="/today.html"' /tmp/root.html
           grep -q 'feature-grid' /tmp/root.html
 
-          echo 'VERIFY 2 hero visual'
-          curl -fSs -D /tmp/hero.headers -A "$UA" -H 'Cache-Control: no-cache' "$BASE/hero-reference.svg?v=20260918-native1" -o /tmp/hero.svg
-          grep -q '<svg' /tmp/hero.svg
+          echo 'VERIFY 2 selected hero asset'
+          curl -fSs -D /tmp/hero.headers -A "$UA" -H 'Cache-Control: no-cache' "$BASE/assets/customer-hero.webp?v=20260918-selected2" -o /tmp/customer-hero.webp
+          python - <<'PY'
+          from pathlib import Path
+          b=Path('/tmp/customer-hero.webp').read_bytes()
+          assert b[:4] == b'RIFF', b[:16]
+          assert b[8:12] == b'WEBP', b[:16]
+          assert len(b) > 20000, len(b)
+          print('live_customer_hero_bytes',len(b))
+          PY
+          tr -d '\r' < /tmp/hero.headers | grep -Eqi '^content-type: image/webp'
 
           echo 'VERIFY 3 today page'
-          curl -fsS -A "$UA" "$BASE/today.html?v=20260918-native1" -o /tmp/today.html
+          curl -fsS -A "$UA" "$BASE/today.html?v=20260918-selected2" -o /tmp/today.html
           grep -q '本日の24場' /tmp/today.html
           grep -q 'venue-grid' /tmp/today.html
           grep -q 'performance' /tmp/today.html
