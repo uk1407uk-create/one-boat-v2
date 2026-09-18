@@ -86,6 +86,101 @@ body>header,body>main,body>footer,.bottom-app-nav{width:min(100%,432px);margin-l
 .club-panel{margin:10px 10px 16px!important;background:#fff!important;border:1px solid #d0e0e9!important;border-radius:8px!important;color:#082f59!important;overflow:hidden}.club-panel-inner{padding:15px!important}.club-panel-inner>span{color:#2787bf!important}.club-panel-inner h2{color:#082f59!important}.club-panel-inner p{color:#5d7690!important}.club-button{display:flex;align-items:center;justify-content:center;text-decoration:none;background:#087bd5!important;color:#fff!important;border:0!important;border-radius:6px!important;min-height:44px}
 footer{background:transparent!important;color:#6d8394!important;padding-bottom:8px!important}.bottom-app-nav{position:fixed;left:0;right:0;bottom:0;z-index:90;min-height:calc(58px + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px);background:rgba(255,255,255,.98);border-top:1px solid #cbdbe5;box-shadow:0 -5px 18px rgba(5,54,94,.09);display:grid;grid-template-columns:repeat(4,1fr)}.bottom-app-nav a{text-decoration:none;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:58px;color:#688095;font-size:9px;font-weight:800;gap:3px;-webkit-tap-highlight-color:transparent}.bottom-app-nav a b{font-size:18px;line-height:1;color:#4e6c83;font-family:Arial,sans-serif}.bottom-app-nav a.active{color:#087bd5}.bottom-app-nav a.active b{color:#087bd5}
 @media(min-width:433px){body{box-shadow:0 0 45px rgba(14,70,108,.08)}}@media(max-width:380px){.top-header{padding-left:12px;padding-right:10px}.top-logo{font-size:19px}.today-intro{padding-left:12px;padding-right:12px}.today-intro h1{font-size:20px}.page-section{padding-left:8px!important;padding-right:8px!important}.section-title-row{margin-left:-8px!important;margin-right:-8px!important}.performance-section{margin-left:8px!important;margin-right:8px!important}.venue-grid{gap:4px}.venue-name{font-size:14px!important}.venue-meta strong{font-size:15px!important}.venue-meta em{font-size:7px!important}}
+
+/* ONE BOAT beginner / PRO one-tap mode */
+.race-mode-switch{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+  margin:0 0 12px;
+  padding:4px;
+  border:1px solid #c8dce8;
+  border-radius:12px;
+  background:#edf6fb;
+}
+.race-mode{
+  min-height:42px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:9px;
+  text-decoration:none;
+  color:#547187;
+  font-size:13px;
+  font-weight:950;
+  letter-spacing:.02em;
+}
+.race-mode.active{
+  color:#fff;
+  background:linear-gradient(135deg,#0877d7,#0d94e5);
+  box-shadow:0 4px 11px rgba(8,119,215,.2);
+}
+.easy-decision{
+  margin:0 0 10px;
+  padding:14px;
+  border:1.5px solid #bfd8e7;
+  border-radius:12px;
+  background:linear-gradient(135deg,#f6fbff,#fff);
+}
+.easy-decision small{
+  display:block;
+  margin-bottom:5px;
+  color:#5b86a1;
+  font-size:9px;
+  font-weight:950;
+  letter-spacing:.12em;
+}
+.easy-decision strong{
+  display:block;
+  color:#0a3c67;
+  font-size:28px;
+  line-height:1.1;
+  letter-spacing:-.04em;
+}
+.easy-decision p{
+  margin:8px 0 0;
+  color:#587287;
+  font-size:12px;
+  line-height:1.65;
+  font-weight:700;
+}
+.easy-decision.live{border-color:#6bc2ee;background:linear-gradient(135deg,#edf9ff,#fff)}
+.easy-decision.watch{border-color:#e3c56f;background:linear-gradient(135deg,#fffaf0,#fff)}
+.easy-decision.skip{border-color:#e2a7ad;background:linear-gradient(135deg,#fff5f6,#fff)}
+.easy-decision.settled{border-color:#8bc7b3;background:linear-gradient(135deg,#f0fbf6,#fff)}
+.easy-bets .bet-list>div strong{font-size:19px}
+.easy-reason p{font-size:13px;line-height:1.7}
+.pro-jump{
+  min-height:64px;
+  margin:11px 0 13px;
+  padding:11px 13px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  border:1.5px solid #9fcce8;
+  border-radius:12px;
+  background:linear-gradient(135deg,#062f58,#0b6cac);
+  color:#fff;
+  text-decoration:none;
+  box-shadow:0 7px 18px rgba(7,68,109,.13);
+}
+.pro-jump span{min-width:0}
+.pro-jump small{
+  display:block;
+  color:#9edfff;
+  font-size:8px;
+  font-weight:950;
+  letter-spacing:.15em;
+}
+.pro-jump strong{
+  display:block;
+  margin-top:4px;
+  font-size:12px;
+  line-height:1.45;
+}
+.pro-jump b{font-size:26px;font-weight:400}
+
 </style>
 </head>
 <body>
@@ -118,7 +213,7 @@ footer{background:transparent!important;color:#6d8394!important;padding-bottom:8
 <section id="race-sheet" class="bottom-sheet race-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="race-sheet-title"><div class="sheet-handle"></div><div class="sheet-head"><button id="race-back" class="sheet-back" type="button">‹</button><div><small>RACE DETAIL</small><h2 id="race-sheet-title">レース詳細</h2></div><span id="race-sheet-state" class="sheet-state">--</span></div><div id="race-detail" class="race-detail"></div></section>
 <nav class="bottom-app-nav" aria-label="下部ナビゲーション"><a href="/"><b>⌂</b><span>ホーム</span></a><a href="/today.html" class="active"><b>▦</b><span>本日の予想</span></a><a href="#performance"><b>↗</b><span>実績</span></a><a href="/club.html"><b>◎</b><span>CLUB</span></a></nav>
 <footer><strong>ONE BOAT</strong><span>BOAT RACE ANALYTICS</span><small>© ONE BOAT</small></footer>
-<script src="/app.js?v=20260918-bright2" defer></script>
+<script src="/app.js?v=20260918-mode1" defer></script>
 <script>const mb=document.getElementById('topMenuButton'),mp=document.getElementById('topMenuPanel');function closeTopMenu(){mp.classList.remove('open');mb.setAttribute('aria-expanded','false')}mb.addEventListener('click',e=>{e.stopPropagation();const open=mp.classList.toggle('open');mb.setAttribute('aria-expanded',String(open))});document.addEventListener('click',e=>{if(!mp.contains(e.target)&&!mb.contains(e.target))closeTopMenu()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTopMenu()});</script>
 </body>
 </html>
