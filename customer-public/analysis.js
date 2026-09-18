@@ -1,3 +1,14 @@
+const ONE_BOAT_CANONICAL_ORIGIN='https://one-boat-club.jp';
+function enforceOneBoatCanonical(){
+  if(location.hostname==='one-boat-customer.uk-1407-uk.workers.dev'||location.hostname==='www.one-boat-club.jp'){
+    location.replace(`${ONE_BOAT_CANONICAL_ORIGIN}${location.pathname}${location.search}${location.hash}`);
+    return true;
+  }
+  return false;
+}
+if(enforceOneBoatCanonical()) throw new Error('canonical_redirect');
+window.addEventListener('pageshow',()=>{enforceOneBoatCanonical()});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)enforceOneBoatCanonical()});
 const $=s=>document.querySelector(s);
 const API='https://imhzjlxbnovjvqlyawmg.supabase.co/functions/v1/one-boat-race-analysis-api';
 const VENUES=['桐生','戸田','江戸川','平和島','多摩川','浜名湖','蒲郡','常滑','津','三国','びわこ','住之江','尼崎','鳴門','丸亀','児島','宮島','徳山','下関','若松','芦屋','福岡','唐津','大村'];

@@ -99,7 +99,7 @@ jobs:
       - name: Verify deployed customer site with iPhone-like requests
         run: |
           set -euo pipefail
-          BASE='https://one-boat-customer.uk-1407-uk.workers.dev'
+          BASE='https://one-boat-club.jp'
           UA='Mozilla/5.0 (iPhone; CPU iPhone OS 26_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Mobile/15E148 Safari/604.1'
           sleep 4
           get_text() { curl -fsS -A "$UA" -H 'Cache-Control: no-cache' "$1" -o "$2"; }
@@ -126,4 +126,9 @@ jobs:
           grep -q 'logged_in' /tmp/session.json
           CODE=$(curl -sS -o /dev/null -w '%{http_code}' -A "$UA" "$BASE/premium.html")
           test "$CODE" = "302"
+          LEGACY='https://one-boat-customer.uk-1407-uk.workers.dev'
+          LEGACY_CODE=$(curl -sS -o /dev/null -w '%{http_code}' -A "$UA" "$LEGACY/analysis.html?date=2026-09-18&venue=14&race=3")
+          test "$LEGACY_CODE" = "308"
+          LEGACY_LOCATION=$(curl -sSI -A "$UA" "$LEGACY/analysis.html?date=2026-09-18&venue=14&race=3" | tr -d '\r' | awk 'tolower($1)=="location:"{print $2}' | tail -1)
+          test "$LEGACY_LOCATION" = "https://one-boat-club.jp/analysis.html?date=2026-09-18&venue=14&race=3"
           echo 'customer_membership_iphone_verify_ok'
