@@ -55,42 +55,86 @@ function renderRacers(d){
   }).join('')||'<div class="empty-card"><strong>選手情報はデータ未連携です</strong><p>正式APIに値が入るまで推測値は表示しません。</p></div>';
 }
 
-function originalText(original,lane){
-  if(original?.available===false)return original?.reason==='not_provided_at_edogawa'?'江戸川：非提供':'—';
-  const boat=(original?.boats||[]).find(x=>Number(x.lane)===Number(lane));
-  if(!boat?.values?.length)return'—';
-  const xs=boat.values.filter(x=>!missing(x?.value));
-  return xs.length?xs.map(x=>`${esc(x.label||'計測')} ${value(x.value)}`).join(' / '):'—';
+function startPosition(v){
+  if(missing(v)||!Number.isFinite(Number(v)))return 48;
+  const n=Number(v);
+  return Math.max(34,Math.min(88,76-(n*100)));
+}
+function renderStartExhibition(d){
+  const ex=d?.exhibition_detail||{};
+  const xs=(ex.boats||[]).slice().sort((a,b)=>{
+    const ac=missing(a.course)?99:Number(a.course),bc=missing(b.course)?99:Number(b.course);
+    return ac-bc||Number(a.lane)-Number(b.lane);
+  });
+  const valid=xs.some(r=>!missing(r.start_timing)||!missing(r.course));
+  if(!xs.length){
+    $('#start-exhibition').innerHTML='<div class="empty-card"><strong>スタート展示データ待ち</strong><p>進入・スタート展示STが生成されると6艇を並べて表示します。</p></div>';
+  }else{
+    const rows=xs.map(r=>{
+      const st=missing(r.start_timing)?null:Number(r.start_timing);
+      const flying=st!==null&&Number.isFinite(st)&&st<0;
+      return `<div class="start-row">
+        <div class="start-course"><b>${value(r.course)}</b><span>コース</span></div>
+        <div class="start-track">
+          <div class="start-line" aria-hidden="true"></div>
+          <div class="start-boat lane-hull-${r.lane}${flying?' flying':''}" style="--boat-x:${startPosition(st)}%" aria-label="${r.lane}号艇"><i>${r.lane}</i></div>
+        </div>
+        <div class="start-st ${flying?'flying':''}">${stText(st)}</div>
+      </div>`;
+    }).join('');
+    $('#start-exhibition').innerHTML=`<div class="start-board-head"><span>進入</span><span>スタート展示</span><span>ST</span></div>
+      <div class="start-scale"><span class="scale-label">遅い</span><b>START</b><span class="scale-label right">F</span></div>${rows}`;
+  }
+  $('#start-status').textContent=valid?'取得済み':'直前待ち';
+  const note=[];
+  if(ex.updated_at)note.push(`更新 ${updated(ex.updated_at)}`);
+  note.push('Fはスタートラインを越えた位置と赤文字で表示します。スタート展示と本番の進入・STは異なる場合があります。');
+  $('#start-note').textContent=note.join('　');
 }
 
-function renderExhibition(d){
-  const ex=d?.exhibition_detail||{},original=d?.original_exhibition||null,xs=ex.boats||[];
-  $('#exhibition-list').innerHTML=xs.map(r=>`<article class="ex-card">
-    <div class="ex-main">
-      ${laneBadge(r.lane)}
-      <div><span>進入</span><strong>${value(r.course)}</strong></div>
-      <div><span>展示ST</span><strong>${stText(r.start_timing)}</strong></div>
-      <div><span>展示</span><strong>${fixed(r.exhibition_time,2)}</strong></div>
-    </div>
-    <div class="ex-detail-grid">
-      <div class="wide"><span>オリジナル展示</span><strong>${originalText(original,r.lane)}</strong></div>
-      <div><span>一周</span><strong>${fixed(r.lap_time,2)}</strong></div>
-      <div><span>半周</span><strong>${fixed(r.half_lap_time,2)}</strong></div>
-      <div><span>まわり足</span><strong>${fixed(r.turning,2)}</strong></div>
-      <div><span>直線</span><strong>${fixed(r.straight,2)}</strong></div>
-      <div><span>チルト</span><strong>${fixed(r.tilt,1)}</strong></div>
-    </div>
-  </article>`).join('')||'<div class="empty-card"><strong>展示データ待ち</strong><p>正式データが生成されるとここに6艇分表示されます。</p></div>';
-
+function originalMetricRows(original,ex){
+  const boats=original?.boats||[];
+  const labels=Array.isArray(original?.labels)?original.labels:[];
+  const rows=[];
+  if((ex?.boats||[]).some(x=>!missing(x.exhibition_time))){
+    rows.push({label:'展示タイム',values:[1,2,3,4,5,6].map(n=>(ex.boats||[]).find(x=>Number(x.lane)===n)?.exhibition_time),digits:2});
+  }
+  labels.forEach((label,idx)=>{
+    rows.push({label:String(label||`計測${idx+1}`),values:[1,2,3,4,5,6].map(n=>{
+      const b=boats.find(x=>Number(x.lane)===n);
+      return b?.values?.[idx]?.value ?? null;
+    }),digits:2});
+  });
+  if((ex?.boats||[]).some(x=>!missing(x.tilt))){
+    rows.push({label:'チルト',values:[1,2,3,4,5,6].map(n=>(ex.boats||[]).find(x=>Number(x.lane)===n)?.tilt),digits:1});
+  }
+  return rows;
+}
+function renderOriginalExhibition(d){
+  const ex=d?.exhibition_detail||{},original=d?.original_exhibition||null;
+  if(CODE===3||(original?.available===false&&original?.reason==='not_provided_at_edogawa')){
+    $('#original-status').textContent='非提供';
+    $('#original-exhibition').innerHTML='<div class="empty-card"><strong>江戸川はオリジナル展示非提供</strong><p>正式データの仕様に合わせ、推測値は表示しません。</p></div>';
+    $('#original-note').textContent=ex.updated_at?`展示情報更新 ${updated(ex.updated_at)}`:'';
+    return;
+  }
+  const rows=originalMetricRows(original,ex);
+  const hasOriginal=Array.isArray(original?.labels)&&original.labels.length>0&&Array.isArray(original?.boats)&&original.boats.length>0;
+  $('#original-status').textContent=hasOriginal?'取得済み':'直前待ち';
+  if(!rows.length){
+    $('#original-exhibition').innerHTML='<div class="empty-card"><strong>オリジナル展示データ待ち</strong><p>正式データが生成されると6艇を横並びで比較できます。</p></div>';
+    $('#original-note').textContent='';
+    return;
+  }
+  const head=[1,2,3,4,5,6].map(n=>`<div class="original-boat-head lane-hull-${n}"><b>${n}</b><span>号艇</span></div>`).join('');
+  const body=rows.map(r=>`<div class="original-row-label">${esc(r.label)}</div>${r.values.map(v=>`<div class="original-value">${fixed(v,r.digits)}</div>`).join('')}`).join('');
+  $('#original-exhibition').innerHTML=`<div class="original-table"><div class="original-corner">項目</div>${head}${body}</div>`;
   const notes=[];
-  if(CODE===3||original?.reason==='not_provided_at_edogawa')notes.push('江戸川はオリジナル展示の提供対象外です。');
-  if(!xs.length)notes.push('展示データは現在未生成です。');
+  if(original?.updated_at)notes.push(`オリジナル展示更新 ${updated(original.updated_at)}`);
   if(ex.updated_at)notes.push(`展示更新 ${updated(ex.updated_at)}`);
-  $('#exhibition-note').textContent=notes.join(' ');
-  $('#exhibition-note').hidden=!notes.length;
-  const live=xs.some(r=>!missing(r.exhibition_time)||!missing(r.start_timing)||!missing(r.course)||!missing(r.lap_time)||!missing(r.half_lap_time)||!missing(r.turning)||!missing(r.straight));
-  $('#exhibition-status').textContent=live?'取得済み':'直前待ち';
+  $('#original-note').textContent=notes.join('　');
 }
+function renderExhibition(d){renderStartExhibition(d);renderOriginalExhibition(d)}
 
 function renderSurface(d){
   const s=d?.surface||d?.weather||{},t=d?.tide||{};
@@ -170,6 +214,14 @@ function setupTabs(){
     document.querySelector(`[data-panel="${b.dataset.tab}"]`)?.classList.add('active');
   }));
 }
+function setupDisplayTabs(){
+  document.querySelectorAll('.display-switch-btn').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('.display-switch-btn').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.display-panel').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    document.querySelector(`[data-display-panel="${b.dataset.display}"]`)?.classList.add('active');
+  }));
+}
 
 function render(d){
   DATA=d;
@@ -212,5 +264,6 @@ async function load(){
 }
 
 setupTabs();
+setupDisplayTabs();
 $('#clear-my').addEventListener('click',()=>{MY={first:null,second:null,third:null};try{localStorage.removeItem(myKey())}catch{}renderMy()});
 load();
