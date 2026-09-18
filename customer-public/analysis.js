@@ -20,6 +20,14 @@ function officialBets(r){const p=r?.prediction||{};return Array.isArray(r?.bets)
 function officialTicket(x){return x?.ticket||x?.combination||x?.bet||'—'}
 function officialStake(x){return Number(x?.stake_yen??x?.amount??x?.stake??0)}
 function officialRole(x){const v=String(x?.selection_role||'').toLowerCase();if(/main|本線|primary|core/.test(v))return'本線';if(/cover|押さえ|抑え|sub|secondary/.test(v))return'押さえ';return'買い目'}
+function officialFinalOddsRange(x,deadline){
+  const o=Number(x?.odds);if(!Number.isFinite(o)||o<=1)return'データなし';
+  let left=null,d=null,s=String(deadline||'');
+  const hm=s.match(/(\d{1,2}):(\d{2})/);
+  if(hm){d=new Date(`${DATE}T${String(Number(hm[1])).padStart(2,'0')}:${hm[2]}:00+09:00`);if(!Number.isNaN(d.getTime()))left=Math.max(0,(d.getTime()-Date.now())/60000)}
+  let lo=.85,hi=1.20;if(left!==null&&left>=12){lo=.70;hi=1.35}else if(left!==null&&left>=8){lo=.75;hi=1.30}else if(left!==null&&left>=5){lo=.80;hi=1.25}
+  const a=Math.max(1,o*lo),b=Math.max(a,o*hi);return `${a.toFixed(1)}〜${b.toFixed(1)}倍`;
+}
 function textValue(v){
   if(typeof v==='string')return v.trim();
   if(Array.isArray(v))return v.filter(x=>typeof x==='string').join(' / ');
@@ -249,7 +257,7 @@ function renderOfficialPrediction(v){
       <div><span>買い目</span><strong>${publicRecord(rec)?`${bets.length}点`:'購入なし'}</strong></div>
     </div>`;
   if(publicRecord(rec)){
-    html+=`<div class="pro-official-section"><b>推奨買い目</b>${bets.length?`<div class="pro-bets pro-bets-picks">${bets.map(x=>`<div><strong>${esc(officialTicket(x))}</strong><span class="pick-role">${officialRole(x)}</span></div>`).join('')}</div>`:'<p>買い目取得待ち</p>'}</div>`;
+    html+=`<div class="pro-official-section"><b>推奨買い目</b>${bets.length?`<div class="pro-bets pro-bets-picks">${bets.map(x=>`<div><strong>${esc(officialTicket(x))}</strong><span class="pick-role">${officialRole(x)}</span><small class="pro-final-odds">最終オッズ予想 ${officialFinalOddsRange(x,r.deadline)}</small></div>`).join('')}</div><p class="pro-odds-note">※最終オッズ予想は、予想確定時の現在オッズと締切までの残り時間から算出した参考レンジです。確定オッズではなく、投票状況により範囲外となる場合があります。表示用の参考値で、ENTER判定・買い目・公式実績を後から変更するものではありません。</p>`:'<p>買い目取得待ち</p>'}</div>`;
     if(bets.length){
       html+=`<details class="pro-allocation">
         <summary><span>資金配分を見る</span><b>合計 ${yen(stake)}</b></summary>
