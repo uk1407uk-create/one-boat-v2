@@ -11,7 +11,20 @@
   "assets": {
     "directory": "./customer-public",
     "binding": "ASSETS",
-    "run_worker_first": true,
+    "run_worker_first": [
+      "/api/*",
+      "/",
+      "/index.html",
+      "/*.html",
+      "/login",
+      "/login/",
+      "/register",
+      "/register/",
+      "/hero-top.jpg",
+      "/top-screen.webp",
+      "/assets/home-approved-live.webp",
+      "/assets/home-approved-exact.webp"
+    ],
     "html_handling": "none",
     "not_found_handling": "none"
   }
