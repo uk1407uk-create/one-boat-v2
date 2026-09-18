@@ -868,6 +868,19 @@ html.pro-mode .venue-tile.idle .venue-meta em{
   .today-intro h1{font-size:22px!important}
   .live-race-list .race-main strong{font-size:16px}
 }
+
+/* 24 venue screen one-tap mode switch */
+.venue-mode-switch-wrap{
+  margin:9px 0 7px;
+}
+.venue-page-mode-switch{
+  width:100%;
+  box-shadow:none;
+}
+html.pro-mode .venue-mode-switch-wrap{
+  background:transparent;
+}
+
 </style>
 </head>
 <body>
@@ -896,6 +909,12 @@ html.pro-mode .venue-tile.idle .venue-meta em{
         <div><small>RACE STADIUMS</small><h2>場から探す</h2></div>
         <span id="today-count" class="count-label">確認中</span>
       </div>
+      <div class="venue-mode-switch-wrap" aria-label="全国24場 表示モード">
+        <div class="page-mode-switch venue-page-mode-switch" role="group" aria-label="かんたん・PRO切替">
+          <button id="page-mode-easy" class="page-mode-button" type="button" data-page-mode="easy"><span>かんたん</span><small>ひと目で確認</small></button>
+          <button id="page-mode-pro" class="page-mode-button" type="button" data-page-mode="pro"><span>PRO</span><small>詳細分析</small></button>
+        </div>
+      </div>
       <p class="lead">開催中・分析中の場を優先表示。必要なときだけ全24場を開けます。</p>
       <div class="venue-legend"><span><i class="lg-live"></i>予想公開</span><span><i class="lg-watch"></i>様子見</span><span><i class="lg-skip"></i>見送り</span><span><i class="lg-idle"></i>非開催/終了</span></div>
       <div class="venue-grid" id="venue-grid" aria-label="全国24場"></div>
@@ -911,7 +930,7 @@ html.pro-mode .venue-tile.idle .venue-meta em{
 <section id="race-sheet" class="bottom-sheet race-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="race-sheet-title"><div class="sheet-handle"></div><div class="sheet-head"><button id="race-back" class="sheet-back" type="button">‹</button><div><small>RACE DETAIL</small><h2 id="race-sheet-title">レース詳細</h2></div><span id="race-sheet-state" class="sheet-state">--</span></div><div id="race-detail" class="race-detail"></div></section>
 <nav class="bottom-app-nav" aria-label="下部ナビゲーション"><a href="/"><b>⌂</b><span>ホーム</span></a><a href="/today.html" class="active"><b>▦</b><span>本日の予想</span></a><a href="#performance"><b>↗</b><span>実績</span></a><a href="/club.html"><b>◎</b><span>CLUB</span></a></nav>
 <footer><strong>ONE BOAT</strong><span>BOAT RACE ANALYTICS</span><small>© ONE BOAT</small></footer>
-<script src="/app.js?v=20260918-simple1" defer></script>\n<script src="/ai-picks.js?v=20260918-ai1" defer></script>
+<script src="/app.js?v=20260918-venue-mode2" defer></script>\n<script src="/ai-picks.js?v=20260918-ai1" defer></script>
 <script>const mb=document.getElementById('topMenuButton'),mp=document.getElementById('topMenuPanel');function closeTopMenu(){mp.classList.remove('open');mb.setAttribute('aria-expanded','false')}mb.addEventListener('click',e=>{e.stopPropagation();const open=mp.classList.toggle('open');mb.setAttribute('aria-expanded',String(open))});document.addEventListener('click',e=>{if(!mp.contains(e.target)&&!mb.contains(e.target))closeTopMenu()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTopMenu()});</script>
 </body>
 </html>
