@@ -54,6 +54,23 @@ jobs:
 
 
 
+
+
+      - name: Verify one-tap page PRO mode production
+        run: |
+          set -euo pipefail
+          BASE='https://one-boat-club.jp'
+          PAGE=$(curl -sS "$BASE/today.html")
+          APP=$(curl -sS "$BASE/app.js?v=20260918-pagepro1")
+          printf '%s' "$PAGE" | grep -q 'id="page-mode-easy"'
+          printf '%s' "$PAGE" | grep -q 'id="page-mode-pro"'
+          printf '%s' "$PAGE" | grep -q 'html.pro-mode body'
+          printf '%s' "$PAGE" | grep -q 'PRO MODE / DEEP ANALYSIS'
+          printf '%s' "$APP" | grep -q 'function applyPageMode'
+          printf '%s' "$APP" | grep -q "applyPageMode('pro')"
+          printf '%s' "$APP" | grep -q "applyPageMode('easy')"
+          echo "page_pro_mode=ok"
+
       - name: Verify beginner and PRO mode production
         run: |
           set -euo pipefail
