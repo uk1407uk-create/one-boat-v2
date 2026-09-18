@@ -1,0 +1,22 @@
+name: ONE BOAT Auth Diagnostic
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/auth-diagnostic.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Supabase signup without explicit redirect
+        env:
+          TEST_EMAIL: official.oneclubman+ob-authcheck-0918@gmail.com
+        run: |
+          set -euo pipefail
+          TEST_PASSWORD="$(openssl rand -base64 24)"
+          BODY=$(jq -nc --arg email "$TEST_EMAIL" --arg password "$TEST_PASSWORD" '{email:$email,password:$password,data:{age_20_confirmed:true}}')
+          CODE=$(curl -sS -o /tmp/signup.json -w '%{http_code}' -X POST -H 'apikey: sb_publishable_-VcTpMDA4uaDfKmqxYw-0Q_v2vAZe7V' -H 'Content-Type: application/json' --data "$BODY" 'https://imhzjlxbnovjvqlyawmg.supabase.co/auth/v1/signup')
+          echo "signup_code=$CODE"
+          jq -c '{id:.user.id,email:.user.email,confirmation_sent_at:.user.confirmation_sent_at,email_confirmed_at:.user.email_confirmed_at,has_access_token:(.access_token!=null)}' /tmp/signup.json || cat /tmp/signup.json
