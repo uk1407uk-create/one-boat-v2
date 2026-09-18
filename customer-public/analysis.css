@@ -1227,3 +1227,332 @@ body{
   .motor-meta small{font-size:7.5px}
   .motor-meta b{font-size:9.5px}
 }
+
+
+/* PRO premium refinement v3 — restrained luxury dashboard */
+html{background:#05070b!important}
+body{
+  background:
+    radial-gradient(circle at 50% -10%,rgba(74,88,110,.12),transparent 32%),
+    linear-gradient(180deg,#06080c 0%,#080b10 46%,#05070a 100%)!important;
+  color:#f5f7fa;
+}
+.analysis-shell{
+  background:transparent!important;
+}
+.app-header{
+  background:rgba(6,8,12,.96)!important;
+  border-bottom:1px solid #202630!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.34)!important;
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+}
+.analysis-tabs{
+  background:rgba(8,11,16,.97)!important;
+  border-bottom:1px solid #202630!important;
+  box-shadow:0 8px 20px rgba(0,0,0,.22)!important;
+}
+.analysis-tab{
+  background:transparent!important;
+  color:#676e79!important;
+  border-right:1px solid #1c222b!important;
+  letter-spacing:.015em;
+}
+.analysis-tab.active{
+  color:#f8fafc!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.01))!important;
+  box-shadow:inset 0 -2px 0 #dce2e9!important;
+}
+.tab-panel{
+  padding-top:18px!important;
+}
+.section-head{
+  margin-bottom:12px!important;
+}
+.section-head small{
+  color:#8e96a3!important;
+  font-size:9px!important;
+  letter-spacing:.22em!important;
+}
+.section-head h2{
+  color:#f8fafc!important;
+  font-size:23px!important;
+  letter-spacing:-.04em!important;
+}
+.section-head>span{
+  background:#0c1016!important;
+  color:#a7afb9!important;
+  border:1px solid #2b323d!important;
+  padding:6px 10px!important;
+}
+.subsection{
+  border-top:1px solid #1d232c!important;
+}
+.data-note{
+  background:#0b0f14!important;
+  border:1px solid #242a34!important;
+  color:#8f98a5!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.02);
+}
+
+/* Weather / water — only show actual values as premium data tiles */
+.surface-grid{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:9px!important;
+}
+.surface-card{
+  position:relative;
+  min-height:78px!important;
+  padding:12px 13px!important;
+  border:1px solid #272e38!important;
+  border-radius:13px!important;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,0)),
+    #0d1117!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.035),
+    0 8px 18px rgba(0,0,0,.16)!important;
+  overflow:hidden;
+}
+.surface-card:before{
+  content:"";
+  position:absolute;
+  top:0;left:0;bottom:0;
+  width:2px;
+  background:#465261;
+  opacity:.8;
+}
+.surface-card.tide-card:before{background:#6b737f}
+.surface-card span{
+  color:#818a97!important;
+  font-size:10px!important;
+  font-weight:850!important;
+  letter-spacing:.04em;
+}
+.surface-card strong{
+  display:block;
+  margin-top:9px!important;
+  color:#f7f9fb!important;
+  font-size:20px!important;
+  line-height:1.18!important;
+  font-weight:900!important;
+  letter-spacing:-.025em;
+  word-break:keep-all;
+}
+.surface-status-line{
+  grid-column:1/-1;
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:7px;
+  min-height:38px;
+  padding:8px 10px;
+  border:1px solid #222833;
+  border-radius:10px;
+  background:#090d12;
+}
+.surface-status-badge{
+  display:inline-flex;
+  align-items:center;
+  min-height:22px;
+  padding:0 7px;
+  border-radius:999px;
+  background:#202631;
+  color:#c1c7cf;
+  font-size:9px;
+  font-weight:900;
+}
+.surface-status-badge.neutral{background:#171b22;color:#9098a4}
+.surface-status-line small{
+  color:#737c88;
+  font-size:9px;
+  font-weight:750;
+}
+.surface-observed{
+  margin-left:auto;
+  color:#8e97a3!important;
+}
+.surface-empty-premium{
+  grid-column:1/-1;
+  padding:18px;
+  border:1px solid #252c36;
+  border-radius:13px;
+  background:#0c1016;
+}
+.surface-empty-premium>span{
+  display:block;
+  color:#69717d;
+  font-size:8px;
+  font-weight:900;
+  letter-spacing:.18em;
+}
+.surface-empty-premium>strong{
+  display:block;
+  margin-top:5px;
+  color:#eef1f4;
+  font-size:16px;
+}
+.surface-empty-premium>p{
+  margin:6px 0 0;
+  color:#7e8793;
+  font-size:10px;
+  line-height:1.5;
+}
+#tide-note{
+  margin-top:10px!important;
+  font-size:10px!important;
+  line-height:1.65!important;
+}
+
+/* Motor — card hierarchy instead of spreadsheet look */
+.motor-pro-panel{
+  display:grid!important;
+  gap:9px!important;
+}
+.motor-table-head{
+  display:none!important;
+}
+.motor-row{
+  position:relative;
+  grid-template-columns:48px minmax(0,1fr) 76px 76px!important;
+  grid-template-rows:auto auto!important;
+  min-height:96px!important;
+  padding:11px 10px 10px 8px!important;
+  column-gap:4px!important;
+  row-gap:9px!important;
+  border:1px solid #272e38!important;
+  border-radius:14px!important;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,0)),
+    #0d1117!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.035),
+    0 7px 18px rgba(0,0,0,.15)!important;
+  overflow:hidden;
+}
+.motor-row:before{
+  content:"";
+  position:absolute;
+  left:0;top:0;bottom:0;
+  width:2px;
+  background:#343c48;
+}
+.motor-row .motor-lane{
+  grid-column:1!important;
+  grid-row:1/3!important;
+}
+.motor-row .lane-box{
+  width:38px!important;
+  height:38px!important;
+  border-radius:10px!important;
+  font-size:19px!important;
+  box-shadow:0 5px 14px rgba(0,0,0,.22);
+}
+.motor-row .motor-id{
+  grid-column:2!important;
+  grid-row:1!important;
+  align-self:center!important;
+  padding-left:5px!important;
+}
+.motor-row .motor-id>small{
+  display:block!important;
+  margin:0 0 4px!important;
+  color:#666f7b!important;
+  font-size:7px!important;
+  line-height:1!important;
+  font-weight:900!important;
+  letter-spacing:.16em!important;
+}
+.motor-row .motor-id>strong{
+  color:#f7f8fa!important;
+  font-size:20px!important;
+  font-weight:950!important;
+  letter-spacing:-.035em!important;
+}
+.motor-row .motor-rate{
+  align-self:center!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-end!important;
+  gap:4px!important;
+}
+.motor-row .motor-rate>span{
+  display:block!important;
+  color:#6f7884!important;
+  font-size:8px!important;
+  font-weight:850!important;
+  letter-spacing:.02em;
+}
+.motor-row .motor-rate>strong{
+  color:#f8fafc!important;
+  font-size:17px!important;
+  line-height:1!important;
+  font-weight:950!important;
+  letter-spacing:-.025em;
+}
+.motor-meta{
+  grid-column:2/5!important;
+  grid-row:2!important;
+  display:grid!important;
+  grid-template-columns:1fr 1.18fr 1.05fr .72fr .72fr!important;
+  gap:6px!important;
+  padding:8px 0 0!important;
+  border-top:1px solid #252b34!important;
+}
+.motor-meta>span{gap:3px!important}
+.motor-meta small{
+  color:#676f7a!important;
+  font-size:8px!important;
+  font-weight:850!important;
+}
+.motor-meta b{
+  color:#c7cdd5!important;
+  font-size:11px!important;
+  font-weight:850!important;
+}
+
+/* Premium common cards */
+.racer-card,
+.ex-card,
+.empty-card,
+.official-cta,
+.pro-official{
+  border-color:#272e38!important;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,0)),
+    #0d1117!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.025),
+    0 8px 18px rgba(0,0,0,.16)!important;
+}
+.official-cta{
+  border-radius:14px!important;
+}
+.bottom-nav{
+  background:rgba(5,7,10,.965)!important;
+  border-top:1px solid #202630!important;
+  box-shadow:0 -10px 28px rgba(0,0,0,.42)!important;
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+}
+.bottom-nav a{color:#656d79!important}
+.bottom-nav a b{color:#7a838f!important}
+.bottom-nav a.active,
+.bottom-nav a.active b{color:#f5f7fa!important}
+
+@media(max-width:360px){
+  .surface-card{min-height:74px!important;padding:11px!important}
+  .surface-card strong{font-size:18px!important}
+  .motor-row{
+    grid-template-columns:44px minmax(0,1fr) 68px 68px!important;
+    padding-left:6px!important;
+    padding-right:7px!important;
+  }
+  .motor-row .lane-box{width:35px!important;height:35px!important;font-size:18px!important}
+  .motor-row .motor-id>strong{font-size:18px!important}
+  .motor-row .motor-rate>strong{font-size:15px!important}
+  .motor-meta{gap:4px!important}
+  .motor-meta small{font-size:7.5px!important}
+  .motor-meta b{font-size:9.5px!important}
+}
