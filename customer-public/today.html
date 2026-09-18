@@ -1056,6 +1056,74 @@ html.pro-mode .free-pending{padding:2px 0}
 html.pro-mode .free-pending strong{display:block;color:#f1f1ef;font-size:18px}
 html.pro-mode .free-pending small{display:block;margin-top:6px;color:#8f9195;font-size:9px}
 
+
+
+/* PRO GOLD BORDER TRIAL — presentation only; safe to remove as one block */
+html.pro-mode{
+  --pro-gold:#d2a33d;
+  --pro-gold-bright:#f0cf72;
+  --pro-gold-soft:rgba(210,163,61,.72);
+  --pro-gold-dim:rgba(210,163,61,.38);
+}
+html.pro-mode :where(
+  .top-header,.top-club,.quick-nav,.page-mode-switch,.today-intro,.today-summary,
+  .free-chip,.date-row,.section-title-row,.count-label,.venue-legend span,.venue-tile,
+  .venue-name,.venue-meta strong,.race-card,.result-card,.performance-section,
+  .period-tabs,.stats-table,.stats-table>div,.club-panel,.club-button,footer,
+  .bottom-app-nav,.top-menu-panel,.bottom-sheet,.sheet-head,.sheet-back,.sheet-state,
+  .venue-sheet-meta div,.race-row,.race-no,.venue-toggle,.pro-jump
+){
+  border-color:var(--pro-gold-soft)!important;
+}
+html.pro-mode .top-header,
+html.pro-mode .quick-nav,
+html.pro-mode .today-intro,
+html.pro-mode .section-title-row,
+html.pro-mode footer,
+html.pro-mode .bottom-app-nav{
+  border-color:var(--pro-gold-dim)!important;
+}
+html.pro-mode .venue-tile.live,
+html.pro-mode .venue-tile.watch,
+html.pro-mode .venue-tile.skip,
+html.pro-mode .venue-tile.settled,
+html.pro-mode .venue-tile.idle,
+html.pro-mode .race-row.live,
+html.pro-mode .race-row.watch{
+  border-color:var(--pro-gold-soft)!important;
+}
+html.pro-mode .top-logo .accent,
+html.pro-mode .pro-underground-label,
+html.pro-mode .section-title-row small,
+html.pro-mode .date-row small,
+html.pro-mode .free-strip-title,
+html.pro-mode .bottom-app-nav a.active,
+html.pro-mode .bottom-app-nav a.active b{
+  color:var(--pro-gold-bright)!important;
+}
+html.pro-mode .pro-underground-label i{
+  background:var(--pro-gold-soft)!important;
+}
+html.pro-mode .quick-nav a.active{
+  box-shadow:inset 0 -2px 0 var(--pro-gold-bright)!important;
+}
+html.pro-mode .page-mode-switch,
+html.pro-mode .today-summary,
+html.pro-mode .date-row,
+html.pro-mode .venue-tile,
+html.pro-mode .race-card,
+html.pro-mode .result-card,
+html.pro-mode .performance-section,
+html.pro-mode .club-panel,
+html.pro-mode .bottom-sheet{
+  box-shadow:
+    inset 0 0 0 1px rgba(240,207,114,.035),
+    0 7px 22px rgba(0,0,0,.28)!important;
+}
+html.pro-mode .count-label,
+html.pro-mode .club-button{
+  border:1px solid var(--pro-gold-bright)!important;
+}
 </style>
 </head>
 <body>
