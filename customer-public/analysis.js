@@ -20,6 +20,7 @@ function publicRecord(r){const d=String(r?.decision||r?.prediction?.decision||''
 function officialBets(r){const p=r?.prediction||{};return Array.isArray(r?.bets)&&r.bets.length?r.bets:Array.isArray(p.production_picks)?p.production_picks:[]}
 function officialTicket(x){return x?.ticket||x?.combination||x?.bet||'—'}
 function officialStake(x){return Number(x?.stake_yen??x?.amount??x?.stake??0)}
+function officialRole(x){const v=String(x?.selection_role||'').toLowerCase();if(/main|本線|primary|core/.test(v))return'本線';if(/cover|押さえ|抑え|sub|secondary/.test(v))return'押さえ';return'買い目'}
 function textValue(v){
   if(typeof v==='string')return v.trim();
   if(Array.isArray(v))return v.filter(x=>typeof x==='string').join(' / ');
@@ -227,10 +228,19 @@ function renderOfficialPrediction(v){
     <div class="pro-official-grid">
       <div><span>締切</span><strong>${esc(String(r.deadline||'—').match(/\d{1,2}:\d{2}/)?.[0]||'—')}</strong></div>
       <div><span>判定</span><strong>${esc(stateLabel(r.state))}</strong></div>
-      <div><span>投資</span><strong>${publicRecord(rec)?yen(stake):'購入なし'}</strong></div>
+      <div><span>買い目</span><strong>${publicRecord(rec)?`${bets.length}点`:'購入なし'}</strong></div>
     </div>`;
   if(publicRecord(rec)){
-    html+=`<div class="pro-official-section"><b>推奨買い目</b>${bets.length?`<div class="pro-bets">${bets.map(x=>`<div><strong>${esc(officialTicket(x))}</strong><span>${yen(officialStake(x))}</span></div>`).join('')}</div>`:'<p>買い目取得待ち</p>'}</div>`;
+    html+=`<div class="pro-official-section"><b>推奨買い目</b>${bets.length?`<div class="pro-bets pro-bets-picks">${bets.map(x=>`<div><strong>${esc(officialTicket(x))}</strong><span class="pick-role">${officialRole(x)}</span></div>`).join('')}</div>`:'<p>買い目取得待ち</p>'}</div>`;
+    if(bets.length){
+      html+=`<details class="pro-allocation">
+        <summary><span>資金配分を見る</span><b>合計 ${yen(stake)}</b></summary>
+        <div class="pro-allocation-body">
+          <div class="pro-bets">${bets.map(x=>`<div><strong>${esc(officialTicket(x))}</strong><span>${yen(officialStake(x))}</span></div>`).join('')}</div>
+          <p>公式成績はレース前に確定したこの正式資金配分を基準に集計します。</p>
+        </div>
+      </details>`;
+    }
   }
   if(reason)html+=`<div class="pro-official-section"><b>予想根拠</b><p>${esc(reason)}</p></div>`;
   if(theory)html+=`<div class="pro-official-section"><b>採用理論</b><p>${esc(theory)}</p></div>`;
