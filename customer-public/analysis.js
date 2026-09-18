@@ -278,7 +278,7 @@ function renderOfficialPrediction(v){
   const label=stateLabel(r.state);
   let html=`<div class="pro-official-head"><div><small>OFFICIAL DECISION</small><h2>ONE BOATの正式判断</h2></div><span>${esc(label)}</span></div>
     <div class="pro-official-grid">
-      <div><span>締切</span><strong>${esc(String(r.deadline||'—').match(/\\d{1,2}:\\d{2}/)?.[0]||'—')}</strong></div>
+      <div><span>締切</span><strong>${esc(String(r.deadline||'—').match(/\d{1,2}:\d{2}/)?.[0]||'—')}</strong></div>
       <div><span>判定</span><strong>${esc(label)}</strong></div>
       <div><span>買い目</span><strong>${r.state==='PRIVATE'?'非公開':publicRecord(rec)?`${bets.length}点`:'購入なし'}</strong></div>
     </div>
@@ -299,7 +299,7 @@ function renderOfficialPrediction(v){
   }
   if(r.state==='PRIVATE')html+=`<div class="pro-official-section"><b>公開状況</b><p>ONE BOATでは正式判断済みですが、本日の無料公開対象外です。有料版では正式ENTER全件を確認できる設計です。</p></div>`;
   box.innerHTML=html;
-  if(r.deadline)$('#race-deadline').textContent=String(r.deadline).match(/\\d{1,2}:\\d{2}/)?.[0]||'—';
+  if(r.deadline)$('#race-deadline').textContent=String(r.deadline).match(/\d{1,2}:\d{2}/)?.[0]||'—';
 }
 
 function renderMotorDetails(d){
