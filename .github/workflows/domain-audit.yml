@@ -52,6 +52,48 @@ jobs:
           test "$WEBHOOK_CODE" = "400"
           echo "webhook_invalid_signature_rejected=$WEBHOOK_CODE"
 
+
+
+      - name: Verify beginner and PRO mode production
+        run: |
+          set -euo pipefail
+          BASE='https://one-boat-club.jp'
+          TODAY_CODE=$(curl -sS -o /tmp/today.html -w '%{http_code}' "$BASE/today.html")
+          APP_CODE=$(curl -sS -o /tmp/app.js -w '%{http_code}' "$BASE/app.js?v=20260918-mode1")
+          PRO_CODE=$(curl -sS -o /tmp/pro.html -w '%{http_code}' "$BASE/analysis.html?date=2026-09-17&venue=24&race=10&mode=pro")
+          PRO_JS_CODE=$(curl -sS -o /tmp/pro.js -w '%{http_code}' "$BASE/analysis.js?v=20260918-mode2")
+          PRO_CSS_CODE=$(curl -sS -o /tmp/pro.css -w '%{http_code}' "$BASE/analysis.css?v=20260918-mode2")
+          test "$TODAY_CODE" = "200"
+          test "$APP_CODE" = "200"
+          test "$PRO_CODE" = "200"
+          test "$PRO_JS_CODE" = "200"
+          test "$PRO_CSS_CODE" = "200"
+          grep -q "race-mode-switch" /tmp/app.js
+          grep -q "proRaceUrl" /tmp/app.js
+          grep -q 'id="easy-mode-link"' /tmp/pro.html
+          grep -q 'id="pro-official"' /tmp/pro.html
+          grep -q 'id="motor-pro-panel"' /tmp/pro.html
+          grep -q "renderOfficialPrediction" /tmp/pro.js
+          grep -q "renderMotorDetails" /tmp/pro.js
+          grep -q "Beginner / PRO one-tap mode" /tmp/pro.css
+
+          API='https://imhzjlxbnovjvqlyawmg.supabase.co/functions/v1/one-boat-race-analysis-api?date=2026-09-17&venue=24&race=10'
+          API_CODE=$(curl -sS -H 'Origin: https://one-boat-club.jp' -o /tmp/race-analysis.json -w '%{http_code}' "$API")
+          test "$API_CODE" = "200"
+          python - <<'PY'
+          import json
+          x=json.load(open('/tmp/race-analysis.json'))
+          assert x.get('ok') is True
+          assert 'motor_stats' in (x.get('source_status') or {})
+          racers=x.get('racers') or []
+          motors=[r.get('motor') for r in racers if isinstance(r,dict) and r.get('motor')]
+          print('motor_status='+str((x.get('source_status') or {}).get('motor_stats')))
+          print('motor_rows='+str(len(motors)))
+          if motors:
+              print('motor_numbers='+','.join(str(m.get('number')) for m in motors if m.get('number') is not None))
+          PY
+          echo "view_modes=ok today=$TODAY_CODE app=$APP_CODE pro=$PRO_CODE pro_js=$PRO_JS_CODE pro_css=$PRO_CSS_CODE api=$API_CODE"
+
       - name: Align Supabase Auth URL configuration when management token exists
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
