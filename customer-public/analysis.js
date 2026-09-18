@@ -186,8 +186,20 @@ function renderOriginalExhibition(d){
 
 function renderExhibition(d){renderStartExhibition(d);renderOriginalExhibition(d)}
 
+function tideLevelText(v){
+  if(!v||typeof v!=='object'||missing(v.value_cm))return'—';
+  return `${Number(v.value_cm).toFixed(1).replace(/\\.0$/,'')}cm${v.at?`（${esc(v.at)}）`:''}`;
+}
+function tideEventText(v){
+  if(!v||typeof v!=='object'||!v.time)return'—';
+  return `${esc(v.time)}${missing(v.level_cm)?'':` / ${Number(v.level_cm).toFixed(0)}cm`}`;
+}
+function tideStateText(v){
+  return ({rising:'上げ潮',falling:'下げ潮',slack:'潮止まり付近',near_high:'満潮付近',near_low:'干潮付近'})[String(v||'')]||'—';
+}
 function renderSurface(d){
   const s=d?.surface||d?.weather||{},t=d?.tide||{};
+  const tideApplicable=t?.applicable!==false;
   const items=[
     ['天気',s.weather??s.condition,''],
     ['気温',s.air_temperature??s.temperature,'℃'],
@@ -195,17 +207,24 @@ function renderSurface(d){
     ['風向',s.wind_direction,''],
     ['風速',s.wind_speed,'m/s'],
     ['波高',s.wave_height,'cm'],
-    ['潮位',t.tide_level,''],
-    ['潮状態',t.current_state,''],
-    ['満潮',t.high_tide,''],
-    ['干潮',t.low_tide,'']
+    ['潮位',tideApplicable?tideLevelText(t.tide_level):'対象外',''],
+    ['潮状態',tideApplicable?tideStateText(t.current_state):'対象外',''],
+    ['満潮',tideApplicable?tideEventText(t.high_tide):'対象外',''],
+    ['干潮',tideApplicable?tideEventText(t.low_tide):'対象外','']
   ];
-  const has=items.some(([,v])=>!missing(v));
+  const has=items.some(([,v])=>!missing(v)&&v!=='—');
   $('#surface-grid').innerHTML=has
     ?items.map(([label,v,suffix])=>`<div class="surface-card"><span>${label}</span><strong>${value(v,suffix)}</strong></div>`).join('')
-    :'<div class="empty-card surface-empty"><strong>水面・気象データは現在未連携です</strong><p>専用APIに正式値が入るまで「—」を並べず、ここでまとめてお知らせします。</p></div>';
-  const sui=d?.source_status?.sui;
-  $('#tide-note').textContent=`潮位・満潮・干潮は正式ソース未接続です。${sui==='available'?' 気象取得元はありますが、専用APIの表示項目にはまだ値がありません。':''}`;
+    :'<div class="empty-card surface-empty"><strong>水面・気象データは現在未連携です</strong><p>正式値が入るまで推測値は表示しません。</p></div>';
+  const status=d?.source_status?.tide;
+  const station=t?.reference_station?.name;
+  if(status==='available'){
+    $('#tide-note').textContent=`潮情報：気象庁の天文潮位表${station?`（参照地点：${station}）`:''}。競走水面の実測潮位ではなく、最寄り掲載地点の予測値です。`;
+  }else if(status==='not_applicable_freshwater'){
+    $('#tide-note').textContent='この場は淡水水面のため、潮位・満潮・干潮は対象外です。';
+  }else{
+    $('#tide-note').textContent='潮情報は現在取得できません。推測値は表示しません。';
+  }
 }
 
 function evalValue(v){if(missing(v))return'—';if(typeof v==='number')return Number.isInteger(v)?String(v):Number(v).toFixed(2);return esc(v)}
