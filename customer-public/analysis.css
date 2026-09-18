@@ -264,3 +264,160 @@ body[aria-busy="true"] .analysis-tabs{opacity:.72}
   .start-boat-shell svg{width:84px;height:31px}
   .original-table-transposed{grid-template-columns:54px repeat(var(--metric-count),minmax(68px,1fr))}
 }
+
+
+/* ONE BOAT premium realistic start exhibition — visual only */
+.start-board{
+  border-color:#b8d8e9;
+  box-shadow:0 10px 28px rgba(8,75,120,.08);
+}
+.start-board-head{
+  grid-template-columns:54px 1fr 54px;
+  min-height:38px;
+  background:linear-gradient(180deg,#fbfdff,#edf7fd);
+  color:#4d6d86;
+  font-size:10px;
+  letter-spacing:.02em;
+}
+.start-scale{
+  height:29px;
+  margin-left:54px;
+  margin-right:54px;
+  background:linear-gradient(90deg,#eaf8ff 0 76%,#fff3f4 76% 100%);
+}
+.start-scale:after{
+  left:76%;
+  width:3px;
+  background:#f8fdff;
+  box-shadow:0 0 3px #fff,0 0 9px #16a8ff,0 0 16px rgba(22,168,255,.72);
+}
+.start-scale b{
+  left:76%;
+  top:6px;
+  padding:1px 6px;
+  border-radius:4px;
+  background:#087bd5;
+  color:#fff;
+  font-size:9px;
+  font-weight:950;
+  letter-spacing:.06em;
+  box-shadow:0 2px 8px rgba(8,123,213,.2);
+}
+.scale-label{top:8px;color:#7993a5}
+.scale-label.right{color:#d84b57}
+
+.start-row{
+  min-height:82px;
+  background:#fff;
+  border-bottom-color:#dbe9f1;
+}
+.start-course{
+  align-self:stretch;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(180deg,#fff,#f9fcfe);
+}
+.start-course b{
+  font-size:21px;
+  line-height:1;
+  color:#0b3158;
+}
+.start-course span{
+  margin-top:5px;
+  font-size:9px;
+  font-weight:800;
+  color:#6c8497;
+}
+.start-track{
+  height:82px;
+  isolation:isolate;
+  background:
+    linear-gradient(90deg,rgba(3,135,202,.03) 0 76%,rgba(255,70,85,.07) 76% 100%),
+    linear-gradient(180deg,rgba(255,255,255,.05),rgba(0,116,182,.06)),
+    url('/assets/start-water.webp?v=20260918-realboat1') center/cover no-repeat;
+  overflow:hidden;
+}
+.start-track:before{
+  content:"";
+  position:absolute;
+  left:0;right:0;top:50%;
+  height:1px;
+  background:rgba(255,255,255,.64);
+  box-shadow:0 1px 0 rgba(19,123,170,.08);
+  z-index:1;
+}
+.start-track:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:1;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.13),transparent 32%,transparent 70%,rgba(0,93,151,.05)),
+    linear-gradient(90deg,transparent 0 75%,rgba(255,255,255,.08) 75% 77%,transparent 77%);
+}
+.start-line{
+  left:76%;
+  top:0;
+  bottom:0;
+  width:3px;
+  z-index:5;
+  background:#fff;
+  box-shadow:0 0 3px #fff,0 0 8px #16a8ff,0 0 15px rgba(22,168,255,.88);
+}
+.start-boat-shell{
+  position:absolute;
+  left:var(--boat-x);
+  top:50%;
+  width:124px;
+  height:64px;
+  transform:translate(-96%,-50%);
+  z-index:4;
+  filter:drop-shadow(0 5px 4px rgba(4,64,94,.20));
+  will-change:left;
+  pointer-events:none;
+}
+.start-boat-shell img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center;
+  user-select:none;
+  -webkit-user-drag:none;
+}
+.start-boat-shell.flying{
+  z-index:6;
+  filter:
+    drop-shadow(0 5px 4px rgba(4,64,94,.2))
+    drop-shadow(0 0 5px rgba(225,54,68,.32));
+}
+.start-st{
+  align-self:stretch;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#fff;
+  font-size:17px;
+  font-weight:950;
+  color:#0b3158;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:-.02em;
+}
+.start-st.flying{
+  background:linear-gradient(180deg,#fff7f7,#fff);
+  color:#e13644;
+  font-size:18px;
+}
+
+@media(max-width:360px){
+  .start-board-head,.start-row{grid-template-columns:48px 1fr 49px}
+  .start-scale{margin-left:48px;margin-right:49px}
+  .start-row,.start-track{min-height:76px;height:76px}
+  .start-boat-shell{width:108px;height:58px}
+  .start-course b{font-size:19px}
+  .start-st{font-size:15px}
+  .start-st.flying{font-size:16px}
+}
