@@ -1723,3 +1723,35 @@ body.analysis-locked .race-hero{border-bottom-color:#dbe5eb}
 .decision-focus .decision-focus-next{position:relative;padding-top:20px;border-color:#c9aa56;background:linear-gradient(135deg,#fffaf0,#fff)}
 .decision-focus .decision-focus-next em{position:absolute;left:10px;top:7px;font-style:normal;color:#a77c21;font-size:7px;font-weight:950;letter-spacing:.14em}
 .decision-focus-more{margin-top:6px}.decision-focus-more>summary{list-style:none;cursor:pointer;padding:9px 2px;color:#6f8494;font-size:9px;font-weight:850}.decision-focus-more>summary::-webkit-details-marker{display:none}.decision-focus-more>div{display:grid;gap:6px}
+
+/* 2026-09-19 PRO readability pass */
+.app-title small{font-size:10px}
+.club-link{height:40px;min-height:40px;font-size:11px}
+.eyebrow{font-size:10px}
+.hero-meta span{font-size:11px}
+.section-head small{font-size:10px!important}
+.section-head>span{font-size:11px}
+.racer-quick span{font-size:10px}
+.racer-details span{font-size:11px}
+.engine-metric span{font-size:11px}
+.ex-main span{font-size:10px}
+.odds-filter-btn span,.odds-filter-btn em{font-size:9.5px}
+.bottom-nav a{font-size:10.5px!important}
+.pro-purpose small{font-size:9.5px}
+.pro-purpose p{font-size:12px}
+.decision-trace small{font-size:9.5px}
+.pro-data-principle strong{font-size:11px}
+.pro-data-principle span{font-size:10.5px}
+.decision-material>span{font-size:10px}
+.decision-material ul{font-size:11.5px}
+.decision-focus>small,.support-data-head small{font-size:9.5px}
+.decision-focus>p,.support-data-head p{font-size:11.5px}
+.decision-focus button strong{font-size:13px}
+.decision-focus button span{font-size:10px;line-height:1.5}
+.decision-focus .decision-focus-next em{font-size:8.5px}
+.decision-focus-more>summary{font-size:10px;min-height:40px;display:flex;align-items:center}
+.paywall-kicker{font-size:9.5px}
+.paywall-features span{font-size:11px}
+.paywall-join span{font-size:10px}
+.private-access-note{font-size:9.5px}
+@media(max-width:360px){.motor-meta small{font-size:8.5px!important}.motor-meta b{font-size:10px!important}}
