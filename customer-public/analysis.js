@@ -60,8 +60,26 @@ function startPosition(v){
   const n=Number(v);
   return Math.max(34,Math.min(88,76-(n*100)));
 }
+
+function boatSvg(lane,color){
+  return `<svg viewBox="0 0 126 54" aria-label="${lane}号艇" role="img">
+    <path d="M5 39c11-1 18-3 25-7" fill="none" stroke="rgba(255,255,255,.92)" stroke-width="3" stroke-linecap="round"/>
+    <path d="M1 44c15-1 25-4 34-9" fill="none" stroke="rgba(255,255,255,.58)" stroke-width="2" stroke-linecap="round"/>
+    <path d="M19 31h91c5 0 9-2 13-5-3 10-13 17-28 19H43c-11 0-19-4-24-14Z" fill="#f7c63d" stroke="#9a7a13" stroke-width="1"/>
+    <path d="M31 29c7-7 15-12 29-12h29c7 0 13 4 17 12H31Z" fill="#fbfdff" stroke="#8d9ca8" stroke-width="1.2"/>
+    <path d="M58 17c4-8 11-12 20-12 8 0 15 4 18 12H58Z" fill="${color}" stroke="rgba(0,0,0,.25)" stroke-width="1"/>
+    <path d="M70 10c3-5 7-7 12-7 5 0 9 2 11 7" fill="none" stroke="rgba(255,255,255,.42)" stroke-width="2"/>
+    <path d="M48 18h30l-7 11H39Z" fill="rgba(197,222,236,.55)"/>
+    <path d="M96 14v15" stroke="#53616b" stroke-width="1.5"/>
+    <path d="M97 15l14 5-14 5Z" fill="${color}" stroke="rgba(0,0,0,.2)"/>
+    <circle cx="28" cy="36" r="9" fill="rgba(255,255,255,.97)"/>
+    <text x="28" y="39" text-anchor="middle" font-size="9" font-weight="900" fill="#07121d">${lane}</text>
+  </svg>`;
+}
+
 function renderStartExhibition(d){
   const ex=d?.exhibition_detail||{};
+  const colors=['#f7f7f7','#202329','#e64b50','#347fd8','#35b66a','#efd731'];
   const xs=(ex.boats||[]).slice().sort((a,b)=>{
     const ac=missing(a.course)?99:Number(a.course),bc=missing(b.course)?99:Number(b.course);
     return ac-bc||Number(a.lane)-Number(b.lane);
@@ -73,11 +91,12 @@ function renderStartExhibition(d){
     const rows=xs.map(r=>{
       const st=missing(r.start_timing)?null:Number(r.start_timing);
       const flying=st!==null&&Number.isFinite(st)&&st<0;
+      const lane=Math.max(1,Math.min(6,Number(r.lane)||1));
       return `<div class="start-row">
         <div class="start-course"><b>${value(r.course)}</b><span>コース</span></div>
         <div class="start-track">
           <div class="start-line" aria-hidden="true"></div>
-          <div class="start-boat lane-hull-${r.lane}${flying?' flying':''}" style="--boat-x:${startPosition(st)}%" aria-label="${r.lane}号艇"><i>${r.lane}</i></div>
+          <div class="start-boat-shell${flying?' flying':''}" style="--boat-x:${startPosition(st)}%" aria-label="${lane}号艅">${boatSvg(lane,colors[lane-1])}</div>
         </div>
         <div class="start-st ${flying?'flying':''}">${stText(st)}</div>
       </div>`;
@@ -110,6 +129,7 @@ function originalMetricRows(original,ex){
   }
   return rows;
 }
+
 function renderOriginalExhibition(d){
   const ex=d?.exhibition_detail||{},original=d?.original_exhibition||null;
   if(CODE===3||(original?.available===false&&original?.reason==='not_provided_at_edogawa')){
@@ -122,18 +142,24 @@ function renderOriginalExhibition(d){
   const hasOriginal=Array.isArray(original?.labels)&&original.labels.length>0&&Array.isArray(original?.boats)&&original.boats.length>0;
   $('#original-status').textContent=hasOriginal?'取得済み':'直前待ち';
   if(!rows.length){
-    $('#original-exhibition').innerHTML='<div class="empty-card"><strong>オリジナル展示データ待ち</strong><p>正式データが生成されると6艇を横並びで比較できます。</p></div>';
+    $('#original-exhibition').innerHTML='<div class="empty-card"><strong>オリジナル展示データ待ち</strong><p>正式データが生成されると6艇を縦に並べて比較できます。</p></div>';
     $('#original-note').textContent='';
     return;
   }
-  const head=[1,2,3,4,5,6].map(n=>`<div class="original-boat-head lane-hull-${n}"><b>${n}</b><span>号艇</span></div>`).join('');
-  const body=rows.map(r=>`<div class="original-row-label">${esc(r.label)}</div>${r.values.map(v=>`<div class="original-value">${fixed(v,r.digits)}</div>`).join('')}`).join('');
-  $('#original-exhibition').innerHTML=`<div class="original-table"><div class="original-corner">項目</div>${head}${body}</div>`;
+  const header=rows.map(r=>`<div class="original-metric-head">${esc(r.label)}</div>`).join('');
+  const body=[1,2,3,4,5,6].map(lane=>{
+    const values=rows.map(r=>`<div class="original-value">${fixed(r.values[lane-1],r.digits)}</div>`).join('');
+    return `<div class="original-boat-label lane-hull-${lane}"><b>${lane}</b><span>号艇</span></div>${values}`;
+  }).join('');
+  $('#original-exhibition').innerHTML=`<div class="original-table original-table-transposed" style="--metric-count:${rows.length}">
+    <div class="original-corner">艇</div>${header}${body}
+  </div>`;
   const notes=[];
   if(original?.updated_at)notes.push(`オリジナル展示更新 ${updated(original.updated_at)}`);
   if(ex.updated_at)notes.push(`展示更新 ${updated(ex.updated_at)}`);
   $('#original-note').textContent=notes.join('　');
 }
+
 function renderExhibition(d){renderStartExhibition(d);renderOriginalExhibition(d)}
 
 function renderSurface(d){
