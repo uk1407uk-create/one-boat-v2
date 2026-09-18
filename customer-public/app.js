@@ -11,12 +11,45 @@ window.addEventListener('pageshow',()=>{enforceOneBoatCanonical()});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)enforceOneBoatCanonical()});
 const NOTE_URL='';
 const FREE_STATS_URL='/api/public/stats';
+const FREE_VISIBILITY_URL='https://imhzjlxbnovjvqlyawmg.supabase.co/functions/v1/one-boat-public-visibility';
+const TRAFFIC_LITE_URL='https://imhzjlxbnovjvqlyawmg.supabase.co/functions/v1/one-boat-traffic-lite';
 const VENUES=['桐生','戸田','江戸川','平和島','多摩川','浜名湖','蒲郡','常滑','津','三国','びわこ','住之江','尼崎','鳴門','丸亀','児島','宮島','徳山','下関','若松','芦屋','福岡','唐津','大村'];
 const $=s=>document.querySelector(s);
 const yen=n=>`${Math.round(Number(n||0)).toLocaleString('ja-JP')}円`;
 const pct=n=>Number.isFinite(Number(n))?`${Number(n).toFixed(1)}%`:'--';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let STATS=null,STATS_FETCHED_AT=0,CURRENT_VENUE=null,AUTO_OPENED=false,LOAD_TIMER=null;
+let STATS=null,STATS_FETCHED_AT=0,CURRENT_VENUE=null,AUTO_OPENED=false,LOAD_TIMER=null,SITE_ONLY_KEYS=new Set();
+function trafficAttribution(){
+  try{
+    const q=new URLSearchParams(location.search);
+    const source=q.get('utm_source')||sessionStorage.getItem('ob_utm_source')||'direct';
+    const campaign=q.get('utm_campaign')||sessionStorage.getItem('ob_utm_campaign')||'none';
+    const content=q.get('utm_content')||sessionStorage.getItem('ob_utm_content')||'none';
+    if(q.get('utm_source'))sessionStorage.setItem('ob_utm_source',source);
+    if(q.get('utm_campaign'))sessionStorage.setItem('ob_utm_campaign',campaign);
+    if(q.get('utm_content'))sessionStorage.setItem('ob_utm_content',content);
+    return{source,campaign,content};
+  }catch{return{source:'direct',campaign:'none',content:'none'}}
+}
+function trafficDay(){return new Date(Date.now()+32400000).toISOString().slice(0,10)}
+function trackLite(event,contentOverride){
+  try{
+    const a=trafficAttribution(),content=contentOverride||a.content||'none',path=location.pathname||'/';
+    const key=`obtl:${trafficDay()}:${event}:${a.source}:${a.campaign}:${content}:${path}`;
+    if(localStorage.getItem(key))return;
+    localStorage.setItem(key,'1');
+    fetch(TRAFFIC_LITE_URL,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({event,source:a.source,campaign:a.campaign,content,path}),keepalive:true,cache:'no-store'}).catch(()=>{});
+  }catch{}
+}
+function raceKeyForView(rno){
+  const d=String(CURRENT_VENUE?.date||trafficDay()).replaceAll('-','');
+  const v=String(Number(CURRENT_VENUE?.code||0)).padStart(2,'0');
+  const r=String(Number(rno||0)).padStart(2,'0');
+  const k=d+v+r;
+  return /^\d{12}$/.test(k)?k:'';
+}
+trackLite('landing');
+
 
 function setTone(el,n){if(!el)return;el.classList.remove('positive','negative');if(Number(n)>0)el.classList.add('positive');if(Number(n)<0)el.classList.add('negative')}
 function renderMetrics(key='today'){const x=STATS?.[key];if(!x)return;$('#m-roi').textContent=pct(x.roi);setTone($('#m-roi'),x.roi-100);$('#m-hit').textContent=pct(x.hit_rate);$('#m-profit').textContent=`${x.profit_yen>0?'+':''}${yen(x.profit_yen)}`;setTone($('#m-profit'),x.profit_yen);$('#m-races').textContent=`公開 ${x.races||0}R / ${x.hits||0}的中`}
@@ -159,6 +192,11 @@ function shortOfficialReason(v,max=118){
 function openRace(rno){
   const r=(CURRENT_VENUE?.races||[]).find(x=>Number(x.race_no)===Number(rno));
   if(!r)return;
+  const rk=raceKeyForView(rno);
+  if(rk&&publicRecord(r.record||{})){
+    trackLite('prediction_open',rk);
+    if(SITE_ONLY_KEYS.has(rk))trackLite('site_only_open',rk);
+  }
   if(savedViewMode()==='pro'){
     location.href=proRaceUrl(r);
     return;
@@ -229,6 +267,18 @@ async function load(){
     return;
   }
 
+  try{
+    const vu=new URL(FREE_VISIBILITY_URL);
+    vu.searchParams.set('date',o.date||trafficDay());
+    vu.searchParams.set('scope','site');
+    const vr=await fetch(vu,{cache:'no-store'});
+    if(vr.ok){
+      const vj=await vr.json();
+      if(vj?.ok){
+        SITE_ONLY_KEYS=new Set((Array.isArray(vj.rows)?vj.rows:[]).filter(x=>x?.site_public===true&&x?.threads_public!==true).map(x=>String(x.race_key||'')).filter(Boolean));
+      }
+    }
+  }catch{}
   let stats=STATS;
   const nowMs=Date.now();
   if(!stats||nowMs-STATS_FETCHED_AT>=300000){
