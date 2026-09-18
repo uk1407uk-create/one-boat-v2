@@ -54,11 +54,12 @@ function materialList(v){
 }
 function decisionFocusCategories({reason='',theory='',support=[],opposing=[]}={}){
   const text=[reason,theory,...support,...opposing].join(' ');
-  const out=[];
-  if(/展示|オリジナル|一周|まわり足|回り足|展示ST|進入|チルト|展示タイム|\bST\b/i.test(text))out.push({tab:'live',label:'展示 / ST',note:'展示・進入・STなど、判断記録に出ている直前データを確認'});
-  if(/モーター|選手|勝率|コース|当地|級別|2連率|3連率|連対/i.test(text))out.push({tab:'basic',label:'選手 / モーター',note:'選手・コース・モーターなど、判断記録に出ている基礎データを確認'});
-  if(/オッズ|配当|期待値|市場|歪み|妙味|回収/i.test(text))out.push({tab:'odds',label:'オッズ',note:'オッズ・配当・市場評価に関する判断材料を確認'});
-  return out;
+  const defs=[
+    {tab:'live',label:'展示 / ST',note:'展示・進入・STなど、判断記録に出ている直前データを確認',re:/展示|オリジナル|一周|まわり足|回り足|展示ST|進入|チルト|展示タイム|\bST\b/i},
+    {tab:'basic',label:'選手 / モーター',note:'選手・コース・モーターなど、判断記録に出ている基礎データを確認',re:/モーター|選手|勝率|コース|当地|級別|2連率|3連率|連対/i},
+    {tab:'odds',label:'オッズ',note:'オッズ・配当・市場評価に関する判断材料を確認',re:/オッズ|配当|期待値|市場|歪み|妙味|回収/i}
+  ];
+  return defs.map(x=>{const m=text.match(x.re);return m?{...x,index:m.index??9999}:null}).filter(Boolean).sort((a,b)=>a.index-b.index);
 }
 function activateAnalysisTab(tab){
   const b=document.querySelector(`.analysis-tab[data-tab="${tab}"]`);
@@ -73,7 +74,8 @@ function renderDecisionFocus(meta){
   if(!xs.length){
     el.innerHTML='<small>DECISION-LINKED DATA</small><h2>判断記録に紐づく項目</h2><p>この予想には、補助データ項目の構造化記録がありません。推測で「使ったデータ」を決めず、上の正式な判断理由を優先して表示します。</p><button type="button" data-focus-tab="basic">補助データを確認する</button>';
   }else{
-    el.innerHTML=`<small>DECISION-LINKED DATA</small><h2>判断に使ったデータを深掘り</h2><p>正式な判断記録に出ている項目だけを入口にしています。</p><div class="decision-focus-list">${xs.map(x=>`<button type="button" data-focus-tab="${x.tab}"><strong>${esc(x.label)}</strong><span>${esc(x.note)}</span><b>›</b></button>`).join('')}</div>`;
+    const first=xs[0],rest=xs.slice(1);
+    el.innerHTML=`<small>DECISION-LINKED DATA</small><h2>判断に使ったデータを深掘り</h2><p>正式な判断記録に出ている順で、まず見る場所を1つに絞っています。</p><div class="decision-focus-list"><button class="decision-focus-next" type="button" data-focus-tab="${first.tab}"><em>NEXT</em><strong>${esc(first.label)}を確認</strong><span>${esc(first.note)}</span><b>›</b></button>${rest.length?`<details class="decision-focus-more"><summary>ほかの判断材料（${rest.length}件）</summary><div>${rest.map(x=>`<button type="button" data-focus-tab="${x.tab}"><strong>${esc(x.label)}</strong><span>${esc(x.note)}</span><b>›</b></button>`).join('')}</div></details>`:''}</div>`;
   }
   el.querySelectorAll('[data-focus-tab]').forEach(b=>b.addEventListener('click',()=>activateAnalysisTab(b.dataset.focusTab)));
 }
