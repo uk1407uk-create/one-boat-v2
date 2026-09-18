@@ -13,15 +13,33 @@ function formatJpDate(v){const d=v?new Date(`${String(v).slice(0,10)}T00:00:00+0
 function stateLabel(s){return {PUBLIC:'予想公開',WATCH:'様子見',SKIP:'見送り',SETTLED:'結果確定',FINISHED:'本日終了',CLOSED:'終了',NOEVENT:'本日非開催',PENDING:'直前分析中'}[s]||'直前分析中'}
 function stateClass(s){return {PUBLIC:'live',WATCH:'watch',SKIP:'skip',SETTLED:'settled',FINISHED:'idle',CLOSED:'idle',NOEVENT:'idle',PENDING:'pending'}[s]||'pending'}
 function timeText(v){const m=String(v||'').match(/(\d{1,2}:\d{2})/);return m?m[1]:'--:--'}
+function deadlineMinute(v){const m=String(v||'').match(/(\d{1,2}):(\d{2})/);return m?Number(m[1])*60+Number(m[2]):9999}
+function deadlineLeftText(v){
+  const m=String(v||'').match(/(\d{1,2}):(\d{2})/);
+  if(!m)return'';
+  const now=new Date(Date.now()+32400000),cur=now.getUTCHours()*60+now.getUTCMinutes(),left=Number(m[1])*60+Number(m[2])-cur;
+  if(left<=0)return'締切';
+  return left<60?`あと${left}分`:'';
+}
 function publicRecord(r){const d=String(r?.decision||r?.prediction?.decision||'').toUpperCase(),stake=Number(r?.stake_total_yen??r?.prediction?.stake_total_yen??0);return d==='ENTER'&&stake>0}
 function betsOf(r){const p=r?.prediction||{};return Array.isArray(r?.bets)&&r.bets.length?r.bets:Array.isArray(p.production_picks)?p.production_picks:[]}
 function ticketOf(x){return x?.ticket||x?.combination||x?.bet||'--'}
 function stakeOf(x){return Number(x?.stake_yen??x?.amount??x?.stake??0)}
 
-function venueTile(v){const cls=stateClass(v.state),quiet=(v.state==='NOEVENT'||v.state==='FINISHED')?' quiet':'',meta=v.state==='NOEVENT'?'開催なし':v.state==='FINISHED'?'全レース終了':`${v.next_race_no||'--'}R　${timeText(v.next_deadline)}`;return `<button class="venue-tile ${cls}${quiet}" type="button" data-code="${String(v.code).padStart(2,'0')}" aria-label="${esc(v.name)} ${stateLabel(v.state)}"><span class="venue-name">${esc(v.name)}</span><span class="venue-strip">${stateLabel(v.state)}</span><span class="venue-meta"><strong>${v.state==='NOEVENT'?'—':`${v.next_race_no||'--'}R`}</strong><em>${esc(meta)}</em></span></button>`}
+function venueTile(v){const cls=stateClass(v.state),quiet=(v.state==='NOEVENT'||v.state==='FINISHED')?' easy-quiet':'',meta=v.state==='NOEVENT'?'開催なし':v.state==='FINISHED'?'全レース終了':`${v.next_race_no||'--'}R　${timeText(v.next_deadline)}`;return `<button class="venue-tile ${cls}${quiet}" type="button" data-code="${String(v.code).padStart(2,'0')}" aria-label="${esc(v.name)} ${stateLabel(v.state)}"><span class="venue-name">${esc(v.name)}</span><span class="venue-strip">${stateLabel(v.state)}</span><span class="venue-meta"><strong>${v.state==='NOEVENT'?'—':`${v.next_race_no||'--'}R`}</strong><em>${esc(meta)}</em></span></button>`}
 function renderVenues(venues){$('#venue-grid').innerHTML=(venues||[]).map(venueTile).join('');document.querySelectorAll('.venue-tile').forEach(b=>b.addEventListener('click',()=>openVenue(b.dataset.code)))}
 function renderFreeStrip(o){const live=(o?.venues||[]).filter(v=>v.state==='PUBLIC').slice(0,4);const watch=(o?.venues||[]).filter(v=>v.state==='WATCH').slice(0,2);const xs=[...live,...watch];$('#free-strip-list').innerHTML=xs.length?xs.map(v=>`<span class="free-chip ${stateClass(v.state)}">${esc(v.name)} ${stateLabel(v.state)} ${v.next_race_no?`${v.next_race_no}R`:''}</span>`).join(''):'<span class="free-chip">現在公開対象を確認中</span>'}
-function publicRaceCard(r){const settled=!!r.settlement,status=settled?(r.settlement.hit?'的中':'不的中'):'予想公開';const cls=settled?(r.settlement.hit?'hit':'miss'):'locked',dl=r.deadline||r.close_time,left=deadlineLeftText(dl);const sub=settled?`${r.settlement?.result?.trifecta||r.settlement?.trifecta||'結果反映済'} ・ ${r.settlement.hit?`払戻 ${yen(r.settlement.payout_yen)}`:'結果公開'}`:`${left?left+' ・ ':''}締切 ${timeText(dl)} ・ ${yen(r.stake_total_yen||r.prediction?.stake_total_yen)}`;return `<button class="race-card race-card-button" type="button" data-vcode="${String(r.venue_code).padStart(2,'0')}" data-rno="${Number(r.race_no)}"><div class="race-main"><strong>${esc(r.venue_name)} ${Number(r.race_no)}R</strong><small>${esc(sub)}</small></div><span class="status ${cls}">${status}</span></button>`}
+function publicRaceCard(r){
+  const settled=!!r.settlement,status=settled?(r.settlement.hit?'的中':'不的中'):'予想公開',cls=settled?(r.settlement.hit?'hit':'miss'):'locked';
+  let sub;
+  if(savedViewMode()==='pro'){
+    sub=settled?`${r.settlement?.result?.trifecta||r.settlement?.trifecta||'結果反映済'} ・ ${r.settlement.hit?`払戻 ${yen(r.settlement.payout_yen)}`:'結果公開'}`:`締切 ${timeText(r.deadline||r.close_time)} ・ 投資 ${yen(r.stake_total_yen||r.prediction?.stake_total_yen)}`;
+  }else{
+    const dl=r.deadline||r.close_time,left=deadlineLeftText(dl);
+    sub=settled?`${r.settlement?.result?.trifecta||r.settlement?.trifecta||'結果反映済'} ・ ${r.settlement.hit?`払戻 ${yen(r.settlement.payout_yen)}`:'結果公開'}`:`${left?left+' ・ ':''}締切 ${timeText(dl)} ・ ${yen(r.stake_total_yen||r.prediction?.stake_total_yen)}`;
+  }
+  return `<button class="race-card race-card-button" type="button" data-vcode="${String(r.venue_code).padStart(2,'0')}" data-rno="${Number(r.race_no)}"><div class="race-main"><strong>${esc(r.venue_name)} ${Number(r.race_no)}R</strong><small>${esc(sub)}</small></div><span class="status ${cls}">${status}</span></button>`;
+}
 function resultCard(x){const stake=Number(x.stake_yen||0),payout=Number(x.payout_yen||0),roi=stake?payout/stake*100:0,name=x.venue_name||VENUES[Number(x.venue_code)-1]||`場${x.venue_code||'--'}`;return `<article class="result-card"><div class="result-main"><strong>${esc(name)} ${x.race_no}R ${x.hit?'●':'×'}</strong><small>${esc(x.race_date||'')} ・ ${esc(x.trifecta||'結果')} ・ 回収 ${pct(roi)}</small></div><div><strong class="${Number(x.profit_yen)>=0?'positive':'negative'}">${Number(x.profit_yen)>0?'+':''}${yen(x.profit_yen)}</strong></div></article>`}
 
 function openBackdrop(){const b=$('#sheet-backdrop');b.hidden=false;document.body.classList.add('sheet-open')}
@@ -61,17 +79,34 @@ function applyPageMode(mode,{persist=true}={}){
   const theme=document.querySelector('meta[name="theme-color"]');
   if(theme)theme.setAttribute('content',m==='pro'?'#030914':'#0877d7');
 }
+function syncModeCopy(){
+  const pro=savedViewMode()==='pro';
+  const introTitle=$('#today-intro-title'),introCopy=$('#today-intro-copy'),publicTitle=$('#public-title-text'),venueTitle=$('#venue-title-text');
+  if(introTitle)introTitle.innerHTML=pro?'本日の予想<span class="blue">本日の24場</span>':'いま買える予想';
+  if(introCopy)introCopy.textContent=pro?'管理側で確定した状態だけを表示。予想公開・様子見・見送り・結果を同じ画面で確認できます。':'公開中の正式ENTERを最優先。1回タップで買い目・金額・締切まで確認できます。';
+  if(publicTitle)publicTitle.textContent=pro?'本日の公開予想':'いま買える予想';
+  if(venueTitle)venueTitle.textContent=pro?'全国24場':'場から探す';
+  const grid=$('#venue-grid'),toggle=$('#venue-toggle');
+  if(pro){grid?.classList.remove('show-all');if(toggle){toggle.setAttribute('aria-expanded','false');toggle.textContent='全24場を見る'}}
+}
 function setupPageMode(){
   const mode=savedViewMode();
   applyPageMode(mode,{persist:!!requestedViewMode()});
+  syncModeCopy();
   const easy=$('#page-mode-easy'),pro=$('#page-mode-pro');
   easy?.addEventListener('click',()=>{
     closeAll();
     applyPageMode('easy');
+    $('#venue-grid')?.classList.remove('show-all');
+    const t=$('#venue-toggle');if(t){t.setAttribute('aria-expanded','false');t.textContent='全24場を見る'}
+    syncModeCopy();
+    load();
   });
   pro?.addEventListener('click',()=>{
     closeAll();
     applyPageMode('pro');
+    syncModeCopy();
+    load();
   });
 }
 function raceDateForView(){return String(CURRENT_VENUE?.date||new Date(Date.now()+32400000).toISOString().slice(0,10)).slice(0,10)}
@@ -148,12 +183,16 @@ async function load(){try{
   ]);
   STATS=s;
   renderMetrics('today');
+  syncModeCopy();
   $('#today-date').textContent=formatJpDate(o.date);
   $('#today-count').textContent=`開催 ${o.active_count||0}場`;
   renderVenues(o.venues||[]);
-  const items=(o.public_items||[]).filter(x=>!x.settlement).sort((a,b)=>deadlineMinute(a.deadline||a.close_time)-deadlineMinute(b.deadline||b.close_time));
-  $('#public-count').textContent=`公開中 ${items.length}R`;
-  $('#today-list').innerHTML=items.length?items.map(publicRaceCard).join(''):'<div class="race-card"><div class="race-main"><strong>現在、公開中の予想はありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>';
+  renderFreeStrip(o);
+  const pro=savedViewMode()==='pro';
+  const all=o.public_items||[];
+  const items=pro?all:all.filter(x=>!x.settlement).sort((a,b)=>deadlineMinute(a.deadline||a.close_time)-deadlineMinute(b.deadline||b.close_time));
+  $('#public-count').textContent=pro?`公開 ${o.public_count||0}R`:`公開中 ${items.length}R`;
+  $('#today-list').innerHTML=items.length?items.map(publicRaceCard).join(''):(pro?'<div class="race-card"><div class="race-main"><strong>現在、公開対象なし</strong><small>対象レースが確定すると自動表示します</small></div></div>':'<div class="race-card"><div class="race-main"><strong>現在、公開中の予想はありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>');
   document.querySelectorAll('.race-card-button').forEach(b=>b.addEventListener('click',async()=>{await openVenue(b.dataset.vcode);openRace(Number(b.dataset.rno))}));
   $('#result-list').innerHTML=(s.latest||[]).slice(0,8).map(resultCard).join('')||'<div class="race-card"><div class="race-main"><strong>集計中</strong><small>無料公開レースの結果が反映されると表示します</small></div></div>';
   if(!AUTO_OPENED){
@@ -164,17 +203,20 @@ async function load(){try{
   $('#today-count').textContent='更新待ち';
   $('#public-count').textContent='--';
   renderVenues(VENUES.map((name,i)=>({name,code:i+1,state:'PENDING'})));
+  const strip=$('#free-strip-list');if(strip)strip.innerHTML='<span class="free-chip">データ更新中</span>';
   $('#today-list').innerHTML='<div class="race-card"><div class="race-main"><strong>データ更新中</strong><small>少し時間をおいて再読み込みしてください</small></div></div>';
   $('#result-list').innerHTML='<div class="race-card"><div class="race-main"><strong>結果を取得中</strong><small>自動で更新されます</small></div></div>';
 }}
+
 document.querySelectorAll('.period').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.period').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderMetrics(b.dataset.period)}));
 $('#venue-close').addEventListener('click',closeAll);$('#race-back').addEventListener('click',showVenueSheet);$('#sheet-backdrop').addEventListener('click',closeAll);document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAll()});
 if(NOTE_URL){const b=$('#note-btn');if(b){b.classList.remove('disabled');b.textContent='ONE BOAT CLUBへ';b.addEventListener('click',()=>location.href=NOTE_URL)}}
 const venueToggle=$('#venue-toggle');
 if(venueToggle)venueToggle.addEventListener('click',()=>{
+  if(savedViewMode()==='pro')return;
   const grid=$('#venue-grid'),open=grid.classList.toggle('show-all');
   venueToggle.setAttribute('aria-expanded',String(open));
   venueToggle.textContent=open?'開催中だけ表示':'全24場を見る';
 });
-applyPageMode('easy',{persist:false});
-load();setInterval(load,15000);
+setupPageMode();
+load();setInterval(load,30000);
