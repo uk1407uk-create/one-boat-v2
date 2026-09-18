@@ -27,7 +27,7 @@ let ODDS_FIRST=1;
 const VIEW_MODE_KEY='one_boat_view_mode';
 const yen=n=>`${Math.round(Number(n||0)).toLocaleString('ja-JP')}円`;
 function saveViewMode(mode){try{localStorage.setItem(VIEW_MODE_KEY,mode==='pro'?'pro':'easy')}catch{}}
-function stateLabel(s){return {PUBLIC:'予想公開',WATCH:'様子見',SKIP:'見送り',PRIVATE:'予想完了',SETTLED:'結果確定',FINISHED:'本日終了',CLOSED:'終了',NOEVENT:'本日非開催',PENDING:'未判定'}[s]||'未判定'}
+function stateLabel(s){return {ENTER:'正式ENTER',PUBLIC:'予想公開',WATCH:'様子見',SKIP:'見送り',PRIVATE:'予想完了',SETTLED:'結果確定',FINISHED:'本日終了',CLOSED:'終了',NOEVENT:'本日非開催',PENDING:'未判定'}[s]||'未判定'}
 function publicRecord(r){const d=String(r?.decision||r?.prediction?.decision||'').toUpperCase(),stake=Number(r?.stake_total_yen??r?.prediction?.stake_total_yen??0);return d==='ENTER'&&stake>0}
 function officialBets(r){const p=r?.prediction||{};return Array.isArray(r?.bets)&&r.bets.length?r.bets:Array.isArray(p.production_picks)?p.production_picks:[]}
 function officialTicket(x){return x?.ticket||x?.combination||x?.bet||'—'}
@@ -52,6 +52,20 @@ function materialList(v){
   if(v&&typeof v==='object')return Object.values(v).map(x=>typeof x==='string'?x:textValue(x)).filter(Boolean).slice(0,5);
   return [];
 }
+async function fetchMemberPrediction(){
+  try{
+    const u=new URL('/api/member/prediction',location.origin);
+    u.searchParams.set('date',DATE);u.searchParams.set('venue',String(CODE));u.searchParams.set('race',String(RACE));u.searchParams.set('_',String(Date.now()));
+    const r=await fetch(u,{credentials:'same-origin',cache:'no-store',headers:{accept:'application/json'}});
+    if(!r.ok)return null;
+    const d=await r.json().catch(()=>null);
+    if(!d?.ok||!d.record)return null;
+    const rec=d.record,decision=String(rec?.decision||rec?.prediction?.decision||'').toUpperCase();
+    const state=rec?.settlement?'SETTLED':decision==='ENTER'?'ENTER':decision==='SKIP'?'SKIP':decision==='WATCH'||decision==='FINALIZING'?'WATCH':'PENDING';
+    return{ok:true,date:rec.race_date||DATE,races:[{race_no:Number(rec.race_no||RACE),deadline:rec.deadline||null,state,record:rec}]};
+  }catch{return null}
+}
+
 function setupViewMode(){
   saveViewMode('pro');
   const easy=$('#easy-mode-link');
@@ -454,7 +468,8 @@ async function load(){
     }
     if(!r.ok||!d?.ok)throw Error(d?.error||`api_${r.status}`);
     render(d);
-    const pub=await publicPromise;
+    const memberPrediction=await fetchMemberPrediction();
+    const pub=memberPrediction||await publicPromise;
     renderOfficialPrediction(pub);
   }catch(e){
     document.body.setAttribute('aria-busy','false');
@@ -504,7 +519,10 @@ function scheduleLiveOriginalRefresh(){
 }
 
 async function refreshOfficialPrediction(){
-  if(document.body.classList.contains('analysis-locked')||DATE!==jstDate()||document.hidden)return;
+  if(document.body.classList.contains('analysis-locked')||document.hidden)return;
+  const protectedView=await fetchMemberPrediction();
+  if(protectedView){renderOfficialPrediction(protectedView);return}
+  if(DATE!==jstDate())return;
   try{
     const r=await fetch(`/api/public/venue?code=${encodeURIComponent(String(CODE).padStart(2,'0'))}&_=${Date.now()}`,{cache:'no-store'});
     if(!r.ok)return;
