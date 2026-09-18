@@ -1,3 +1,14 @@
+const ONE_BOAT_CANONICAL_ORIGIN='https://one-boat-club.jp';
+function enforceOneBoatCanonical(){
+  if(location.hostname==='one-boat-customer.uk-1407-uk.workers.dev'||location.hostname==='www.one-boat-club.jp'){
+    location.replace(`${ONE_BOAT_CANONICAL_ORIGIN}${location.pathname}${location.search}${location.hash}`);
+    return true;
+  }
+  return false;
+}
+if(enforceOneBoatCanonical()) throw new Error('canonical_redirect');
+window.addEventListener('pageshow',()=>{enforceOneBoatCanonical()});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)enforceOneBoatCanonical()});
 const q=s=>document.querySelector(s);
 const fmtDate=v=>{if(!v)return'—';const d=new Date(v);if(Number.isNaN(d.getTime()))return'—';return new Intl.DateTimeFormat('ja-JP',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'Asia/Tokyo'}).format(d)};
 const planName=p=>({guest:'未ログイン',unknown:'確認中',free:'無料会員',day_pass:'1日PASS',club_monthly:'ONE BOAT CLUB',staff:'運営アカウント'})[p]||p||'確認中';
