@@ -10,14 +10,13 @@ if(enforceOneBoatCanonical()) throw new Error('canonical_redirect');
 window.addEventListener('pageshow',()=>{enforceOneBoatCanonical()});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)enforceOneBoatCanonical()});
 const NOTE_URL='';
-const FREE_STATS_URL='https://imhzjlxbnovjvqlyawmg.supabase.co/functions/v1/one-boat-public-free-stats';
-const FREE_VISIBILITY_URL='https://imhzjlxbnovjvqlyawmg.supabase.co/functions/v1/one-boat-public-visibility';
+const FREE_STATS_URL='/api/public/stats';
 const VENUES=['桐生','戸田','江戸川','平和島','多摩川','浜名湖','蒲郡','常滑','津','三国','びわこ','住之江','尼崎','鳴門','丸亀','児島','宮島','徳山','下関','若松','芦屋','福岡','唐津','大村'];
 const $=s=>document.querySelector(s);
 const yen=n=>`${Math.round(Number(n||0)).toLocaleString('ja-JP')}円`;
 const pct=n=>Number.isFinite(Number(n))?`${Number(n).toFixed(1)}%`:'--';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let STATS=null,CURRENT_VENUE=null,AUTO_OPENED=false;
+let STATS=null,STATS_FETCHED_AT=0,CURRENT_VENUE=null,AUTO_OPENED=false,LOAD_TIMER=null;
 
 function setTone(el,n){if(!el)return;el.classList.remove('positive','negative');if(Number(n)>0)el.classList.add('positive');if(Number(n)<0)el.classList.add('negative')}
 function renderMetrics(key='today'){const x=STATS?.[key];if(!x)return;$('#m-roi').textContent=pct(x.roi);setTone($('#m-roi'),x.roi-100);$('#m-hit').textContent=pct(x.hit_rate);$('#m-profit').textContent=`${x.profit_yen>0?'+':''}${yen(x.profit_yen)}`;setTone($('#m-profit'),x.profit_yen);$('#m-races').textContent=`公開 ${x.races||0}R / ${x.hits||0}的中`}
@@ -230,29 +229,17 @@ async function load(){
     return;
   }
 
-  try{
-    const vu=new URL(FREE_VISIBILITY_URL);
-    vu.searchParams.set('date',o.date||new Date(Date.now()+32400000).toISOString().slice(0,10));
-    vu.searchParams.set('scope','site');
-    const vr=await fetch(vu,{cache:'no-store'});
-    if(vr.ok){
-      const vj=await vr.json();
-      if(vj?.ok){
-        const n=Number(vj.count);
-        if(Number.isFinite(n)){
-          o.free_limit=30;
-          o.free_count=n;
-          o.free_remaining=Math.max(0,30-n);
-        }
+  let stats=STATS;
+  const nowMs=Date.now();
+  if(!stats||nowMs-STATS_FETCHED_AT>=300000){
+    try{
+      const r=await fetch(FREE_STATS_URL,{cache:'no-store'});
+      if(r.ok){
+        const next=await r.json();
+        if(next?.ok){stats=next;STATS=next;STATS_FETCHED_AT=nowMs}
       }
-    }
-  }catch{}
-  let stats=null;
-  try{
-    const r=await fetch(FREE_STATS_URL,{cache:'no-store'});
-    if(r.ok)stats=await r.json();
-  }catch{}
-  STATS=stats;
+    }catch{}
+  }
   if(stats){
     renderMetrics('today');
   }else{
@@ -290,5 +277,17 @@ if(venueToggle)venueToggle.addEventListener('click',()=>{
   venueToggle.setAttribute('aria-expanded',String(open));
   venueToggle.textContent=open?'開催中だけ表示':'全24場を見る';
 });
+function scheduleLiveRefresh(){
+  if(LOAD_TIMER){clearTimeout(LOAD_TIMER);LOAD_TIMER=null}
+  if(document.hidden)return;
+  LOAD_TIMER=setTimeout(async()=>{await load();scheduleLiveRefresh()},30000);
+}
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){
+    if(LOAD_TIMER){clearTimeout(LOAD_TIMER);LOAD_TIMER=null}
+    return;
+  }
+  load().finally(scheduleLiveRefresh);
+});
 setupPageMode();
-load();setInterval(load,30000);
+load().finally(scheduleLiveRefresh);
