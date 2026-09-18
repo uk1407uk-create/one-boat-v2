@@ -1069,3 +1069,72 @@ body{
 .pro-odds-note{margin:8px 0 0!important;padding:8px 9px;border:1px solid #d7e3ea;border-radius:8px;background:#f7fafc;color:#6a7e8e!important;font-size:9px!important;line-height:1.55!important}
 body.pro-theme .pro-bets-picks .pro-final-odds{color:#999b9f}
 body.pro-theme .pro-odds-note{border-color:#303236;background:#17181a;color:#9a9ca0!important}
+
+
+/* iPhone motor comparison — compact, readable, no data changes */
+.motor-pro-panel{gap:0}
+.motor-table-head,
+.motor-row{
+  grid-template-columns:46px minmax(0,1fr) 72px 72px;
+}
+.motor-table-head{
+  min-height:30px;
+  border-radius:10px 10px 0 0;
+  font-size:10px;
+}
+.motor-row{
+  min-height:58px;
+  padding:7px 8px 7px 6px;
+}
+.motor-row .lane-box{
+  width:34px;
+  height:34px;
+  font-size:17px;
+}
+.motor-row .motor-id{
+  min-width:0;
+  padding-left:4px!important;
+}
+.motor-row .motor-id>strong{
+  font-size:16px!important;
+  line-height:1.05;
+}
+.motor-row .motor-id>small{
+  margin-top:5px!important;
+  font-size:9.5px!important;
+  line-height:1.25!important;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.motor-row .motor-rate{
+  display:flex;
+  min-width:0;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+}
+.motor-row .motor-rate>span{
+  display:none;
+  font-size:8px;
+  font-weight:800;
+  color:#85878b;
+}
+.motor-row .motor-rate>strong{
+  font-size:14px!important;
+  line-height:1;
+  white-space:nowrap;
+}
+body{
+  padding-bottom:calc(92px + env(safe-area-inset-bottom,0px));
+}
+.analysis-shell{
+  padding-bottom:22px;
+}
+@media(max-width:360px){
+  .motor-table-head,
+  .motor-row{grid-template-columns:42px minmax(0,1fr) 66px 66px}
+  .motor-row{padding-left:5px;padding-right:5px}
+  .motor-row .motor-id>small{font-size:9px!important}
+}
