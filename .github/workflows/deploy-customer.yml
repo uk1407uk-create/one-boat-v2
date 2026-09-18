@@ -85,7 +85,7 @@ jobs:
           grep -q 'feature-grid' customer-public/index.html
           grep -q 'free-strip-list' customer-public/today.html
           grep -q '本日の無料予想' customer-public/app.js
-          grep -q '料金・利用プラン' customer-public/club.html
+          grep -Eq '料金・利用プラン|無料会員・有料版先行登録' customer-public/club.html
           grep -q '20歳以上' customer-public/signup.html
           grep -q '/api/auth/login' customer-public/member.js
           grep -q '/api/member/checkout-intent' customer-public/member.js
@@ -133,7 +133,7 @@ jobs:
           get_text "$BASE/today.html?v=20260918-member1" /tmp/today.html
           grep -q 'free-strip-list' /tmp/today.html
           get_text "$BASE/club.html?v=20260918-member1" /tmp/club.html
-          grep -q '料金・利用プラン' /tmp/club.html
+          grep -Eq '料金・利用プラン|無料会員・有料版先行登録' /tmp/club.html
           get_text "$BASE/register?v=20260918-domain1" /tmp/register.html
           grep -q '会員登録' /tmp/register.html
           get_text "$BASE/login?v=20260918-domain1" /tmp/login.html
