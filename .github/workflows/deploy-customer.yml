@@ -83,7 +83,7 @@ jobs:
           grep -q '本日の予想を見る' customer-public/index.html
           grep -q '買わないレースも選ぶ。' customer-public/index.html
           grep -q 'feature-grid' customer-public/index.html
-          grep -q '本日の24場' customer-public/today.html
+          grep -q '本日の無料予想' customer-public/today.html
           grep -q '料金・利用プラン' customer-public/club.html
           grep -q '20歳以上' customer-public/signup.html
           grep -q '/api/auth/login' customer-public/member.js
@@ -111,7 +111,7 @@ jobs:
           b=Path('/tmp/customer-hero.webp').read_bytes(); assert b[:4]==b'RIFF' and b[8:12]==b'WEBP' and len(b)>20000
           PY
           get_text "$BASE/today.html?v=20260918-member1" /tmp/today.html
-          grep -q '本日の24場' /tmp/today.html
+          grep -q '本日の無料予想' /tmp/today.html
           get_text "$BASE/club.html?v=20260918-member1" /tmp/club.html
           grep -q '料金・利用プラン' /tmp/club.html
           get_text "$BASE/register?v=20260918-domain1" /tmp/register.html

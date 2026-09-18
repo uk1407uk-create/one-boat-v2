@@ -892,6 +892,115 @@ html.pro-mode #venue-toggle{display:none!important}
   html:not(.pro-mode) .today-intro h1{font-size:22px!important}
   html:not(.pro-mode) #today-list .race-main strong{font-size:16px}
 }
+
+/* 2026-09-18 Easy mode refinement: quiet, premium sports-data presentation */
+html:not(.pro-mode) body{background:#f6f8fb}
+html:not(.pro-mode) main{display:flex;flex-direction:column}
+html:not(.pro-mode) .page-mode-shell{order:0;padding:14px 18px 0;background:transparent}
+html:not(.pro-mode) .today-summary{order:1;margin:18px 18px 4px;padding:18px;border:1px solid #e1e8ef;border-radius:14px;background:#fff;box-shadow:0 10px 28px rgba(8,47,89,.055)}
+html:not(.pro-mode) .today-intro{order:2;padding:22px 20px 14px;background:transparent;border-bottom:0}
+html:not(.pro-mode) .today-section{order:3;padding:0 18px 16px!important;display:flex;flex-direction:column}
+html:not(.pro-mode) .performance-section{order:4}
+html:not(.pro-mode) #results{order:5}
+html:not(.pro-mode) .club-panel{order:6}
+html:not(.pro-mode) .page-mode-switch{gap:4px;padding:3px;border:0;border-radius:12px;background:#edf1f5;box-shadow:none}
+html:not(.pro-mode) .page-mode-button{min-height:48px;border-radius:10px;color:#667d91}
+html:not(.pro-mode) #page-mode-easy{background:#fff;color:#0877d7;box-shadow:inset 0 0 0 1px #d9e6ef,0 2px 8px rgba(8,67,111,.06)}
+html:not(.pro-mode) .today-intro .eyebrow{font-size:8px;letter-spacing:.18em;color:#4e91bd;margin-bottom:6px}
+html:not(.pro-mode) .today-intro h1{font-size:25px;line-height:1.22;letter-spacing:-.035em}
+html:not(.pro-mode) .today-intro p{margin-top:7px;max-width:370px;font-size:11.5px;line-height:1.55;color:#6d8192}
+html:not(.pro-mode) .free-strip-title{margin:0 0 12px!important;font-size:8px!important;letter-spacing:.18em!important;color:#7c91a2!important}
+html:not(.pro-mode) .free-strip-list{display:block!important}
+html:not(.pro-mode) .free-progress-card{display:block}
+html:not(.pro-mode) .free-progress-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+html:not(.pro-mode) .free-progress-head>div small{display:block;margin-bottom:4px;font-size:8px;font-weight:900;letter-spacing:.16em;color:#3b8ec4}
+html:not(.pro-mode) .free-progress-head>div strong{display:block;font-size:15px;letter-spacing:-.02em;color:#0b355b}
+html:not(.pro-mode) .live-update{display:inline-flex;align-items:center;gap:5px;padding-top:2px;color:#6d8192;font-size:8.5px;font-weight:850;white-space:nowrap}
+html:not(.pro-mode) .live-update i{width:6px;height:6px;border-radius:50%;background:#1a9d70;box-shadow:0 0 0 3px rgba(26,157,112,.08)}
+html:not(.pro-mode) .live-update.updating i{background:#8aa0b0;box-shadow:none}
+html:not(.pro-mode) .free-progress-numbers{display:grid;grid-template-columns:1fr auto;align-items:end;gap:18px;margin-top:18px}
+html:not(.pro-mode) .free-used{display:flex;align-items:flex-end;gap:6px;min-width:0}
+html:not(.pro-mode) .free-used strong{font-size:42px;line-height:.9;letter-spacing:-.055em;color:#082f59;font-variant-numeric:tabular-nums}
+html:not(.pro-mode) .free-used span{padding-bottom:3px;font-size:14px;font-weight:850;color:#74899a}
+html:not(.pro-mode) .free-remaining{text-align:right}
+html:not(.pro-mode) .free-remaining small{display:block;margin-bottom:2px;font-size:8px;font-weight:850;color:#8a9ba8}
+html:not(.pro-mode) .free-remaining strong{font-size:20px;color:#0877d7;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+html:not(.pro-mode) .free-progress-note{margin:14px 0 0;padding-top:11px;border-top:1px solid #edf1f4;color:#7d8f9d;font-size:9px;font-weight:700}
+html:not(.pro-mode) .free-complete{margin-top:16px;padding-top:12px;border-top:1px solid #edf1f4;color:#0b4b74;font-size:11px;font-weight:900}
+html:not(.pro-mode) .free-pending{padding:4px 0 2px}
+html:not(.pro-mode) .free-pending strong{display:block;font-size:18px;color:#0b355b}
+html:not(.pro-mode) .free-pending small{display:block;margin-top:6px;color:#7d8f9d;font-size:9px}
+html:not(.pro-mode) .date-row{order:0;margin:0 0 8px!important;padding:4px 0 10px!important;border:0;border-bottom:1px solid #e4e9ee;border-radius:0;background:transparent}
+html:not(.pro-mode) .date-row strong{font-size:12px!important}
+html:not(.pro-mode) .public-title{order:1}
+html:not(.pro-mode) .public-lead{order:2}
+html:not(.pro-mode) #today-list{order:3}
+html:not(.pro-mode) .venue-title{order:4;margin-top:24px!important}
+html:not(.pro-mode) .venue-lead{order:5}
+html:not(.pro-mode) .venue-legend{order:6}
+html:not(.pro-mode) #venue-grid{order:7}
+html:not(.pro-mode) #venue-toggle{order:8}
+html:not(.pro-mode) .section-title-row{position:relative;margin:0!important;padding:14px 0 10px 12px!important;background:transparent!important;border:0!important}
+html:not(.pro-mode) .section-title-row:before{content:"";position:absolute;left:0;top:17px;width:3px;height:25px;border-radius:4px;background:#168bd5}
+html:not(.pro-mode) .section-title-row small{color:#6aa3c8!important;font-size:7px!important;letter-spacing:.16em!important}
+html:not(.pro-mode) .section-title-row h2{margin-top:2px!important;color:#0a355e!important;font-size:19px!important;letter-spacing:-.03em!important}
+html:not(.pro-mode) .count-label{padding:0!important;background:transparent!important;color:#6b8293!important;border:0!important;border-radius:0!important;font-size:9px!important}
+html:not(.pro-mode) .lead{margin:2px 0 10px!important;font-size:9.5px!important;line-height:1.5!important;color:#7b8e9d!important}
+html:not(.pro-mode) .venue-legend{display:flex!important;flex-wrap:wrap!important;gap:7px 12px!important;margin:2px 0 12px!important}
+html:not(.pro-mode) .venue-legend span{min-height:auto;background:transparent;border:0;border-radius:0;padding:0;box-shadow:none!important;font-size:8px;color:#788c9b}
+html:not(.pro-mode) .venue-legend i{width:6px!important;height:6px!important;flex:0 0 6px}
+html:not(.pro-mode) .venue-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px!important}
+html:not(.pro-mode) .venue-tile{min-height:82px;border:1px solid #e0e7ed!important;border-radius:11px!important;background:#fff!important;box-shadow:0 5px 15px rgba(18,63,96,.045)!important}
+html:not(.pro-mode) .venue-name{height:34px!important;border-bottom:0!important;background:#fff!important;color:#123c60!important;font-size:14px!important}
+html:not(.pro-mode) .venue-strip{height:20px!important;background:transparent!important;color:#74899a!important;font-size:7.5px!important}
+html:not(.pro-mode) .venue-meta{min-height:28px!important;background:#fff!important}
+html:not(.pro-mode) .venue-meta strong{border-right:0!important;color:#1a527b!important;font-size:14px!important}
+html:not(.pro-mode) .venue-meta em{color:#8a9ba8!important;font-size:7px!important}
+html:not(.pro-mode) .venue-tile.live{border-color:#b9dff2!important;box-shadow:0 6px 18px rgba(19,127,190,.08)!important}
+html:not(.pro-mode) .venue-tile.live .venue-strip{color:#1685c8!important}
+html:not(.pro-mode) .venue-tile.watch{border-color:#e8dfc3!important}
+html:not(.pro-mode) .venue-tile.watch .venue-strip{color:#b58318!important}
+html:not(.pro-mode) .venue-tile.skip{border-color:#ead9dc!important}
+html:not(.pro-mode) .venue-tile.skip .venue-strip{color:#c85e67!important}
+html:not(.pro-mode) .venue-tile.settled{border-color:#d7e7df!important}
+html:not(.pro-mode) .venue-tile.settled .venue-strip{color:#37866c!important}
+html:not(.pro-mode) .venue-tile.pending{border-color:#e1e7ec!important}
+html:not(.pro-mode) .venue-tile.pending .venue-strip{color:#7b90a0!important}
+html:not(.pro-mode) .venue-tile.idle{opacity:.58!important;border-color:#e6eaee!important;box-shadow:none!important}
+html:not(.pro-mode) .race-list{margin-top:2px!important;display:grid;gap:9px}
+html:not(.pro-mode) .race-card{border:1px solid #dce7ee!important;border-radius:12px!important;background:#fff!important;box-shadow:0 7px 20px rgba(9,62,103,.055)!important}
+html:not(.pro-mode) .race-card-button{position:relative;overflow:hidden}
+html:not(.pro-mode) .race-card-button:after{content:"";position:absolute;left:0;top:11px;bottom:11px;width:3px;border-radius:0 4px 4px 0;background:#128bd5}
+html:not(.pro-mode) .performance-section{margin:22px 18px 14px!important;padding:0 0 14px!important;border:0!important;border-top:1px solid #e3e9ee!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
+html:not(.pro-mode) .performance-section .section-title-row{margin:0!important;padding:18px 0 10px 12px!important;border-radius:0}
+html:not(.pro-mode) .performance-section .lead{display:none}
+html:not(.pro-mode) .performance-section .auto-label{display:inline-flex;align-items:center;gap:5px;padding:0!important;background:transparent!important;color:#7890a1!important;font-size:8px!important}
+html:not(.pro-mode) .performance-section .auto-label:before{content:"";width:6px;height:6px;border-radius:50%;background:#1a9d70}
+html:not(.pro-mode) .performance-section .period-tabs{margin-top:2px;background:#edf1f4!important;border:0!important;border-radius:9px!important;padding:3px}
+html:not(.pro-mode) .performance-section .period.active{background:#fff!important;color:#0b6fae!important;border-radius:7px!important;box-shadow:0 2px 7px rgba(16,64,98,.06)}
+html:not(.pro-mode) .performance-section .stats-table{margin-top:12px;border:0!important;border-radius:0!important;background:transparent!important}
+html:not(.pro-mode) .performance-section .stats-table>div{border-color:#e5eaee!important}
+html:not(.pro-mode) #results{padding-left:18px!important;padding-right:18px!important}
+html:not(.pro-mode) #results .section-title-row{margin:0!important}
+html:not(.pro-mode) .transparency{font-size:9px!important;line-height:1.6}
+html:not(.pro-mode) .club-panel{margin:18px!important;border:0!important;border-top:1px solid #e4e9ed!important;border-radius:0!important;box-shadow:none!important;background:transparent!important}
+html:not(.pro-mode) .club-panel-inner{padding:18px 0!important}
+html:not(.pro-mode) .bottom-app-nav{border-top:1px solid #e1e7ec;box-shadow:0 -4px 18px rgba(11,52,86,.055)}
+html:not(.pro-mode) .race-row.current-race{position:relative;border:2px solid #2499df!important;background:#f8fcff!important;box-shadow:0 0 0 3px rgba(36,153,223,.10),0 10px 24px rgba(16,105,163,.12)!important}
+html:not(.pro-mode) .race-row.current-race .race-no{color:#0877d7!important}
+html:not(.pro-mode) .race-row.current-race .current-mark{color:#0877d7;background:#eaf6fd}
+.current-mark{display:inline-flex;margin-left:7px;padding:2px 6px;border-radius:5px;font-size:7px;font-style:normal;font-weight:950;letter-spacing:.06em;vertical-align:2px}
+html.pro-mode .race-row.current-race{position:relative;border:2px solid #d4ad4f!important;box-shadow:0 0 0 3px rgba(212,173,79,.13),0 10px 26px rgba(0,0,0,.28)!important}
+html.pro-mode .race-row.current-race .race-no{color:#e4bf67!important}
+html.pro-mode .race-row.current-race .current-mark{color:#f2d584;background:rgba(212,173,79,.12)}
+@media(max-width:380px){
+  html:not(.pro-mode) .page-mode-shell,html:not(.pro-mode) .today-section{padding-left:14px!important;padding-right:14px!important}
+  html:not(.pro-mode) .today-summary{margin-left:14px;margin-right:14px}
+  html:not(.pro-mode) .today-intro{padding-left:16px;padding-right:16px}
+  html:not(.pro-mode) .free-used strong{font-size:38px}
+  html:not(.pro-mode) .venue-grid{gap:6px}
+}
+
 </style>
 </head>
 <body>
@@ -915,12 +1024,12 @@ html.pro-mode #venue-toggle{display:none!important}
   <section class="page-section today-section" id="today">
     <div class="date-row"><button class="date-nav muted" type="button" disabled>‹ 前日</button><div><small>TODAY</small><strong id="today-date">本日のレース</strong></div><button class="date-nav muted" type="button" disabled>翌日 ›</button></div>
     <div class="section-title-row venue-title"><div><small>RACE STADIUMS</small><h2 id="venue-title-text">全国24場</h2></div><span id="today-count" class="count-label">確認中</span></div>
-    <p class="lead">場をタップすると1R〜12Rの正式状態を確認できます。</p>
+    <p class="lead venue-lead">場を選んで1R〜12Rを確認</p>
     <div class="venue-legend"><span><i class="lg-live"></i>予想公開</span><span><i class="lg-watch"></i>様子見</span><span><i class="lg-skip"></i>見送り</span><span><i class="lg-idle"></i>非開催/終了</span></div>
     <div class="venue-grid" id="venue-grid" aria-label="全国24場"></div>
     <button id="venue-toggle" class="venue-toggle" type="button" aria-expanded="false">全24場を見る</button>
     <div class="section-title-row public-title"><div><small>ONE BOAT SELECT</small><h2 id="public-title-text">本日の公開予想</h2></div><span id="public-count" class="count-label">--</span></div>
-    <p class="lead">ENTERかつ投資額が確定したレースのみ公開します。</p>
+    <p class="lead public-lead">正式ENTERのみ公開</p>
     <div id="today-list" class="race-list"><div class="skeleton"></div><div class="skeleton"></div></div>
   </section>
   <section class="page-section performance-section" id="performance"><div class="section-title-row"><div><small>FREE PUBLIC PERFORMANCE</small><h2>無料公開実績</h2></div><span class="auto-label">自動更新</span></div><p class="lead">無料公開した正式予想だけを集計します。非公開のENTER、見送り、様子見、投資0円は含めません。</p><div class="period-tabs" role="tablist"><button class="period active" data-period="today">今日</button><button class="period" data-period="days7">7日</button><button class="period" data-period="days30">30日</button><button class="period" data-period="all">累計</button></div><div class="stats-table"><div><span>回収率</span><strong id="m-roi">--</strong></div><div><span>的中率</span><strong id="m-hit">--</strong></div><div><span>収支</span><strong id="m-profit">--</strong><small id="m-races">集計中</small></div></div></section>
@@ -932,7 +1041,7 @@ html.pro-mode #venue-toggle{display:none!important}
 <section id="race-sheet" class="bottom-sheet race-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="race-sheet-title"><div class="sheet-handle"></div><div class="sheet-head"><button id="race-back" class="sheet-back" type="button">‹</button><div><small>RACE DETAIL</small><h2 id="race-sheet-title">レース詳細</h2></div><span id="race-sheet-state" class="sheet-state">--</span></div><div id="race-detail" class="race-detail"></div></section>
 <nav class="bottom-app-nav" aria-label="下部ナビゲーション"><a href="/"><b>⌂</b><span>ホーム</span></a><a href="/today.html" class="active"><b>▦</b><span>本日の予想</span></a><a href="#performance"><b>↗</b><span>実績</span></a><a href="/club.html"><b>◎</b><span>CLUB</span></a></nav>
 <footer><strong>ONE BOAT</strong><span>BOAT RACE ANALYTICS</span><small>© ONE BOAT</small></footer>
-<script src="/app.js?v=20260918-freecount2" defer></script>
+<script src="/app.js?v=20260918-easy-premium1" defer></script>
 <script src="/ai-picks.js?v=20260918-ai3" defer></script>
 <script>const mb=document.getElementById('topMenuButton'),mp=document.getElementById('topMenuPanel');function closeTopMenu(){mp.classList.remove('open');mb.setAttribute('aria-expanded','false')}mb.addEventListener('click',e=>{e.stopPropagation();const open=mp.classList.toggle('open');mb.setAttribute('aria-expanded',String(open))});document.addEventListener('click',e=>{if(!mp.contains(e.target)&&!mb.contains(e.target))closeTopMenu()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTopMenu()});</script>
 </body>
