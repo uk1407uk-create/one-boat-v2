@@ -107,7 +107,7 @@ function renderStartExhibition(d){
         <div class="start-course"><b>${value(r.course)}</b><span>コース</span></div>
         <div class="start-track">
           <div class="start-line" aria-hidden="true"></div>
-          <div class="start-boat-shell lane-boat-${lane}${flying?' flying':''}" style="--boat-x:${startPosition(st)}%" aria-label="${lane}号艇"><img src="${lane===3?'/assets/start-boat-3-transparent.webp?v=20260918-transparent3':`/assets/start-boat-${lane}.png?v=20260918-transparent3`}" alt="${lane}号艇" draggable="false"></div>
+          <div class="start-boat-shell template-boat lane-boat-${lane}${flying?' flying':''}" style="--boat-x:${startPosition(st)}%" aria-label="${lane}号艇"><img src="/assets/start-boat-3-transparent.webp?v=20260918-cleanboat1" alt="${lane}号艇" draggable="false"><span class="boat-number-overlay">${lane}</span></div>
         </div>
         <div class="start-st ${flying?'flying':''}">${stText(st)}</div>
       </div>`;
