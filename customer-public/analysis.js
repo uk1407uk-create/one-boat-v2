@@ -52,6 +52,31 @@ function materialList(v){
   if(v&&typeof v==='object')return Object.values(v).map(x=>typeof x==='string'?x:textValue(x)).filter(Boolean).slice(0,5);
   return [];
 }
+function decisionFocusCategories({reason='',theory='',support=[],opposing=[]}={}){
+  const text=[reason,theory,...support,...opposing].join(' ');
+  const out=[];
+  if(/展示|オリジナル|一周|まわり足|回り足|展示ST|進入|チルト|展示タイム|\bST\b/i.test(text))out.push({tab:'live',label:'展示 / ST',note:'展示・進入・STなど、判断記録に出ている直前データを確認'});
+  if(/モーター|選手|勝率|コース|当地|級別|2連率|3連率|連対/i.test(text))out.push({tab:'basic',label:'選手 / モーター',note:'選手・コース・モーターなど、判断記録に出ている基礎データを確認'});
+  if(/オッズ|配当|期待値|市場|歪み|妙味|回収/i.test(text))out.push({tab:'odds',label:'オッズ',note:'オッズ・配当・市場評価に関する判断材料を確認'});
+  return out;
+}
+function activateAnalysisTab(tab){
+  const b=document.querySelector(`.analysis-tab[data-tab="${tab}"]`);
+  if(!b)return;
+  b.click();
+  document.querySelector('#analysis-tabs')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function renderDecisionFocus(meta){
+  const el=$('#decision-focus');if(!el)return;
+  const xs=decisionFocusCategories(meta);
+  el.hidden=false;
+  if(!xs.length){
+    el.innerHTML='<small>DECISION-LINKED DATA</small><h2>判断記録に紐づく項目</h2><p>この予想には、補助データ項目の構造化記録がありません。推測で「使ったデータ」を決めず、上の正式な判断理由を優先して表示します。</p><button type="button" data-focus-tab="basic">補助データを確認する</button>';
+  }else{
+    el.innerHTML=`<small>DECISION-LINKED DATA</small><h2>判断に使ったデータを深掘り</h2><p>正式な判断記録に出ている項目だけを入口にしています。</p><div class="decision-focus-list">${xs.map(x=>`<button type="button" data-focus-tab="${x.tab}"><strong>${esc(x.label)}</strong><span>${esc(x.note)}</span><b>›</b></button>`).join('')}</div>`;
+  }
+  el.querySelectorAll('[data-focus-tab]').forEach(b=>b.addEventListener('click',()=>activateAnalysisTab(b.dataset.focusTab)));
+}
 async function fetchMemberPrediction(){
   try{
     const u=new URL('/api/member/prediction',location.origin);
@@ -281,6 +306,7 @@ function renderOfficialPrediction(v){
   const r=(v?.races||[]).find(x=>Number(x.race_no)===RACE);
   if(!r){
     box.innerHTML='<div class="pro-official-empty"><strong>正式判断を確認中</strong><p>ONE BOATの正式記録が取得でき次第、判断理由を先に表示します。</p></div>';
+    const focus=$('#decision-focus');if(focus)focus.hidden=true;
     return;
   }
   const rec=r.record||{},p=rec.prediction||{},bets=officialBets(rec);
@@ -289,6 +315,7 @@ function renderOfficialPrediction(v){
   const theory=textValue(p.selected_theory||p.current_theory||p.strategy||rec.theory||'');
   const support=materialList(p.support_materials||rec.support_materials);
   const opposing=materialList(p.opposing_materials||rec.opposing_materials);
+  renderDecisionFocus({reason,theory,support,opposing});
   const label=stateLabel(r.state);
   let html=`<div class="pro-official-head"><div><small>OFFICIAL DECISION</small><h2>ONE BOATの正式判断</h2></div><span>${esc(label)}</span></div>
     <div class="pro-official-grid">
@@ -398,6 +425,7 @@ function showPaywallMessage(text){
 function setupPaywallButtons(){}
 function renderPrivatePaywall(d,pub){
   DATA=null;
+  const focus=$('#decision-focus');if(focus)focus.hidden=true;
   document.body.setAttribute('aria-busy','false');
   document.body.classList.add('analysis-locked');
   const race=(pub?.races||[]).find(x=>Number(x.race_no)===RACE);
