@@ -84,7 +84,7 @@ jobs:
           grep -q '買わないレースも選ぶ。' customer-public/index.html
           grep -q 'feature-grid' customer-public/index.html
           grep -q '本日の24場' customer-public/today.html
-          grep -q '使い方に合わせて' customer-public/club.html
+          grep -q '料金・利用プラン' customer-public/club.html
           grep -q '20歳以上' customer-public/signup.html
           grep -q '/api/auth/login' customer-public/member.js
           grep -q '/api/member/checkout-intent' customer-public/member.js
