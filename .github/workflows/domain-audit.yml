@@ -141,13 +141,13 @@ jobs:
           set -euo pipefail
           BASE='https://one-boat-club.jp'
           PAGE_CODE=$(curl -sS -o /tmp/analysis.html -w '%{http_code}' "$BASE/analysis.html?date=2026-09-17&venue=24&race=10")
-          JS_CODE=$(curl -sS -o /tmp/analysis.js -w '%{http_code}' "$BASE/analysis.js?v=20260918-realboat1")
-          CSS_CODE=$(curl -sS -o /tmp/analysis.css -w '%{http_code}' "$BASE/analysis.css?v=20260918-realboat1")
+          JS_CODE=$(curl -sS -o /tmp/analysis.js -w '%{http_code}' "$BASE/analysis.js?v=20260918-mode2")
+          CSS_CODE=$(curl -sS -o /tmp/analysis.css -w '%{http_code}' "$BASE/analysis.css?v=20260918-mode2")
           test "$PAGE_CODE" = "200"
           test "$JS_CODE" = "200"
           test "$CSS_CODE" = "200"
-          grep -q 'analysis.js?v=20260918-realboat1' /tmp/analysis.html
-          grep -q 'analysis.css?v=20260918-realboat1' /tmp/analysis.html
+          grep -q 'analysis.js?v=20260918-mode2' /tmp/analysis.html
+          grep -q 'analysis.css?v=20260918-mode2' /tmp/analysis.html
           grep -q 'start-boat-' /tmp/analysis.js
           grep -q 'start-water.webp?v=20260918-realboat1' /tmp/analysis.css
           for n in 1 2 3 4 5 6; do
