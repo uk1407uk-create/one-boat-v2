@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b0b0c">
 <meta name="robots" content="noindex,follow">
-<title>レース分析｜ONE BOAT</title>
-<meta name="description" content="ONE BOAT レース分析。専用APIの正式データだけを使い、選手・展示・水面・オッズを確認できます。">
-<link rel="stylesheet" href="/analysis.css?v=20260919-paywall1">
+<title>PRO分析｜ONE BOAT</title>
+<meta name="description" content="ONE BOAT PRO分析。正式予想に記録された判断理由を先に確認し、必要な選手・展示・オッズだけを深掘りできます。">
+<link rel="stylesheet" href="/analysis.css?v=20260919-decisionfirst1">
 </head>
 <body aria-busy="true">
 <header class="app-header">
   <a class="back-link" href="/today.html" aria-label="本日の予想へ戻る">‹</a>
-  <div class="app-title"><small>ONE BOAT</small><strong>レース分析</strong></div>
+  <div class="app-title"><small>ONE BOAT</small><strong>PRO分析</strong></div>
   <a class="club-link" href="/club.html">CLUB</a>
 </header>
 
@@ -40,23 +40,23 @@
     <span class="view-mode active">PRO</span>
   </nav>
 
+  <section class="pro-purpose" aria-label="PRO分析の目的"><small>DECISION FIRST</small><h2>データを増やすのではなく、<br>判断に使った根拠を深掘り。</h2><p>まずONE BOATの正式判断と決め手を表示します。選手・展示・オッズは、その判断を確認したいときだけ下で開けます。</p></section>
+
   <section id="pro-official" class="pro-official">
     <div class="skeleton"></div>
   </section>
 
   <section id="analysis-paywall" class="analysis-paywall" hidden>
     <div class="paywall-kicker">MEMBER ACCESS</div>
-    <h2>このレースの詳細は会員向けです</h2>
-    <p>予想は完成しています。買い目・資金配分・PRO分析は、1日PASSまたは月額CLUBで確認できます。</p>
-    <div class="paywall-features"><span>買い目</span><span>資金配分</span><span>展示・モーター</span><span>オッズ分析</span></div>
-    <button class="paywall-primary" type="button" data-paywall-plan="day_pass"><strong>1日PASS</strong><span>¥980 / 24時間</span></button>
-    <button class="paywall-secondary" type="button" data-paywall-plan="club_monthly"><strong>月額CLUB</strong><span>¥2,980 / 月</span></button>
-    <a class="paywall-compare" href="/club.html">料金・プランを比較する</a>
+    <h2>正式ENTER / 無料公開枠外</h2>
+    <p>無料ではここまで。CLUBでは、無料公開枠外を含む正式ENTER全件と、買い目・資金配分・判断根拠を確認できる設計です。</p>
+    <div class="paywall-features"><span>正式ENTER全件</span><span>買い目・資金配分</span><span>判断根拠</span><span>PRO分析</span></div>
+    <a class="paywall-primary paywall-join" href="/club.html?plan=club_monthly#club-waitlist"><strong>CLUB先行登録へ</strong><span>登録だけでは課金されません</span></a>
     <div id="paywall-message" class="paywall-message" hidden></div>
   </section>
 
   <nav class="analysis-tabs" id="analysis-tabs" aria-label="レース分析メニュー">
-    <button class="analysis-tab active" type="button" data-tab="basic">基本</button>
+    <button class="analysis-tab active" type="button" data-tab="basic">補助データ</button>
     <button class="analysis-tab" type="button" data-tab="live">展示</button>
     <button class="analysis-tab" type="button" data-tab="odds">オッズ</button>
   </nav>
@@ -68,7 +68,7 @@
       <div><small>6 BOATS</small><h2>選手を比較</h2></div>
       <span>タップで詳細</span>
     </div>
-    <p class="section-help">まずは「勝率・平均ST・コースST」を6艇で見比べられます。細かい成績は各選手をタップしてください。</p>
+    <p class="section-help">ここから下は判断を確認するための補助データです。必要な項目だけ開いて確認できます。</p>
     <div id="racer-list" class="racer-list"><div class="skeleton tall"></div><div class="skeleton tall"></div></div>
 
     <div id="official-evaluation-section" class="subsection">
@@ -142,6 +142,6 @@
   <a href="/club.html"><b>◎</b><span>CLUB</span></a>
 </nav>
 
-<script src="/analysis.js?v=20260919-paywall1" defer></script>
+<script src="/analysis.js?v=20260919-decisionfirst1" defer></script>
 </body>
 </html>
