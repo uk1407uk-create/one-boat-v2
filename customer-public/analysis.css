@@ -1063,3 +1063,9 @@ body{
 .original-table-transposed .original-boat-label span{
   color:#9b9da1!important;
 }
+
+.pro-bets-picks>div{display:grid!important;grid-template-columns:auto auto;align-items:center;column-gap:8px}
+.pro-bets-picks .pro-final-odds{grid-column:1/3;margin-top:3px;color:#6b8293;font-size:9px;font-weight:850}
+.pro-odds-note{margin:8px 0 0!important;padding:8px 9px;border:1px solid #d7e3ea;border-radius:8px;background:#f7fafc;color:#6a7e8e!important;font-size:9px!important;line-height:1.55!important}
+body.pro-theme .pro-bets-picks .pro-final-odds{color:#999b9f}
+body.pro-theme .pro-odds-note{border-color:#303236;background:#17181a;color:#9a9ca0!important}
