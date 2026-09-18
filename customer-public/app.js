@@ -187,13 +187,37 @@ function raceDetail(r){
   return html;
 }
 
-async function load(){try{
-  const [o,s]=await Promise.all([
-    fetch('/api/public/overview',{cache:'no-store'}).then(r=>r.ok?r.json():Promise.reject()),
-    fetch(FREE_STATS_URL,{cache:'no-store'}).then(r=>r.ok?r.json():Promise.reject())
-  ]);
-  STATS=s;
-  renderMetrics('today');
+async function load(){
+  let o;
+  try{
+    const r=await fetch('/api/public/overview',{cache:'no-store'});
+    if(!r.ok)throw new Error('overview');
+    o=await r.json();
+  }catch(e){
+    $('#today-count').textContent='更新待ち';
+    $('#public-count').textContent='--';
+    const grid=$('#venue-grid');
+    if(grid&&!grid.querySelector('.venue-tile'))grid.innerHTML='<div class="race-card" style="grid-column:1/-1"><div class="race-main"><strong>開催データを更新中</strong><small>正式データを取得でき次第、自動で表示します。</small></div></div>';
+    const strip=$('#free-strip-list');if(strip)strip.innerHTML='<span class="free-chip">開催データを更新中</span>';
+    $('#today-list').innerHTML='<div class="race-card"><div class="race-main"><strong>公開状況を更新中</strong><small>正式データを取得でき次第、自動で表示します。</small></div></div>';
+    return;
+  }
+
+  let stats=null;
+  try{
+    const r=await fetch(FREE_STATS_URL,{cache:'no-store'});
+    if(r.ok)stats=await r.json();
+  }catch{}
+  STATS=stats;
+  if(stats){
+    renderMetrics('today');
+  }else{
+    $('#m-roi').textContent='--';
+    $('#m-hit').textContent='--';
+    $('#m-profit').textContent='--';
+    $('#m-races').textContent='結果集計を更新中';
+  }
+
   syncModeCopy();
   $('#today-date').textContent=formatJpDate(o.date);
   $('#today-count').textContent=`開催 ${o.active_count||0}場`;
@@ -205,19 +229,12 @@ async function load(){try{
   $('#public-count').textContent=pro?`公開 ${o.public_count||0}R`:`公開中 ${items.length}R`;
   $('#today-list').innerHTML=items.length?items.map(publicRaceCard).join(''):(pro?'<div class="race-card"><div class="race-main"><strong>現在、公開対象なし</strong><small>対象レースが確定すると自動表示します</small></div></div>':'<div class="race-card"><div class="race-main"><strong>現在、公開中の予想はありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>');
   document.querySelectorAll('.race-card-button').forEach(b=>b.addEventListener('click',async()=>{await openVenue(b.dataset.vcode);openRace(Number(b.dataset.rno))}));
-  $('#result-list').innerHTML=(s.latest||[]).slice(0,8).map(resultCard).join('')||'<div class="race-card"><div class="race-main"><strong>集計中</strong><small>無料公開レースの結果が反映されると表示します</small></div></div>';
+  $('#result-list').innerHTML=stats?.latest?.length?(stats.latest||[]).slice(0,8).map(resultCard).join(''):'<div class="race-card"><div class="race-main"><strong>結果集計を更新中</strong><small>本日の予想・場情報はそのまま確認できます。</small></div></div>';
   if(!AUTO_OPENED){
     const q=new URLSearchParams(location.search),vc=q.get('venue'),rn=Number(q.get('race'));
     if(vc&&rn>=1&&rn<=12){AUTO_OPENED=true;await openVenue(vc);openRace(rn)}
   }
-}catch(e){
-  $('#today-count').textContent='更新待ち';
-  $('#public-count').textContent='--';
-  renderVenues(VENUES.map((name,i)=>({name,code:i+1,state:'PENDING'})));
-  const strip=$('#free-strip-list');if(strip)strip.innerHTML='<span class="free-chip">データ更新中</span>';
-  $('#today-list').innerHTML='<div class="race-card"><div class="race-main"><strong>データ更新中</strong><small>少し時間をおいて再読み込みしてください</small></div></div>';
-  $('#result-list').innerHTML='<div class="race-card"><div class="race-main"><strong>結果を取得中</strong><small>自動で更新されます</small></div></div>';
-}}
+}
 
 document.querySelectorAll('.period').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.period').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderMetrics(b.dataset.period)}));
 $('#venue-close').addEventListener('click',closeAll);$('#race-back').addEventListener('click',showVenueSheet);$('#sheet-backdrop').addEventListener('click',closeAll);document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAll()});
