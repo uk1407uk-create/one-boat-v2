@@ -1719,3 +1719,7 @@ body.analysis-locked .race-hero{border-bottom-color:#dbe5eb}
 @media(max-width:360px){.decision-focus{margin-left:8px;margin-right:8px;padding:12px}.support-data-head{margin-left:8px;margin-right:8px}.decision-focus h2,.support-data-head h2{font-size:17px}}
 
 .analysis-locked .decision-focus{display:none!important}
+
+.decision-focus .decision-focus-next{position:relative;padding-top:20px;border-color:#c9aa56;background:linear-gradient(135deg,#fffaf0,#fff)}
+.decision-focus .decision-focus-next em{position:absolute;left:10px;top:7px;font-style:normal;color:#a77c21;font-size:7px;font-weight:950;letter-spacing:.14em}
+.decision-focus-more{margin-top:6px}.decision-focus-more>summary{list-style:none;cursor:pointer;padding:9px 2px;color:#6f8494;font-size:9px;font-weight:850}.decision-focus-more>summary::-webkit-details-marker{display:none}.decision-focus-more>div{display:grid;gap:6px}
