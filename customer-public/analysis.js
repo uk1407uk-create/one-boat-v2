@@ -1,3 +1,4 @@
+// deploy-marker: formal-status-source-20260918-2130
 const ONE_BOAT_CANONICAL_ORIGIN='https://one-boat-club.jp';
 function enforceOneBoatCanonical(){
   if(location.hostname==='one-boat-customer.uk-1407-uk.workers.dev'||location.hostname==='www.one-boat-club.jp'){
