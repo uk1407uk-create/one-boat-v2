@@ -1,0 +1,125 @@
+name: Build Transparent Start Boats
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/transparent-boats.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build transparent boat assets
+        run: |
+          python -m pip install --quiet opencv-python-headless numpy pillow
+          python <<'PY'
+          import cv2, numpy as np
+          from pathlib import Path
+          from PIL import Image
+
+          root=Path('customer-public/assets')
+          for lane in range(1,7):
+              src=root/f'start-boat-{lane}.webp'
+              out=root/f'start-boat-{lane}.png'
+              bgr=cv2.imread(str(src), cv2.IMREAD_COLOR)
+              if bgr is None:
+                  raise SystemExit(f'cannot read {src}')
+              h,w=bgr.shape[:2]
+
+              # GrabCut: border is known background; center contains boat + spray.
+              mask=np.full((h,w), cv2.GC_PR_BGD, np.uint8)
+              bx=max(2,int(w*.08)); by=max(2,int(h*.12))
+              mask[:by,:]=cv2.GC_BGD; mask[-by:,:]=cv2.GC_BGD
+              mask[:,:bx]=cv2.GC_BGD; mask[:,-bx:]=cv2.GC_BGD
+
+              # Boat/spray working zone.
+              x0,x1=int(w*.16),int(w*.94)
+              y0,y1=int(h*.20),int(h*.82)
+              mask[y0:y1,x0:x1]=cv2.GC_PR_FGD
+
+              hsv=cv2.cvtColor(bgr,cv2.COLOR_BGR2HSV)
+              gray=cv2.cvtColor(bgr,cv2.COLOR_BGR2GRAY)
+              yy,xx=np.ogrid[:h,:w]
+              center=(xx>w*.25)&(xx<w*.92)&(yy>h*.24)&(yy<h*.78)
+
+              # Definite foreground seeds: dark mechanical/rider details.
+              mask[(gray<105)&center]=cv2.GC_FGD
+
+              # Lane-color foreground seeds.
+              H,S,V=cv2.split(hsv)
+              if lane==1:
+                  color_seed=(V>185)&(S<115)&center
+              elif lane==2:
+                  color_seed=(V<125)&center
+              elif lane==3:
+                  color_seed=(((H<12)|(H>170))&(S>90)&center)
+              elif lane==4:
+                  color_seed=((H>90)&(H<135)&(S>85)&(V<210)&center)
+              elif lane==5:
+                  color_seed=((H>18)&(H<42)&(S>90)&center)
+              else:
+                  color_seed=((H>42)&(H<95)&(S>70)&center)
+              mask[color_seed]=cv2.GC_FGD
+
+              bgd=np.zeros((1,65),np.float64)
+              fgd=np.zeros((1,65),np.float64)
+              cv2.grabCut(bgr,mask,None,bgd,fgd,7,cv2.GC_INIT_WITH_MASK)
+              alpha=np.where((mask==cv2.GC_FGD)|(mask==cv2.GC_PR_FGD),255,0).astype(np.uint8)
+
+              # Keep components around the boat center; discard detached water patches.
+              n, labels, stats, cent=cv2.connectedComponentsWithStats((alpha>0).astype(np.uint8),8)
+              keep=np.zeros_like(alpha)
+              for i in range(1,n):
+                  area=stats[i,cv2.CC_STAT_AREA]
+                  cx,cy=cent[i]
+                  if area>=max(8,int(w*h*.0015)) and (w*.18<cx<w*.96) and (h*.18<cy<h*.84):
+                      keep[labels==i]=255
+              alpha=keep
+
+              # Smooth edge without halo.
+              k=max(3,(min(w,h)//35)|1)
+              alpha=cv2.GaussianBlur(alpha,(k,k),0)
+              alpha[alpha<18]=0
+
+              rgba=cv2.cvtColor(bgr,cv2.COLOR_BGR2BGRA)
+              rgba[:,:,3]=alpha
+
+              # Crop to non-transparent content, add small transparent breathing room.
+              ys,xs=np.where(alpha>20)
+              if len(xs)==0:
+                  raise SystemExit(f'empty alpha lane {lane}')
+              pad=max(3,int(min(w,h)*.04))
+              xa=max(0,xs.min()-pad); xb=min(w,xs.max()+pad+1)
+              ya=max(0,ys.min()-pad); yb=min(h,ys.max()+pad+1)
+              crop=rgba[ya:yb,xa:xb]
+              Image.fromarray(cv2.cvtColor(crop,cv2.COLOR_BGRA2RGBA)).save(out,optimize=True)
+
+              a=np.array(Image.open(out).getchannel('A'))
+              border=np.concatenate([a[0,:],a[-1,:],a[:,0],a[:,-1]])
+              if border.max()>40:
+                  raise SystemExit(f'nontransparent border lane {lane}: {border.max()}')
+              print(f'lane {lane}: {w}x{h} -> {crop.shape[1]}x{crop.shape[0]}, alpha={(a>20).mean():.3f}')
+
+      - name: Commit transparent assets
+        run: |
+          git config user.name "ONE BOAT Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add customer-public/assets/start-boat-*.png
+          if git diff --cached --quiet; then
+            echo "No asset changes"
+            exit 0
+          fi
+          git commit -m "Replace start exhibition boats with transparent assets"
+          git push
