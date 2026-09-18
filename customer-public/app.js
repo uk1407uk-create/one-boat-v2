@@ -11,14 +11,13 @@ window.addEventListener('pageshow',()=>{enforceOneBoatCanonical()});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)enforceOneBoatCanonical()});
 const NOTE_URL='';
 const FREE_STATS_URL='/api/public/stats';
-const FREE_VISIBILITY_URL='https://imhzjlxbnovjvqlyawmg.supabase.co/functions/v1/one-boat-public-visibility';
 const TRAFFIC_LITE_URL='https://imhzjlxbnovjvqlyawmg.supabase.co/functions/v1/one-boat-traffic-lite';
 const VENUES=['桐生','戸田','江戸川','平和島','多摩川','浜名湖','蒲郡','常滑','津','三国','びわこ','住之江','尼崎','鳴門','丸亀','児島','宮島','徳山','下関','若松','芦屋','福岡','唐津','大村'];
 const $=s=>document.querySelector(s);
 const yen=n=>`${Math.round(Number(n||0)).toLocaleString('ja-JP')}円`;
 const pct=n=>Number.isFinite(Number(n))?`${Number(n).toFixed(1)}%`:'--';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let STATS=null,STATS_FETCHED_AT=0,CURRENT_VENUE=null,AUTO_OPENED=false,LOAD_TIMER=null,SITE_ONLY_KEYS=new Set();
+let STATS=null,STATS_FETCHED_AT=0,CURRENT_VENUE=null,AUTO_OPENED=false,LOAD_TIMER=null,LAST_OVERVIEW=null,REFRESH_BURST_LEFT=2,STATS_LOADING=null,SITE_ONLY_KEYS=new Set();
 function trafficAttribution(){
   try{
     const q=new URLSearchParams(location.search);
@@ -186,13 +185,15 @@ function setupPageMode(){
     $('#venue-grid')?.classList.remove('show-all');
     const t=$('#venue-toggle');if(t){t.setAttribute('aria-expanded','false');t.textContent='全24場を見る'}
     syncModeCopy();
-    load();
+    resetRefreshBurst();
+    load().then(scheduleLiveRefresh);
   });
   pro?.addEventListener('click',()=>{
     closeAll();
     applyPageMode('pro');
     syncModeCopy();
-    load();
+    resetRefreshBurst();
+    load().then(scheduleLiveRefresh);
   });
 }
 function raceDateForView(){return String(CURRENT_VENUE?.date||new Date(Date.now()+32400000).toISOString().slice(0,10)).slice(0,10)}
@@ -280,41 +281,10 @@ async function load(){
     if(grid&&!grid.querySelector('.venue-tile'))grid.innerHTML='<div class="race-card" style="grid-column:1/-1"><div class="race-main"><strong>開催データを更新中</strong><small>正式データを取得でき次第、自動で表示します。</small></div></div>';
     const strip=$('#free-strip-list');if(strip)strip.innerHTML='<span class="free-chip">開催データを更新中</span>';
     $('#today-list').innerHTML='<div class="race-card"><div class="race-main"><strong>公開状況を更新中</strong><small>正式データを取得でき次第、自動で表示します。</small></div></div>';
-    return;
+    return LAST_OVERVIEW;
   }
 
-  try{
-    const vu=new URL(FREE_VISIBILITY_URL);
-    vu.searchParams.set('date',o.date||trafficDay());
-    vu.searchParams.set('scope','site');
-    const vr=await fetch(vu,{cache:'no-store'});
-    if(vr.ok){
-      const vj=await vr.json();
-      if(vj?.ok){
-        SITE_ONLY_KEYS=new Set((Array.isArray(vj.rows)?vj.rows:[]).filter(x=>x?.site_public===true&&x?.threads_public!==true).map(x=>String(x.race_key||'')).filter(Boolean));
-      }
-    }
-  }catch{}
-  let stats=STATS;
-  const nowMs=Date.now();
-  if(!stats||nowMs-STATS_FETCHED_AT>=300000){
-    try{
-      const r=await fetch(FREE_STATS_URL,{cache:'no-store'});
-      if(r.ok){
-        const next=await r.json();
-        if(next?.ok){stats=next;STATS=next;STATS_FETCHED_AT=nowMs}
-      }
-    }catch{}
-  }
-  if(stats){
-    renderMetrics('today');
-  }else{
-    $('#m-roi').textContent='--';
-    $('#m-hit').textContent='--';
-    $('#m-profit').textContent='--';
-    $('#m-races').textContent='結果集計を更新中';
-  }
-
+  SITE_ONLY_KEYS=new Set((Array.isArray(o?.site_only_keys)?o.site_only_keys:[]).map(String).filter(Boolean));
   syncModeCopy();
   $('#today-date').textContent=formatJpDate(o.date);
   $('#today-count').textContent=Number.isFinite(Number(o.active_count))&&o.active_count!==null?`開催 ${Number(o.active_count)}場`:'開催情報更新中';
@@ -326,14 +296,51 @@ async function load(){
   $('#public-count').textContent=o.public_count===null||o.public_count===undefined?'更新中':pro?`無料 ${Number(o.public_count)}/${Number(o.free_limit||30)}R`:`公開中 ${items.length}R`;
   $('#today-list').innerHTML=items.length?items.map(publicRaceCard).join(''):(pro?'<div class="race-card"><div class="race-main"><strong>現在、公開対象なし</strong><small>対象レースが確定すると自動表示します</small></div></div>':'<div class="race-card"><div class="race-main"><strong>現在、公開中の予想はありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>');
   document.querySelectorAll('.race-card-button').forEach(b=>b.addEventListener('click',async()=>{await openVenue(b.dataset.vcode);openRace(Number(b.dataset.rno))}));
-  $('#result-list').innerHTML=stats?.latest?.length?(stats.latest||[]).slice(0,8).map(resultCard).join(''):'<div class="race-card"><div class="race-main"><strong>結果集計を更新中</strong><small>本日の予想・場情報はそのまま確認できます。</small></div></div>';
+
   if(!AUTO_OPENED){
     const q=new URLSearchParams(location.search),vc=q.get('venue'),rn=Number(q.get('race'));
     if(vc&&rn>=1&&rn<=12){AUTO_OPENED=true;await openVenue(vc);openRace(rn)}
   }
+  LAST_OVERVIEW=o;
+  return o;
 }
 
-document.querySelectorAll('.period').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.period').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderMetrics(b.dataset.period)}));
+async function loadStats({force=false}={}){
+  if(STATS_LOADING)return STATS_LOADING;
+  const fresh=STATS&&Date.now()-STATS_FETCHED_AT<600000;
+  if(fresh&&!force){renderMetrics(document.querySelector('.period.active')?.dataset.period||'today');return STATS}
+  STATS_LOADING=(async()=>{
+    try{
+      const r=await fetch(FREE_STATS_URL,{cache:'no-store'});
+      if(!r.ok)throw new Error('stats');
+      const next=await r.json();
+      if(!next?.ok)throw new Error('stats');
+      STATS=next;STATS_FETCHED_AT=Date.now();
+      renderMetrics(document.querySelector('.period.active')?.dataset.period||'today');
+      $('#result-list').innerHTML=(next.latest||[]).slice(0,8).map(resultCard).join('')||'<div class="race-card"><div class="race-main"><strong>公開結果はまだありません</strong><small>結果確定後に表示します。</small></div></div>';
+      return next;
+    }catch{
+      if(!STATS){
+        $('#m-roi').textContent='--';$('#m-hit').textContent='--';$('#m-profit').textContent='--';$('#m-races').textContent='結果集計を更新中';
+        $('#result-list').innerHTML='<div class="race-card"><div class="race-main"><strong>結果集計を更新中</strong><small>本日の予想・場情報はそのまま確認できます。</small></div></div>';
+      }
+      return STATS;
+    }finally{STATS_LOADING=null}
+  })();
+  return STATS_LOADING;
+}
+function setupLazyStats(){
+  const targets=['#performance','#results'].map($).filter(Boolean);
+  if(!targets.length)return;
+  if(location.hash==='#performance'||location.hash==='#results')loadStats();
+  if('IntersectionObserver'in window){
+    const io=new IntersectionObserver(entries=>{
+      if(entries.some(e=>e.isIntersecting)){loadStats();targets.forEach(t=>io.unobserve(t))}
+    },{rootMargin:'450px 0px'});
+    targets.forEach(t=>io.observe(t));
+  }else loadStats();
+}
+document.querySelectorAll('.period').forEach(b=>b.addEventListener('click',async()=>{document.querySelectorAll('.period').forEach(x=>x.classList.remove('active'));b.classList.add('active');if(!STATS)await loadStats();renderMetrics(b.dataset.period)}));
 $('#venue-close').addEventListener('click',closeAll);$('#race-back').addEventListener('click',showVenueSheet);$('#sheet-backdrop').addEventListener('click',closeAll);document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAll()});
 if(NOTE_URL){const b=$('#note-btn');if(b){b.classList.remove('disabled');b.textContent='ONE BOAT CLUBへ';b.addEventListener('click',()=>location.href=NOTE_URL)}}
 const venueToggle=$('#venue-toggle');
@@ -343,17 +350,28 @@ if(venueToggle)venueToggle.addEventListener('click',()=>{
   venueToggle.setAttribute('aria-expanded',String(open));
   venueToggle.textContent=open?'開催中だけ表示':'全24場を見る';
 });
-function scheduleLiveRefresh(){
+function resetRefreshBurst(){REFRESH_BURST_LEFT=2}
+function nextRefreshDelay(o=LAST_OVERVIEW){
+  const progress=freeProgressModel(o||{});
+  if(progress.available&&progress.complete)return 300000;
+  if(REFRESH_BURST_LEFT>0){REFRESH_BURST_LEFT--;return 60000+Math.floor(Math.random()*12000)}
+  const base=savedViewMode()==='pro'?180000:240000;
+  return base+Math.floor(Math.random()*30000);
+}
+function scheduleLiveRefresh(o=LAST_OVERVIEW){
   if(LOAD_TIMER){clearTimeout(LOAD_TIMER);LOAD_TIMER=null}
   if(document.hidden)return;
-  LOAD_TIMER=setTimeout(async()=>{await load();scheduleLiveRefresh()},30000);
+  const wait=nextRefreshDelay(o);
+  LOAD_TIMER=setTimeout(async()=>{const next=await load();scheduleLiveRefresh(next)},wait);
 }
 document.addEventListener('visibilitychange',()=>{
   if(document.hidden){
     if(LOAD_TIMER){clearTimeout(LOAD_TIMER);LOAD_TIMER=null}
     return;
   }
-  load().finally(scheduleLiveRefresh);
+  resetRefreshBurst();
+  load().then(scheduleLiveRefresh);
 });
 setupPageMode();
-load().finally(scheduleLiveRefresh);
+setupLazyStats();
+load().then(scheduleLiveRefresh);
