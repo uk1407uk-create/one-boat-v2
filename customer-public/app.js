@@ -54,8 +54,8 @@ function renderFreeStrip(o){
     $('#free-strip-list').innerHTML=`<div class="free-pending"><div class="free-progress-head"><div><small>TODAY FREE</small><strong>本日の無料予想</strong></div><span class="live-update updating"><i></i>データ更新中</span></div><small>公開数を確認しています。</small></div>`;
     return;
   }
-  const liveState=o?.source?.predictions===false?'データ更新中':'リアルタイム更新';
-  const liveClass=o?.source?.predictions===false?'live-update updating':'live-update';
+  const liveState=m.complete?'本日分公開完了':(o?.source?.predictions===false?'データ更新中':'リアルタイム更新');
+  const liveClass=m.complete?'live-update':(o?.source?.predictions===false?'live-update updating':'live-update');
   const complete=m.complete?`<div class="free-complete">本日の無料公開は終了しました</div>`:'';
   $('#free-strip-list').innerHTML=`<div class="free-progress-card"><div class="free-progress-head"><div><small>TODAY FREE</small><strong>本日の無料予想</strong></div><span class="${liveClass}"><i></i>${liveState}</span></div><div class="free-progress-numbers"><div class="free-used"><strong>${m.count}</strong><span>/ ${m.limit}R</span></div><div class="free-remaining"><small>残り</small><strong>${m.remaining}R</strong></div></div>${complete}<p class="free-progress-note">正式ENTERのみ公開</p></div>`;
 }
