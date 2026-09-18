@@ -31,8 +31,48 @@ function showRaceSheet(){openBackdrop();$('#venue-sheet').hidden=true;$('#race-s
 async function openVenue(code){showVenueSheet();$('#venue-sheet-title').textContent='読み込み中';$('#venue-sheet-state').textContent='--';$('#venue-sheet-meta').innerHTML='';$('#venue-races').innerHTML='<div class="sheet-loading">1R〜12Rを確認しています</div>';try{const r=await fetch(`/api/public/venue?code=${encodeURIComponent(code)}`,{cache:'no-store'});if(!r.ok)throw Error('venue');const v=await r.json();CURRENT_VENUE=v;$('#venue-sheet-title').textContent=v.name||VENUES[Number(code)-1]||'場詳細';$('#venue-sheet-state').className=`sheet-state ${stateClass(v.state)}`;$('#venue-sheet-state').textContent=stateLabel(v.state);$('#venue-sheet-meta').innerHTML=`<div><span>開催状況</span><strong>${v.state==='NOEVENT'?'本日非開催':v.state==='FINISHED'?'本日終了':'開催中'}</strong></div><div><span>公開予想</span><strong>${Number(v.public_count||0)}R</strong></div><div><span>更新</span><strong>自動</strong></div>`;$('#venue-races').innerHTML=(v.races||[]).map(raceRow).join('')||'<div class="sheet-loading">本日は開催がありません</div>';document.querySelectorAll('.race-row').forEach(b=>b.addEventListener('click',()=>openRace(Number(b.dataset.rno))))}catch(e){$('#venue-sheet-title').textContent=VENUES[Number(code)-1]||'場詳細';$('#venue-sheet-state').textContent='更新待ち';$('#venue-races').innerHTML='<div class="sheet-loading">データを再取得しています</div>'}}
 function raceRow(r){const cls=stateClass(r.state),deadline=r.deadline?timeText(r.deadline):'--:--',right=r.state==='NOEVENT'?'—':deadline;return `<button class="race-row ${cls}" type="button" data-rno="${Number(r.race_no)}"><span class="race-no">${Number(r.race_no)}R</span><span class="race-row-main"><strong>${stateLabel(r.state)}</strong><small>${r.state==='PUBLIC'?`投資 ${yen(r.record?.stake_total_yen||r.record?.prediction?.stake_total_yen)}`:r.state==='SETTLED'?(r.record?.settlement?.hit?'的中結果あり':'結果確定'):r.note||''}</small></span><span class="race-time">${right}<b>›</b></span></button>`}
 const VIEW_MODE_KEY='one_boat_view_mode';
-function savedViewMode(){try{return localStorage.getItem(VIEW_MODE_KEY)==='pro'?'pro':'easy'}catch{return'easy'}}
+function requestedViewMode(){
+  try{
+    const q=new URLSearchParams(location.search).get('mode');
+    return q==='pro'||q==='easy'?q:null;
+  }catch{return null}
+}
+function savedViewMode(){
+  const q=requestedViewMode();
+  if(q)return q;
+  try{return localStorage.getItem(VIEW_MODE_KEY)==='pro'?'pro':'easy'}catch{return'easy'}
+}
 function saveViewMode(mode){try{localStorage.setItem(VIEW_MODE_KEY,mode==='pro'?'pro':'easy')}catch{}}
+function applyPageMode(mode,{persist=true}={}){
+  const m=mode==='pro'?'pro':'easy';
+  if(persist)saveViewMode(m);
+  document.documentElement.classList.toggle('pro-mode',m==='pro');
+  document.body?.classList.toggle('pro-mode',m==='pro');
+  const easy=$('#page-mode-easy'),pro=$('#page-mode-pro');
+  if(easy){
+    easy.classList.toggle('active',m==='easy');
+    easy.setAttribute('aria-pressed',String(m==='easy'));
+  }
+  if(pro){
+    pro.classList.toggle('active',m==='pro');
+    pro.setAttribute('aria-pressed',String(m==='pro'));
+  }
+  const theme=document.querySelector('meta[name="theme-color"]');
+  if(theme)theme.setAttribute('content',m==='pro'?'#030914':'#0877d7');
+}
+function setupPageMode(){
+  const mode=savedViewMode();
+  applyPageMode(mode,{persist:!!requestedViewMode()});
+  const easy=$('#page-mode-easy'),pro=$('#page-mode-pro');
+  easy?.addEventListener('click',()=>{
+    closeAll();
+    applyPageMode('easy');
+  });
+  pro?.addEventListener('click',()=>{
+    closeAll();
+    applyPageMode('pro');
+  });
+}
 function raceDateForView(){return String(CURRENT_VENUE?.date||new Date(Date.now()+32400000).toISOString().slice(0,10)).slice(0,10)}
 function proRaceUrl(r){
   const code=Number(CURRENT_VENUE?.code||0);
@@ -105,4 +145,5 @@ async function load(){try{const [o,s]=await Promise.all([fetch('/api/public/over
 document.querySelectorAll('.period').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.period').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderMetrics(b.dataset.period)}));
 $('#venue-close').addEventListener('click',closeAll);$('#race-back').addEventListener('click',showVenueSheet);$('#sheet-backdrop').addEventListener('click',closeAll);document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAll()});
 if(NOTE_URL){const b=$('#note-btn');b.classList.remove('disabled');b.textContent='ONE BOAT CLUBへ';b.addEventListener('click',()=>location.href=NOTE_URL)}
+setupPageMode();
 load();setInterval(load,30000);
