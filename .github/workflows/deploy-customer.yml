@@ -101,6 +101,7 @@ jobs:
           grep -q 'LIVE RESULTS' customer-public/today.html
           grep -q 'renderBandPerformance' customer-public/app.js
           grep -q '/api/member/analysis' worker_member.js
+          grep -q '/api/member/prediction' worker_member.js
           grep -q 'analysis-paywall' customer-public/analysis.html
           grep -q "const API='/api/member/analysis'" customer-public/analysis.js
           ! grep -q 'one-boat-race-analysis-api' customer-public/analysis.js
