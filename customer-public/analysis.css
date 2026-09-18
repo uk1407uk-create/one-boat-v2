@@ -634,3 +634,372 @@ body[aria-busy="true"] .analysis-tabs{opacity:.72}
   .motor-table-head,.motor-row{grid-template-columns:40px 1.45fr .85fr .85fr}
   .pro-official-grid strong{font-size:13px}
 }
+
+
+/* PRO LUXE MONOCHROME — luxury black / white analysis */
+html{background:#0a0a0b;color-scheme:dark}
+body{
+  background:linear-gradient(180deg,#0b0b0c 0%,#111214 48%,#09090a 100%);
+  color:#f4f4f2;
+}
+.app-header{
+  background:linear-gradient(180deg,#090909,#111214);
+  box-shadow:0 4px 18px rgba(0,0,0,.48);
+  border-bottom:1px solid #2a2b2e;
+}
+.app-title small{color:#aaa}
+.app-title strong,.back-link,.club-link{color:#fff}
+.club-link{
+  border-color:#5a5c60;
+  background:#151618;
+}
+.analysis-shell{background:transparent}
+.race-hero{
+  background:#121315;
+  border-bottom-color:#2b2c2f;
+}
+.eyebrow{color:#a8a9ac}
+.race-hero h1{color:#fff}
+.subline{color:#929397}
+.state-badge{
+  background:#232427;
+  color:#d2d3d5;
+}
+.state-badge.live{background:#e7e7e5;color:#111214}
+.hero-meta{
+  border-color:#3a3b3f;
+}
+.hero-meta div{
+  background:#17181a;
+  border-right-color:#303236;
+}
+.hero-meta span{color:#8f9195}
+.hero-meta strong{color:#f5f5f5}
+.separation-note{
+  background:#18191b;
+  border-color:#383a3e;
+  color:#a9aaad;
+}
+.separation-note i{background:#bdbec1}
+
+.view-mode-switch{
+  border-color:#37393d;
+  background:#111214;
+  box-shadow:0 7px 22px rgba(0,0,0,.28);
+}
+.view-mode{color:#898b8f}
+.view-mode.active{
+  color:#111214;
+  background:linear-gradient(180deg,#f5f5f3,#e6e6e4);
+  box-shadow:none;
+}
+
+.pro-official{
+  background:linear-gradient(180deg,#17181a,#121315);
+  border-color:#383a3e;
+  box-shadow:0 8px 22px rgba(0,0,0,.24);
+}
+.pro-official-head small{color:#a8aaad}
+.pro-official-head h2{color:#fff}
+.pro-official-head>span{
+  background:#ececea;
+  color:#111214;
+}
+.pro-official-grid{
+  border-color:#34363a;
+}
+.pro-official-grid>div{
+  background:#151618;
+  border-right-color:#2d2f33;
+}
+.pro-official-grid span{color:#8d8f93}
+.pro-official-grid strong{color:#fff}
+.pro-official-section{border-top-color:#303236}
+.pro-official-section>b{color:#f0f0ee}
+.pro-official-section p,
+.pro-official-section ul{color:#aaa}
+.pro-official-section.caution{
+  background:#191714;
+  border-color:#5f574a;
+}
+.pro-bets>div{
+  border-color:#34363a;
+  background:#151618;
+}
+.pro-bets strong{color:#fff}
+.pro-bets span{color:#d6d6d4}
+.pro-official-empty strong{color:#fff}
+.pro-official-empty p{color:#8f9195}
+
+.analysis-tabs{
+  background:#0f1011;
+  border-bottom-color:#2b2c2f;
+  box-shadow:0 3px 10px rgba(0,0,0,.3)
+}
+.analysis-tab{
+  background:#0f1011;
+  color:#77797d;
+  border-right-color:#242528;
+}
+.analysis-tab.active{
+  color:#fff;
+  background:#191a1c;
+  box-shadow:inset 0 -2px 0 #f2f2f2;
+}
+.tab-panel{background:transparent}
+.section-head small{color:#a0a2a5}
+.section-head h2{color:#fff}
+.section-head>span{
+  background:#17181a;
+  color:#b7b8bb;
+  border-color:#393b3f;
+}
+.section-head .official-tag{
+  color:#111214;
+  background:#eeeeec;
+  border-color:#eeeeec;
+}
+.section-head .my-tag{
+  color:#111214;
+  background:#e2e2e0;
+  border-color:#e2e2e0;
+}
+.section-help{color:#8f9195}
+.subsection{border-top-color:#2b2c2f}
+
+.racer-card,
+.ex-card,
+.surface-card,
+.empty-card,
+.official-cta{
+  background:#151618;
+  border-color:#35373b;
+  box-shadow:0 4px 14px rgba(0,0,0,.22);
+}
+.racer-name strong{color:#f5f5f5}
+.racer-name small{color:#8e9094}
+.racer-chevron{color:#85878b}
+.racer-quick{border-color:#303236}
+.racer-quick div{
+  background:#191a1c;
+  border-right-color:#2d2f32;
+}
+.racer-quick span{color:#888a8e}
+.racer-quick b{color:#f2f2f2}
+.racer-details{
+  background:#2d2f33;
+  border-top-color:#303236;
+}
+.racer-details div{background:#151618}
+.racer-details span{color:#888a8e}
+.racer-details strong{color:#ececea}
+
+.engine-metric,
+.eval-empty{
+  background:#151618;
+  border-color:#35373b;
+}
+.engine-metric.total{
+  background:#1b1c1f;
+  border-color:#4a4c50;
+}
+.engine-metric span,
+.eval-empty span,
+.eval-empty small{color:#8e9094}
+.engine-metric strong,
+.eval-empty strong{color:#fff}
+
+.motor-official-score{
+  background:#1a1b1d;
+  border-color:#424449;
+}
+.motor-official-score span{color:#939599}
+.motor-official-score strong{color:#fff}
+.motor-table-head{
+  background:#202124;
+  border-color:#3a3c40;
+  color:#bbbcc0;
+}
+.motor-row{
+  background:#151618;
+  border-color:#35373b;
+}
+.motor-row>div:nth-child(2)>strong,
+.motor-row>div:nth-child(n+3)>strong{color:#f2f2f2}
+.motor-row>div:nth-child(2)>small{color:#888a8e}
+
+.display-switch-btn{
+  background:#151618;
+  border-color:#3b3d41;
+  color:#9b9da1;
+}
+.display-switch-btn.active{
+  background:#f0f0ee;
+  border-color:#f0f0ee;
+  color:#111214;
+  box-shadow:none;
+}
+.mini-head strong{color:#fff}
+.mini-head span{
+  background:#17181a;
+  border-color:#3b3d41;
+  color:#a8aaad;
+}
+.data-note{
+  background:#151618;
+  border-color:#36383c;
+  color:#9a9ca0;
+}
+.surface-card span{color:#8d8f93}
+.surface-card strong{color:#fff}
+
+.odds-filter-btn{
+  background:#151618;
+  border-color:#393b3f;
+  color:#b3b4b7;
+}
+.odds-filter-btn em{color:#7d7f83}
+.odds-filter-btn.active{
+  background:#f1f1ef;
+  border-color:#f1f1ef;
+  color:#111214;
+  box-shadow:none;
+}
+.odds-item{
+  background:#151618;
+  border-color:#37393d;
+}
+.odds-item b{color:#fff}
+.odds-item span{color:#d4d4d2}
+
+.empty-card{border-style:dashed}
+.empty-card strong{color:#fff}
+.empty-card p{color:#8f9195}
+
+.my-picker{
+  background:#151618;
+  border-color:#3d3f43;
+}
+.pick-row{border-bottom-color:#303236}
+.pick-label b{color:#f0f0ee}
+.pick-label span{color:#8c8e92}
+.lane-choice{
+  background:#17181a;
+  border-color:#3d3f43;
+  color:#d9d9d7;
+}
+.lane-choice.selected{
+  background:#f1f1ef;
+  border-color:#f1f1ef;
+  color:#111214;
+  box-shadow:none;
+}
+.my-result{
+  background:linear-gradient(180deg,#1c1d1f,#121315);
+  border:1px solid #3b3d41;
+  color:#fff;
+}
+.my-result small{color:#9d9fa3}
+.my-result button{
+  border-color:#77797d;
+  background:#1a1b1d;
+}
+.local-only{
+  background:#151618;
+  border-color:#383a3e;
+  color:#9a9ca0;
+}
+
+.official-cta small{color:#9fa1a5}
+.official-cta h2{color:#fff}
+.official-cta p{color:#929397}
+.official-cta a{
+  background:#f1f1ef;
+  color:#111214;
+}
+
+.page-message{
+  background:#241719;
+  border-color:#6c464b;
+  color:#efb8bd;
+}
+.skeleton{
+  background:linear-gradient(90deg,#191a1c,#242528,#191a1c);
+  background-size:200% 100%;
+}
+
+.bottom-nav{
+  background:rgba(11,11,12,.985);
+  border-top-color:#2a2b2e;
+  box-shadow:0 -6px 20px rgba(0,0,0,.38)
+}
+.bottom-nav a{color:#717377}
+.bottom-nav a b{color:#8a8c90}
+.bottom-nav a.active,.bottom-nav a.active b{color:#fff}
+
+/* Keep boat number colors and start-water imagery for data recognition */
+.start-board{
+  background:#121315;
+  border-color:#3a3c40;
+  box-shadow:0 8px 24px rgba(0,0,0,.22);
+}
+.start-board-head{
+  background:#1c1d1f;
+  color:#b9babe;
+  border-bottom-color:#34363a;
+}
+.start-scale{
+  background:linear-gradient(90deg,#202124 0 76%,#2a1d1f 76% 100%);
+  border-bottom-color:#34363a;
+}
+.start-scale:after{
+  background:#f5f5f5;
+  box-shadow:none;
+}
+.start-scale b{
+  background:#f2f2f0;
+  color:#111214;
+  box-shadow:none;
+}
+.scale-label{color:#8e9094}
+.scale-label.right{color:#d28f96}
+.start-row{
+  background:#151618;
+  border-bottom-color:#303236;
+}
+.start-course{
+  background:#151618;
+}
+.start-course b{color:#fff}
+.start-course span{color:#888a8e}
+.start-st{
+  background:#151618;
+  color:#fff;
+}
+.start-st.flying{
+  background:#201719;
+  color:#ef8e97;
+}
+.original-wrap{
+  background:#151618;
+  border-color:#3b3d41;
+}
+.original-table-transposed .original-corner,
+.original-table-transposed .original-metric-head{
+  background:#202124;
+  color:#b8b9bc;
+}
+.original-table-transposed .original-boat-label{
+  background:#17181a;
+}
+.original-table-transposed .original-value{
+  background:#151618;
+  color:#f0f0ee;
+}
+.original-table-transposed .original-corner,
+.original-table-transposed .original-metric-head,
+.original-table-transposed .original-boat-label,
+.original-table-transposed .original-value{
+  border-right-color:#33353a;
+  border-bottom-color:#33353a;
+}
