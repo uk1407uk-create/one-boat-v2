@@ -43,6 +43,12 @@ async function setupWaitlist(){
     if(session?.logged_in&&session?.email&&!email.value)email.value=session.email;
     if(session?.logged_in)document.querySelectorAll('[data-member-link]').forEach(a=>{a.textContent='マイページ';a.href='/mypage.html'});
   }catch{}
+  try{
+    const qp=new URLSearchParams(location.search);
+    const requested=qp.get('plan')||qp.get('buy');
+    if(plan&&['day_pass','club_monthly','either'].includes(requested))plan.value=requested;
+    if(requested||location.hash==='#club-waitlist')setTimeout(()=>q('#club-waitlist')?.scrollIntoView({behavior:'smooth',block:'start'}),120);
+  }catch{}
   document.querySelectorAll('[data-waitlist-plan]').forEach(b=>b.addEventListener('click',()=>{
     if(plan&&['day_pass','club_monthly','either'].includes(b.dataset.waitlistPlan))plan.value=b.dataset.waitlistPlan;
     q('#club-waitlist')?.scrollIntoView({behavior:'smooth',block:'start'});
