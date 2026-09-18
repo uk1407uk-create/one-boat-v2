@@ -3,6 +3,9 @@
   "name": "one-boat-v2-pages",
   "main": "worker_obpe_social_ui.js",
   "compatibility_date": "2026-09-14",
+  "routes": [
+    { "pattern": "admin.one-boat-club.jp", "custom_domain": true }
+  ],
   "triggers": {
     "crons": ["* * * * *"]
   },
