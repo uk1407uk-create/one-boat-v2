@@ -1,0 +1,99 @@
+name: Build Lane Color Start Boats
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-lane-color-boats.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build six correctly colored transparent boat assets
+        run: |
+          python -m pip install --quiet pillow numpy
+          python <<'PY'
+          from pathlib import Path
+          import numpy as np
+          from PIL import Image
+
+          src=Path('customer-public/assets/start-boat-3-transparent.webp')
+          im=Image.open(src).convert('RGBA')
+          rgba=np.array(im)
+          rgb=rgba[:,:,:3].astype(np.float32)
+          alpha=rgba[:,:,3]
+
+          # HSV via Pillow keeps alpha handling simple.
+          hsv=np.array(im.convert('RGB').convert('HSV')).astype(np.uint8)
+          H,S,V=[hsv[:,:,i] for i in range(3)]
+
+          # Only recolor the original red racing gear / hull areas.
+          red=((H < 18) | (H > 238)) & (S > 85) & (V > 40) & (alpha > 20)
+
+          def make(lane):
+              out=rgba.copy()
+              if lane==3:
+                  return out
+              hsv2=hsv.copy()
+              v=V.astype(np.float32)
+
+              if lane==1:  # white
+                  hsv2[:,:,0][red]=0
+                  hsv2[:,:,1][red]=8
+                  hsv2[:,:,2][red]=np.clip(205 + (v[red]*0.18),205,250).astype(np.uint8)
+              elif lane==2:  # black
+                  hsv2[:,:,0][red]=0
+                  hsv2[:,:,1][red]=10
+                  hsv2[:,:,2][red]=np.clip(28 + (v[red]*0.20),30,78).astype(np.uint8)
+              elif lane==4:  # blue
+                  hsv2[:,:,0][red]=168
+                  hsv2[:,:,1][red]=np.clip(np.maximum(S[red],180),0,235).astype(np.uint8)
+                  hsv2[:,:,2][red]=np.clip(v[red]*0.95,70,225).astype(np.uint8)
+              elif lane==5:  # yellow
+                  hsv2[:,:,0][red]=39
+                  hsv2[:,:,1][red]=np.clip(np.maximum(S[red],185),0,235).astype(np.uint8)
+                  hsv2[:,:,2][red]=np.clip(185 + v[red]*0.22,190,250).astype(np.uint8)
+              elif lane==6:  # green
+                  hsv2[:,:,0][red]=88
+                  hsv2[:,:,1][red]=np.clip(np.maximum(S[red],160),0,220).astype(np.uint8)
+                  hsv2[:,:,2][red]=np.clip(v[red]*0.82,60,205).astype(np.uint8)
+
+              recol=np.array(Image.fromarray(hsv2,'HSV').convert('RGB'))
+              out[:,:,:3][red]=recol[red]
+              return out
+
+          outdir=Path('customer-public/assets')
+          for lane in range(1,7):
+              arr=make(lane)
+              out=Image.fromarray(arr,'RGBA')
+              p=outdir/f'start-boat-{lane}-lane.png'
+              out.save(p,optimize=True)
+              # Verify transparent canvas remains intact.
+              a=np.array(out.getchannel('A'))
+              if (a==0).mean() < 0.05:
+                  raise SystemExit(f'lane {lane}: transparency unexpectedly missing')
+              print(f'lane {lane}: saved {p} alpha0={(a==0).mean():.3f}')
+
+      - name: Commit lane-color assets
+        run: |
+          git config user.name "ONE BOAT Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add customer-public/assets/start-boat-*-lane.png
+          if git diff --cached --quiet; then
+            echo "No asset changes"
+            exit 0
+          fi
+          git commit -m "Build correct lane-color transparent start boats"
+          git push
