@@ -93,8 +93,8 @@ function applyPageMode(mode,{persist=true}={}){
 function syncModeCopy(){
   const pro=savedViewMode()==='pro';
   const introTitle=$('#today-intro-title'),introCopy=$('#today-intro-copy'),publicTitle=$('#public-title-text'),venueTitle=$('#venue-title-text');
-  if(introTitle)introTitle.innerHTML=pro?'本日の予想<span class="blue">本日の24場</span>':'いま買える予想';
-  if(introCopy)introCopy.textContent=pro?'管理側で確定した状態だけを表示。予想公開・様子見・見送り・結果を同じ画面で確認できます。':'公開中の正式ENTERを最優先。1回タップで買い目・金額・締切まで確認できます。';
+  if(introTitle)introTitle.innerHTML=pro?'本日の予想<span class="blue">全国24場を確認</span>':'いま買える予想';
+  if(introCopy)introCopy.textContent=pro?'予想公開・直前分析中・見送り・結果を、全国24場から確認できます。':'公開中の正式ENTERを最優先。1回タップで買い目・金額・締切まで確認できます。';
   if(publicTitle)publicTitle.textContent=pro?'本日の公開予想':'いま買える予想';
   if(venueTitle)venueTitle.textContent=pro?'全国24場':'場から探す';
   const grid=$('#venue-grid'),toggle=$('#venue-toggle');
