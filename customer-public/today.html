@@ -743,62 +743,32 @@ html.pro-mode .race-row.settled .race-no{background:#53645d;color:#fff}
 html.pro-mode .sheet-loading{color:#8d8f93}
 
 
-/* PRO visibility hotfix — iPhone 24 venues */
-html.pro-mode .venue-grid{
-  grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  gap:10px!important;
-  margin:8px 0 32px!important;
-}
-html.pro-mode .venue-tile{
-  aspect-ratio:auto!important;
-  min-height:126px!important;
-  border-radius:14px!important;
-}
+
+
+/* PRO 24 venues readability — text colors only */
 html.pro-mode .venue-name{
-  height:48px!important;
-  min-height:48px!important;
-  padding:6px 4px!important;
-  font-size:20px!important;
-  line-height:1!important;
-  letter-spacing:-.025em!important;
-}
-html.pro-mode .venue-strip{
-  height:30px!important;
-  min-height:30px!important;
-  font-size:11px!important;
-  letter-spacing:.01em!important;
+  color:#f4f4f4!important;
 }
 html.pro-mode .venue-meta{
-  height:48px!important;
-  min-height:48px!important;
-  grid-template-columns:.9fr 1.35fr!important;
+  color:#d2d2d2!important;
 }
 html.pro-mode .venue-meta strong{
-  font-size:22px!important;
-  line-height:1!important;
+  color:#ffffff!important;
 }
 html.pro-mode .venue-meta em{
-  padding:0 5px!important;
-  font-size:11px!important;
-  line-height:1.25!important;
+  color:#c2c2c2!important;
 }
-html.pro-mode .venue-legend{
-  gap:7px!important;
-  padding-bottom:6px!important;
+html.pro-mode .venue-strip{
+  color:#ffffff!important;
 }
-html.pro-mode .venue-legend span{
-  min-height:36px!important;
-  padding:0 9px!important;
-  font-size:10px!important;
+html.pro-mode .venue-tile.idle .venue-name{
+  color:#8f8f8f!important;
 }
-@media(max-width:360px){
-  html.pro-mode .venue-grid{gap:8px!important}
-  html.pro-mode .venue-tile{min-height:116px!important}
-  html.pro-mode .venue-name{height:44px!important;min-height:44px!important;font-size:18px!important}
-  html.pro-mode .venue-strip{height:28px!important;min-height:28px!important;font-size:10px!important}
-  html.pro-mode .venue-meta{height:44px!important;min-height:44px!important}
-  html.pro-mode .venue-meta strong{font-size:20px!important}
-  html.pro-mode .venue-meta em{font-size:10px!important}
+html.pro-mode .venue-tile.idle .venue-meta strong{
+  color:#9d9d9d!important;
+}
+html.pro-mode .venue-tile.idle .venue-meta em{
+  color:#777!important;
 }
 
 </style>
