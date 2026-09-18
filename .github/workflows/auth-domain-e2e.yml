@@ -1,0 +1,22 @@
+name: ONE BOAT Auth Domain E2E
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/auth-domain-e2e.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger customer signup
+        env:
+          TEST_EMAIL: official.oneclubman+ob-authcheck2-0918@gmail.com
+        run: |
+          set -euo pipefail
+          TEST_PASSWORD="$(openssl rand -base64 24)"
+          BODY=$(jq -nc --arg email "$TEST_EMAIL" --arg password "$TEST_PASSWORD" '{email:$email,password:$password,age20:true,terms:true,privacy:true}')
+          CODE=$(curl -sS -o /tmp/signup.json -w '%{http_code}' -X POST -H 'Origin: https://one-boat-club.jp' -H 'Content-Type: application/json' --data "$BODY" 'https://one-boat-club.jp/api/auth/signup')
+          echo "signup_code=$CODE"
+          cat /tmp/signup.json
