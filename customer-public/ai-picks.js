@@ -9,23 +9,24 @@
   function metric(key){return STATS&&STATS.ai_types?STATS.ai_types[key]||null:null}
   function metricValue(m,key){return m&&Number(m.races)>0&&Number.isFinite(Number(m[key]))?pct(m[key]):'—'}
   function oddsText(v){return Number.isFinite(Number(v))?Number(v).toFixed(1)+'倍':'データなし'}
+  function roleText(v){var x=String(v||'').toLowerCase();if(/main|本線|primary|core/.test(x))return'本線';if(/cover|押さえ|抑え|sub|secondary/.test(x))return'押さえ';return'買い目'}
   function cards(bets){
     var g=groups(bets);var first=null;for(var i=0;i<TYPES.length;i++){if(g[TYPES[i].key].length){first=TYPES[i].key;break}}
     var html='';
     TYPES.forEach(function(t){
-      var xs=g[t.key],amount=xs.reduce(function(s,x){return s+stakeOf(x)},0),m=metric(t.key);
+      var xs=g[t.key],m=metric(t.key);
       html+='<details class="ai-pick-card ai-'+t.key+'" '+(first===t.key?'open':'')+'>';
       html+='<summary><div class="ai-card-top"><div class="ai-card-title"><small>ONE BOAT AI</small><strong>'+t.name+'</strong><p>'+t.desc+'</p></div><span class="ai-range">'+t.range+'</span></div>';
-      html+='<div class="ai-card-metrics"><div><span>的中率</span><strong>'+metricValue(m,'hit_rate')+'</strong></div><div><span>回収率</span><strong>'+metricValue(m,'roi')+'</strong></div><div><span>購入点数</span><strong>'+xs.length+'点</strong></div><div><span>購入金額</span><strong>'+yen(amount)+'</strong></div></div>';
+      html+='<div class="ai-card-metrics"><div><span>的中率</span><strong>'+metricValue(m,'hit_rate')+'</strong></div><div><span>回収率</span><strong>'+metricValue(m,'roi')+'</strong></div><div><span>買い目</span><strong>'+xs.length+'点</strong></div></div>';
       html+='<div class="ai-card-toggle"><span>'+(xs.length?'買い目を見る':'今回の買い目なし')+'</span><b>開く / 閉じる</b></div></summary>';
       html+='<div class="ai-card-body">';
-      if(xs.length){html+='<div class="ai-ticket-list">';xs.forEach(function(x){html+='<div class="ai-ticket"><strong>'+esc(ticketOf(x))+'</strong><span>'+yen(stakeOf(x))+'</span><em>'+oddsText(x&&x.odds)+'</em></div>'});html+='</div>'}else{html+='<p>このオッズ帯に今回の正式買い目はありません。</p>'}
+      if(xs.length){html+='<div class="ai-ticket-list">';xs.forEach(function(x){html+='<div class="ai-ticket"><strong>'+esc(ticketOf(x))+'</strong><span class="ai-role">'+roleText(x&&x.selection_role)+'</span><em>'+oddsText(x&&x.odds)+'</em></div>'});html+='</div>'}else{html+='<p>このオッズ帯に今回の正式買い目はありません。</p>'}
       html+=(m&&Number(m.races)>0)?'<small class="ai-sample">実績集計 '+Number(m.races)+'レース</small>':'<small class="ai-sample">実績は正式データが揃った分だけ集計します。</small>';
       html+='</div></details>';
     });
     if(g.unclassified.length){
       html+='<section class="odds-pending-bets"><strong>オッズ取得中の正式買い目</strong><p>オッズが未取得のため、3タイプへ推測分類せずそのまま表示します。</p><div class="ai-ticket-list">';
-      g.unclassified.forEach(function(x){html+='<div class="ai-ticket"><strong>'+esc(ticketOf(x))+'</strong><span>'+yen(stakeOf(x))+'</span><em>オッズ データなし</em></div>'});
+      g.unclassified.forEach(function(x){html+='<div class="ai-ticket"><strong>'+esc(ticketOf(x))+'</strong><span class="ai-role">'+roleText(x&&x.selection_role)+'</span><em>オッズ データなし</em></div>'});
       html+='</div></section>';
     }
     return html;
@@ -42,10 +43,10 @@
     var stake=Number(rec.stake_total_yen!=null?rec.stake_total_yen:(p.stake_total_yen||0));
     var reason=p.reason||p.skip_reason||rec.reason||'',reasonShort=shortOfficialReason(reason),proHref=proRaceUrl(r),state=stateLabel(r.state),left=remaining(r.deadline);
     var html='<nav class="race-mode-switch" aria-label="表示モード"><span class="race-mode active">かんたん</span><a class="race-mode" data-view-mode="pro" href="'+proHref+'">PRO</a></nav>';
-    html+='<section class="easy-decision '+stateClass(r.state)+'"><small>正式判定</small><strong>'+state+'</strong><p>'+esc(reasonShort||(publicRecord(rec)?'正式ENTERが確定しました。買い目・金額・締切までの時間を確認してください。':r.note||'必要な正式データを確認しています。'))+'</p></section>';
+    html+='<section class="easy-decision '+stateClass(r.state)+'"><small>正式判定</small><strong>'+state+'</strong><p>'+esc(reasonShort||(publicRecord(rec)?'正式ENTERが確定しました。買い目・オッズ・締切までの時間を確認してください。':r.note||'必要な正式データを確認しています。'))+'</p></section>';
     if(publicRecord(rec)){
-      html+='<section class="official-ai-section"><div class="detail-label">AI予想｜正式買い目</div><div class="official-order-head"><strong>買い目と資金配分</strong><span>合計 '+yen(stake)+'</span></div><div class="ai-pick-stack">'+cards(bets)+'</div></section>';
-      html+='<section class="purchase-glance"><div><span>購入金額</span><strong>'+yen(stake)+'</strong></div><div class="deadline-cell"><span>締切まで</span><strong>'+left+'</strong><small>締切 '+timeText(r.deadline)+'</small></div></section>';
+      html+='<section class="official-ai-section"><div class="detail-label">AI予想｜正式買い目</div><div class="official-order-head"><strong>買い目</strong><span>'+bets.length+'点</span></div><div class="ai-pick-stack">'+cards(bets)+'</div></section>';
+      html+='<section class="purchase-glance"><div><span>正式買い目</span><strong>'+bets.length+'点</strong></div><div class="deadline-cell"><span>締切まで</span><strong>'+left+'</strong><small>締切 '+timeText(r.deadline)+'</small></div></section>';
       if(reason)html+='<section class="detail-block easy-reason"><div class="detail-label">判断理由</div><p>'+esc(reasonShort)+'</p></section>';
     }else{
       html+='<section class="purchase-glance no-buy"><div><span>購入</span><strong>なし</strong></div><div class="deadline-cell"><span>締切まで</span><strong>'+left+'</strong><small>締切 '+timeText(r.deadline)+'</small></div></section>';
