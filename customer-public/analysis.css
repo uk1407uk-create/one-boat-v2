@@ -214,3 +214,52 @@ body[aria-busy="true"] .analysis-tabs{opacity:.72}
   .start-boat{width:36px;height:23px}
   .original-table{grid-template-columns:75px repeat(6,minmax(48px,1fr))}
 }
+
+/* exhibition refinement: prior ONE BOAT boat + transposed original table */
+.start-row{min-height:76px}
+.start-track{height:76px;background:linear-gradient(180deg,#c8ecff,#acdff7);overflow:hidden}
+.start-track:before{top:38px;background:rgba(255,255,255,.42)}
+.start-line{left:76%;width:3px;background:#ddb524;box-shadow:0 0 0 1px rgba(255,255,255,.35)}
+.start-scale{background:linear-gradient(90deg,#d8f0fb 0 76%,#fff2f2 76% 100%)}
+.start-scale:after{width:3px;background:#ddb524}
+.start-scale b{color:#9b7417}
+.start-boat{display:none!important}
+.start-boat-shell{
+  position:absolute;left:var(--boat-x);top:50%;transform:translate(-96%,-50%);
+  width:108px;height:46px;z-index:3;filter:drop-shadow(0 3px 2px rgba(34,82,110,.22))
+}
+.start-boat-shell svg{display:block;width:108px;height:46px;overflow:visible}
+.start-boat-shell.flying{filter:drop-shadow(0 3px 2px rgba(34,82,110,.22)) drop-shadow(0 0 2px rgba(214,47,60,.28))}
+.start-st.flying{color:#d83e49;font-weight:950}
+
+.original-table-transposed{
+  display:grid;
+  grid-template-columns:58px repeat(var(--metric-count),minmax(72px,1fr));
+  min-width:max(100%,calc(58px + var(--metric-count) * 72px))
+}
+.original-table-transposed .original-corner,
+.original-table-transposed .original-metric-head,
+.original-table-transposed .original-boat-label,
+.original-table-transposed .original-value{
+  min-height:49px;display:flex;align-items:center;justify-content:center;
+  border-right:1px solid #e0e9ef;border-bottom:1px solid #e0e9ef
+}
+.original-table-transposed .original-corner{
+  position:sticky;left:0;z-index:5;background:#eaf5fb;color:#58778d;font-size:10px;font-weight:900
+}
+.original-table-transposed .original-metric-head{
+  padding:0 6px;background:#eaf5fb;color:#58778d;font-size:9px;font-weight:900;text-align:center;line-height:1.25
+}
+.origiginal-table-transposed .original-boat-label{
+  position:sticky;left:0;z-index:4;flex-direction:column;font-weight:900
+}
+.original-table-transposed .original-boat-label b{font-size:17px;line-height:1}
+.original-table-transposed .original-boat-label span{font-size:8px;margin-top:3px}
+.original-table-transposed .original-value{background:#fff;color:#234963;font-size:12px;font-weight:850}
+.original-table-transposed>*:nth-last-child(-n + var(--metric-count)){border-bottom:0}
+
+@media(max-width:360px){
+  .start-boat-shell{width:96px;height:41px}
+  .start-boat-shell svg{width:96px;height:41px}
+  .original-table-transposed{grid-template-columns:54px repeat(var(--metric-count),minmax(68px,1fr))}
+}
