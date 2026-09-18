@@ -25,7 +25,7 @@ let ODDS_FIRST=1;
 const VIEW_MODE_KEY='one_boat_view_mode';
 const yen=n=>`${Math.round(Number(n||0)).toLocaleString('ja-JP')}円`;
 function saveViewMode(mode){try{localStorage.setItem(VIEW_MODE_KEY,mode==='pro'?'pro':'easy')}catch{}}
-function stateLabel(s){return {PUBLIC:'予想公開',WATCH:'様子見',SKIP:'見送り',SETTLED:'結果確定',FINISHED:'本日終了',CLOSED:'終了',NOEVENT:'本日非開催',PENDING:'未判定'}[s]||'未判定'}
+function stateLabel(s){return {PUBLIC:'予想公開',WATCH:'様子見',SKIP:'見送り',PRIVATE:'公開対象外',SETTLED:'結果確定',FINISHED:'本日終了',CLOSED:'終了',NOEVENT:'本日非開催',PENDING:'未判定'}[s]||'未判定'}
 function publicRecord(r){const d=String(r?.decision||r?.prediction?.decision||'').toUpperCase(),stake=Number(r?.stake_total_yen??r?.prediction?.stake_total_yen??0);return d==='ENTER'&&stake>0}
 function officialBets(r){const p=r?.prediction||{};return Array.isArray(r?.bets)&&r.bets.length?r.bets:Array.isArray(p.production_picks)?p.production_picks:[]}
 function officialTicket(x){return x?.ticket||x?.combination||x?.bet||'—'}
@@ -265,7 +265,7 @@ function renderOfficialPrediction(v){
     <div class="pro-official-grid">
       <div><span>締切</span><strong>${esc(String(r.deadline||'—').match(/\d{1,2}:\d{2}/)?.[0]||'—')}</strong></div>
       <div><span>判定</span><strong>${esc(stateLabel(r.state))}</strong></div>
-      <div><span>買い目</span><strong>${publicRecord(rec)?`${bets.length}点`:'購入なし'}</strong></div>
+      <div><span>買い目</span><strong>${r.state==='PRIVATE'?'非公開':publicRecord(rec)?`${bets.length}点`:'購入なし'}</strong></div>
     </div>`;
   if(publicRecord(rec)){
     html+=`<div class="pro-official-section"><b>推奨買い目</b>${bets.length?`<div class="pro-bets pro-bets-picks">${bets.map(x=>`<div><strong>${esc(officialTicket(x))}</strong><span class="pick-role">${officialRole(x)}</span><small class="pro-final-odds">最終オッズ予想 ${officialFinalOddsRange(x,r.deadline)}</small></div>`).join('')}</div><p class="pro-odds-note">※最終オッズ予想は、予想確定時の現在オッズと締切までの残り時間から算出した参考レンジです。確定オッズではなく、投票状況により範囲外となる場合があります。表示用の参考値で、ENTER判定・買い目・公式実績を後から変更するものではありません。</p>`:'<p>買い目取得待ち</p>'}</div>`;
@@ -283,6 +283,7 @@ function renderOfficialPrediction(v){
   if(theory)html+=`<div class="pro-official-section"><b>採用理論</b><p>${esc(theory)}</p></div>`;
   if(support.length)html+=`<div class="pro-official-section"><b>支持材料</b><ul>${support.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`;
   if(opposing.length)html+=`<div class="pro-official-section caution"><b>不安材料</b><ul>${opposing.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`;
+  if(r.state==='PRIVATE')html+=`<div class="pro-official-section"><b>公開状況</b><p>このレースの正式予想は本日の無料公開対象外です。</p></div>`;
   box.innerHTML=html;
   if(r.deadline)$('#race-deadline').textContent=String(r.deadline).match(/\d{1,2}:\d{2}/)?.[0]||'—';
 }
@@ -425,7 +426,27 @@ async function load(){
   }
 }
 
+async function refreshOfficialPrediction(){
+  if(DATE!==jstDate()||document.hidden)return;
+  try{
+    const r=await fetch(`/api/public/venue?code=${encodeURIComponent(String(CODE).padStart(2,'0'))}&_=${Date.now()}`,{cache:'no-store'});
+    if(!r.ok)return;
+    const pub=await r.json();
+    renderOfficialPrediction(pub);
+  }catch{}
+}
+let OFFICIAL_TIMER=null;
+function scheduleOfficialRefresh(){
+  if(OFFICIAL_TIMER)clearTimeout(OFFICIAL_TIMER);
+  if(document.hidden)return;
+  OFFICIAL_TIMER=setTimeout(async()=>{await refreshOfficialPrediction();scheduleOfficialRefresh()},10000);
+}
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){if(OFFICIAL_TIMER)clearTimeout(OFFICIAL_TIMER);OFFICIAL_TIMER=null;return}
+  refreshOfficialPrediction().finally(scheduleOfficialRefresh);
+});
+
 setupViewMode();
 setupTabs();
 setupDisplayTabs();
-load();
+load().finally(scheduleOfficialRefresh);
