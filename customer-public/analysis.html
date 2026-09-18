@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex,follow">
 <title>レース分析｜ONE BOAT</title>
 <meta name="description" content="ONE BOAT レース分析。専用APIの正式データだけを使い、選手・展示・水面・オッズを確認して自分用のMY予想を組み立てられます。">
-<link rel="stylesheet" href="/analysis.css?v=20260918-realboat1">
+<link rel="stylesheet" href="/analysis.css?v=20260918-mode2">
 </head>
 <body aria-busy="true">
 <header class="app-header">
@@ -36,6 +36,16 @@
     <div class="separation-note"><i></i><span>MY予想は自分用。ONE BOAT公式予想・成績・回収率には反映されません。</span></div>
   </section>
 
+
+  <nav class="view-mode-switch" aria-label="表示モード">
+    <a id="easy-mode-link" class="view-mode" href="/today.html">かんたん</a>
+    <span class="view-mode active">PRO</span>
+  </nav>
+
+  <section id="pro-official" class="pro-official">
+    <div class="skeleton"></div>
+  </section>
+
   <nav class="analysis-tabs" id="analysis-tabs" aria-label="レース分析メニュー">
     <button class="analysis-tab active" type="button" data-tab="basic">基本</button>
     <button class="analysis-tab" type="button" data-tab="live">展示</button>
@@ -60,6 +70,14 @@
       </div>
       <div id="engine-summary" class="engine-summary"></div>
       <div id="engine-rankings" class="engine-rankings"></div>
+
+    <div class="subsection">
+      <div class="section-head compact">
+        <div><small>MOTOR</small><h2>モーター詳細</h2></div>
+        <span>正式値のみ</span>
+      </div>
+      <div id="motor-pro-panel" class="motor-pro-panel"></div>
+    </div>
     </div>
   </section>
 
@@ -141,6 +159,6 @@
   <a href="/club.html"><b>◎</b><span>CLUB</span></a>
 </nav>
 
-<script src="/analysis.js?v=20260918-realboat1" defer></script>
+<script src="/analysis.js?v=20260918-mode2" defer></script>
 </body>
 </html>
