@@ -218,22 +218,34 @@ function tideStateText(v){
 function renderSurface(d){
   const s=d?.surface||d?.weather||{},t=d?.tide||{};
   const tideApplicable=t?.applicable!==false;
-  const items=[
+  const weatherItems=[
     ['天気',s.weather??s.condition,''],
     ['気温',s.air_temperature??s.temperature,'℃'],
     ['水温',s.water_temperature,'℃'],
     ['風向',s.wind_direction,''],
     ['風速',s.wind_speed,'m/s'],
-    ['波高',s.wave_height,'cm'],
-    ['潮位',tideApplicable?tideLevelText(t.tide_level):'対象外',''],
-    ['潮状態',tideApplicable?tideStateText(t.current_state):'対象外',''],
-    ['満潮',tideApplicable?tideEventText(t.high_tide):'対象外',''],
-    ['干潮',tideApplicable?tideEventText(t.low_tide):'対象外','']
+    ['波高',s.wave_height,'cm']
   ];
-  const has=items.some(([,v])=>!missing(v)&&v!=='—');
-  $('#surface-grid').innerHTML=has
-    ?items.map(([label,v,suffix])=>`<div class="surface-card"><span>${label}</span><strong>${value(v,suffix)}</strong></div>`).join('')
-    :'<div class="empty-card surface-empty"><strong>水面・気象データは現在未連携です</strong><p>正式値が入るまで推測値は表示しません。</p></div>';
+  const tideItems=[
+    ['潮位',tideApplicable?tideLevelText(t.tide_level):null,''],
+    ['潮状態',tideApplicable?tideStateText(t.current_state):null,''],
+    ['満潮',tideApplicable?tideEventText(t.high_tide):null,''],
+    ['干潮',tideApplicable?tideEventText(t.low_tide):null,'']
+  ];
+  const valid=v=>!missing(v)&&v!=='—'&&v!=='対象外';
+  const cards=[];
+  weatherItems.forEach(([label,v,suffix])=>{if(valid(v))cards.push(`<div class="surface-card weather-card"><span>${label}</span><strong>${value(v,suffix)}</strong></div>`)});
+  if(tideApplicable)tideItems.forEach(([label,v,suffix])=>{if(valid(v))cards.push(`<div class="surface-card tide-card"><span>${label}</span><strong>${value(v,suffix)}</strong></div>`)});
+  const missingWeather=weatherItems.filter(([,v])=>!valid(v)).map(([label])=>label);
+  const statusBits=[];
+  if(missingWeather.length)statusBits.push(`<span class="surface-status-badge">一部未連携</span><small>${esc(missingWeather.join('・'))}</small>`);
+  if(!tideApplicable)statusBits.push('<span class="surface-status-badge neutral">潮汐対象外</span><small>淡水水面</small>');
+  const observed=String(s.observed_at||'').replace(/^(\d{2})(\d{2})$/,'$1:$2');
+  if(observed)statusBits.push(`<small class="surface-observed">気象観測 ${esc(observed)}</small>`);
+  $('#surface-grid').innerHTML=cards.length
+    ?cards.join('')+(statusBits.length?`<div class="surface-status-line">${statusBits.join('')}</div>`:'')
+    :'<div class="surface-empty-premium"><span>DATA STATUS</span><strong>正式データ待ち</strong><p>取得できた正式値だけを表示します。</p></div>';
+
   const status=d?.source_status?.tide;
   const station=t?.reference_station?.name;
   if(status==='available'){
@@ -311,7 +323,7 @@ function renderMotorDetails(d){
       const wins=!missing(m.champion_count)?String(m.champion_count):'—';
       return `<div class="motor-row">
         <div class="motor-lane">${laneBadge(r.lane)}</div>
-        <div class="motor-id"><strong>${missing(m.number)?'—':`#${m.number}`}</strong></div>
+        <div class="motor-id"><small>MOTOR</small><strong>${missing(m.number)?'—':`#${m.number}`}</strong></div>
         <div class="motor-rate"><span>2連率</span><strong>${pct(m.top2_rate)}</strong></div>
         <div class="motor-rate"><span>3連率</span><strong>${pct(m.top3_rate)}</strong></div>
         <div class="motor-meta" aria-label="モーター詳細">
