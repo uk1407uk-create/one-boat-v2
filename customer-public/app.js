@@ -30,12 +30,75 @@ function showRaceSheet(){openBackdrop();$('#venue-sheet').hidden=true;$('#race-s
 
 async function openVenue(code){showVenueSheet();$('#venue-sheet-title').textContent='読み込み中';$('#venue-sheet-state').textContent='--';$('#venue-sheet-meta').innerHTML='';$('#venue-races').innerHTML='<div class="sheet-loading">1R〜12Rを確認しています</div>';try{const r=await fetch(`/api/public/venue?code=${encodeURIComponent(code)}`,{cache:'no-store'});if(!r.ok)throw Error('venue');const v=await r.json();CURRENT_VENUE=v;$('#venue-sheet-title').textContent=v.name||VENUES[Number(code)-1]||'場詳細';$('#venue-sheet-state').className=`sheet-state ${stateClass(v.state)}`;$('#venue-sheet-state').textContent=stateLabel(v.state);$('#venue-sheet-meta').innerHTML=`<div><span>開催状況</span><strong>${v.state==='NOEVENT'?'本日非開催':v.state==='FINISHED'?'本日終了':'開催中'}</strong></div><div><span>公開予想</span><strong>${Number(v.public_count||0)}R</strong></div><div><span>更新</span><strong>自動</strong></div>`;$('#venue-races').innerHTML=(v.races||[]).map(raceRow).join('')||'<div class="sheet-loading">本日は開催がありません</div>';document.querySelectorAll('.race-row').forEach(b=>b.addEventListener('click',()=>openRace(Number(b.dataset.rno))))}catch(e){$('#venue-sheet-title').textContent=VENUES[Number(code)-1]||'場詳細';$('#venue-sheet-state').textContent='更新待ち';$('#venue-races').innerHTML='<div class="sheet-loading">データを再取得しています</div>'}}
 function raceRow(r){const cls=stateClass(r.state),deadline=r.deadline?timeText(r.deadline):'--:--',right=r.state==='NOEVENT'?'—':deadline;return `<button class="race-row ${cls}" type="button" data-rno="${Number(r.race_no)}"><span class="race-no">${Number(r.race_no)}R</span><span class="race-row-main"><strong>${stateLabel(r.state)}</strong><small>${r.state==='PUBLIC'?`投資 ${yen(r.record?.stake_total_yen||r.record?.prediction?.stake_total_yen)}`:r.state==='SETTLED'?(r.record?.settlement?.hit?'的中結果あり':'結果確定'):r.note||''}</small></span><span class="race-time">${right}<b>›</b></span></button>`}
-function openRace(rno){const r=(CURRENT_VENUE?.races||[]).find(x=>Number(x.race_no)===Number(rno));if(!r)return;showRaceSheet();$('#race-sheet-title').textContent=`${CURRENT_VENUE.name} ${rno}R`;$('#race-sheet-state').className=`sheet-state ${stateClass(r.state)}`;$('#race-sheet-state').textContent=stateLabel(r.state);$('#race-detail').innerHTML=raceDetail(r)}
-function raceDetail(r){const rec=r.record||{},p=rec.prediction||{},sett=rec.settlement||null,bets=betsOf(rec),stake=Number(rec.stake_total_yen??p.stake_total_yen??0),reason=p.reason||p.skip_reason||rec.reason||'',theory=p.selected_theory||p.current_theory||p.strategy||'';let html=`<div class="detail-summary"><div><span>締切</span><strong>${timeText(r.deadline)}</strong></div><div><span>判定</span><strong>${stateLabel(r.state)}</strong></div><div><span>投資</span><strong>${publicRecord(rec)?yen(stake):'購入なし'}</strong></div></div>`;
-if(publicRecord(rec)){html+=`<section class="detail-block"><div class="detail-label">推奨買い目</div>${bets.length?`<div class="bet-list">${bets.map(x=>`<div><strong>${esc(ticketOf(x))}</strong><span>${yen(stakeOf(x))}</span></div>`).join('')}</div>`:'<p>買い目を取得中です。</p>'}</section>`;if(theory)html+=`<section class="detail-block"><div class="detail-label">分析</div><p>${esc(theory)}</p></section>`;if(reason)html+=`<section class="detail-block"><div class="detail-label">予想理由</div><p>${esc(reason)}</p></section>`}else{html+=`<section class="detail-block decision-message"><div class="detail-label">ONE BOATの判断</div><h3>${stateLabel(r.state)}</h3><p>${esc(reason||r.note||'条件が整うまで公開予想には含めません。')}</p></section>`}
-if(sett){const tri=sett?.result?.trifecta||sett?.trifecta||'--',profit=Number(sett.profit_yen||0);html+=`<section class="detail-block result-block ${sett.hit?'hit':'miss'}"><div class="detail-label">RESULT</div><h3>${sett.hit?'的中':'不的中'}　3連単 ${esc(tri)}</h3><div class="result-grid"><div><span>投資</span><strong>${yen(stake)}</strong></div><div><span>払戻</span><strong>${yen(sett.payout_yen)}</strong></div><div><span>収支</span><strong class="${profit>=0?'positive':'negative'}">${profit>0?'+':''}${yen(profit)}</strong></div></div></section>`}
-const code=String(CURRENT_VENUE?.code||'').padStart(2,'0');html+=`<section class="detail-block" style="border:1.5px solid #bcd9ea;background:#f6fbff"><div class="detail-label">SELF ANALYSIS</div><h3 style="margin:5px 0 6px">自分でもレースを分析する</h3><p>選手・展示・スタート・水面を確認して、公式予想とは別にMY予想を組み立てられます。</p><a href="/analysis.html?code=${encodeURIComponent(code)}&race=${Number(r.race_no)}" style="min-height:44px;margin-top:10px;border-radius:8px;background:#087bd5;color:#fff;text-decoration:none;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900">レース分析を開く　›</a></section>`;
-return html}
+const VIEW_MODE_KEY='one_boat_view_mode';
+function savedViewMode(){try{return localStorage.getItem(VIEW_MODE_KEY)==='pro'?'pro':'easy'}catch{return'easy'}}
+function saveViewMode(mode){try{localStorage.setItem(VIEW_MODE_KEY,mode==='pro'?'pro':'easy')}catch{}}
+function raceDateForView(){return String(CURRENT_VENUE?.date||new Date(Date.now()+32400000).toISOString().slice(0,10)).slice(0,10)}
+function proRaceUrl(r){
+  const code=Number(CURRENT_VENUE?.code||0);
+  const q=new URLSearchParams({date:raceDateForView(),venue:String(code),race:String(Number(r.race_no)),mode:'pro'});
+  return `/analysis.html?${q.toString()}`;
+}
+function shortOfficialReason(v,max=118){
+  const x=String(v||'').replace(/\s+/g,' ').trim();
+  return x.length>max?`${x.slice(0,max)}…`:x;
+}
+function openRace(rno){
+  const r=(CURRENT_VENUE?.races||[]).find(x=>Number(x.race_no)===Number(rno));
+  if(!r)return;
+  if(savedViewMode()==='pro'){
+    location.href=proRaceUrl(r);
+    return;
+  }
+  showRaceSheet();
+  $('#race-sheet-title').textContent=`${CURRENT_VENUE.name} ${rno}R`;
+  $('#race-sheet-state').className=`sheet-state ${stateClass(r.state)}`;
+  $('#race-sheet-state').textContent=stateLabel(r.state);
+  $('#race-detail').innerHTML=raceDetail(r);
+  document.querySelectorAll('[data-view-mode="pro"]').forEach(a=>a.addEventListener('click',()=>saveViewMode('pro')));
+}
+function raceDetail(r){
+  const rec=r.record||{},p=rec.prediction||{},sett=rec.settlement||null,bets=betsOf(rec);
+  const stake=Number(rec.stake_total_yen??p.stake_total_yen??0);
+  const reason=p.reason||p.skip_reason||rec.reason||'';
+  const reasonShort=shortOfficialReason(reason);
+  const proHref=proRaceUrl(r);
+  const state=stateLabel(r.state);
+  let html=`<nav class="race-mode-switch" aria-label="表示モード">
+    <span class="race-mode active">かんたん</span>
+    <a class="race-mode" data-view-mode="pro" href="${proHref}">PRO</a>
+  </nav>
+  <section class="easy-decision ${stateClass(r.state)}">
+    <small>ひと目で確認</small>
+    <strong>${state}</strong>
+    <p>${esc(reasonShort||(publicRecord(rec)?'正式予想が公開されています。買い目と金額を確認してください。':r.note||'正式判定を表示しています。'))}</p>
+  </section>
+  <div class="detail-summary">
+    <div><span>締切</span><strong>${timeText(r.deadline)}</strong></div>
+    <div><span>判定</span><strong>${state}</strong></div>
+    <div><span>投資</span><strong>${publicRecord(rec)?yen(stake):'購入なし'}</strong></div>
+  </div>`;
+
+  if(publicRecord(rec)){
+    html+=`<section class="detail-block easy-bets">
+      <div class="detail-label">これだけ見ればOK｜推奨買い目</div>
+      ${bets.length?`<div class="bet-list">${bets.map(x=>`<div><strong>${esc(ticketOf(x))}</strong><span>${yen(stakeOf(x))}</span></div>`).join('')}</div>`:'<p>買い目を取得中です。</p>'}
+    </section>`;
+    if(reason)html+=`<section class="detail-block easy-reason"><div class="detail-label">ひとこと理由</div><p>${esc(reasonShort)}</p></section>`;
+  }else{
+    html+=`<section class="detail-block decision-message"><div class="detail-label">ONE BOATの判断</div><h3>${state}</h3><p>${esc(reasonShort||r.note||'条件が整うまで公開予想には含めません。')}</p></section>`;
+  }
+
+  html+=`<a class="pro-jump" data-view-mode="pro" href="${proHref}">
+    <span><small>PRO MODE</small><strong>詳しい根拠・展示・モーター・オッズを見る</strong></span><b>›</b>
+  </a>`;
+
+  if(sett){
+    const tri=sett?.result?.trifecta||sett?.trifecta||'--',profit=Number(sett.profit_yen||0);
+    html+=`<section class="detail-block result-block ${sett.hit?'hit':'miss'}"><div class="detail-label">RESULT</div><h3>${sett.hit?'的中':'不的中'}　3連単 ${esc(tri)}</h3><div class="result-grid"><div><span>投資</span><strong>${yen(stake)}</strong></div><div><span>払戻</span><strong>${yen(sett.payout_yen)}</strong></div><div><span>収支</span><strong class="${profit>=0?'positive':'negative'}">${profit>0?'+':''}${yen(profit)}</strong></div></div></section>`;
+  }
+  return html;
+}
 
 async function load(){try{const [o,s]=await Promise.all([fetch('/api/public/overview',{cache:'no-store'}).then(r=>r.ok?r.json():Promise.reject()),fetch('/api/public/stats',{cache:'no-store'}).then(r=>r.ok?r.json():Promise.reject())]);STATS=s;renderMetrics('today');$('#today-date').textContent=formatJpDate(o.date);$('#today-count').textContent=`開催 ${o.active_count||0}場`;$('#public-count').textContent=`公開 ${o.public_count||0}R`;renderVenues(o.venues||[]);renderFreeStrip(o);const items=o.public_items||[];$('#today-list').innerHTML=items.length?items.map(publicRaceCard).join(''):'<div class="race-card"><div class="race-main"><strong>現在、公開対象なし</strong><small>対象レースが確定すると自動表示します</small></div></div>';document.querySelectorAll('.race-card-button').forEach(b=>b.addEventListener('click',async()=>{await openVenue(b.dataset.vcode);openRace(Number(b.dataset.rno))}));$('#result-list').innerHTML=(s.latest||[]).slice(0,8).map(resultCard).join('')||'<div class="race-card"><div class="race-main"><strong>集計中</strong><small>公開レースの結果が反映されると表示します</small></div></div>';if(!AUTO_OPENED){const q=new URLSearchParams(location.search),vc=q.get('venue'),rn=Number(q.get('race'));if(vc&&rn>=1&&rn<=12){AUTO_OPENED=true;await openVenue(vc);openRace(rn)}}}catch(e){$('#today-count').textContent='更新待ち';$('#public-count').textContent='--';renderVenues(VENUES.map((name,i)=>({name,code:i+1,state:'PENDING'})));$('#free-strip-list').innerHTML='<span class="free-chip">データ更新中</span>';$('#today-list').innerHTML='<div class="race-card"><div class="race-main"><strong>データ更新中</strong><small>少し時間をおいて再読み込みしてください</small></div></div>';$('#result-list').innerHTML='<div class="race-card"><div class="race-main"><strong>結果を取得中</strong><small>自動で更新されます</small></div></div>'}}
 
