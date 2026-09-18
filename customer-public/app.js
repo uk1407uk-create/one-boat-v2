@@ -34,13 +34,27 @@ function trafficAttribution(){
   }catch{return{source:'direct',campaign:'none',content:'none'}}
 }
 function trafficDay(){return new Date(Date.now()+32400000).toISOString().slice(0,10)}
-function trackLite(event,contentOverride){
+const TRAFFIC_PENDING_KEYS=new Set();
+async function trackLite(event,contentOverride){
   try{
     const a=trafficAttribution(),content=contentOverride||a.content||'none',path=location.pathname||'/';
     const key=`obtl:${trafficDay()}:${event}:${a.source}:${a.campaign}:${content}:${path}`;
-    if(localStorage.getItem(key))return;
-    localStorage.setItem(key,'1');
-    fetch(TRAFFIC_LITE_URL,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({event,source:a.source,campaign:a.campaign,content,path}),keepalive:true,cache:'no-store'}).catch(()=>{});
+    if(localStorage.getItem(key)||TRAFFIC_PENDING_KEYS.has(key))return;
+    TRAFFIC_PENDING_KEYS.add(key);
+    try{
+      const r=await fetch(TRAFFIC_LITE_URL,{
+        method:'POST',
+        headers:{'content-type':'application/json'},
+        body:JSON.stringify({event,source:a.source,campaign:a.campaign,content,path}),
+        keepalive:true,
+        cache:'no-store'
+      });
+      if(!r.ok)return;
+      const d=await r.json().catch(()=>null);
+      if(d?.ok===true)localStorage.setItem(key,'1');
+    }finally{
+      TRAFFIC_PENDING_KEYS.delete(key);
+    }
   }catch{}
 }
 function raceKeyForView(rno){
