@@ -488,6 +488,260 @@ html.pro-mode .sheet-loading{color:#7898ac}
   .page-mode-button{min-height:45px}
 }
 
+
+/* PRO LUXE MONOCHROME — black / white / charcoal / silver */
+html.pro-mode{background:#090909;color-scheme:dark}
+html.pro-mode body{
+  color:#f4f4f2;
+  background:
+    linear-gradient(180deg,#0b0b0c 0%,#111214 48%,#09090a 100%);
+}
+html.pro-mode .top-header{
+  background:linear-gradient(180deg,#090909,#111214);
+  border-bottom:1px solid #2b2c2f;
+  box-shadow:0 5px 20px rgba(0,0,0,.48);
+}
+html.pro-mode .top-logo{color:#fff}
+html.pro-mode .top-logo .accent{color:#c8c8c8}
+html.pro-mode .top-club{
+  border-color:#5b5d61;
+  background:#151618;
+  color:#f4f4f4;
+}
+html.pro-mode .top-menu-button span{background:#f5f5f5}
+html.pro-mode .quick-nav{
+  background:#0e0f10;
+  border-bottom-color:#292a2d;
+}
+html.pro-mode .quick-nav a{
+  color:#777a7e;
+  border-right-color:#202124;
+}
+html.pro-mode .quick-nav a strong{color:#b8b9bc}
+html.pro-mode .quick-nav a.active{
+  background:#17181a;
+  box-shadow:inset 0 -2px 0 #f2f2f2;
+}
+html.pro-mode .quick-nav a.active strong{color:#fff}
+
+html.pro-mode .page-mode-shell{background:#0c0c0d}
+html.pro-mode .page-mode-switch{
+  border:1px solid #323338;
+  background:#111214;
+  box-shadow:0 8px 24px rgba(0,0,0,.32);
+}
+html.pro-mode .page-mode-button{color:#898b8f}
+html.pro-mode #page-mode-pro{
+  background:linear-gradient(180deg,#f7f7f5,#e8e8e6);
+  color:#0b0b0c;
+  box-shadow:0 3px 10px rgba(255,255,255,.07);
+}
+html.pro-mode #page-mode-pro span{
+  color:#0b0b0c;
+  text-shadow:none;
+}
+html.pro-mode #page-mode-pro small{color:#55575a}
+html.pro-mode .pro-underground-label{display:flex;color:#8f9195}
+html.pro-mode .pro-underground-label i{background:#66686b}
+
+html.pro-mode .today-intro{
+  background:#0c0c0d;
+  border-bottom-color:#252629;
+}
+html.pro-mode .today-intro .eyebrow{color:#a9aaad}
+html.pro-mode .today-intro h1{color:#fafafa}
+html.pro-mode .today-intro h1 .blue{color:#d3d3d3}
+html.pro-mode .today-intro p{color:#929397}
+
+html.pro-mode .today-summary,
+html.pro-mode .date-row{
+  background:#151618!important;
+  border-color:#323338!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.22)!important;
+}
+html.pro-mode .free-strip-title,
+html.pro-mode .date-row small{color:#bfc0c3!important}
+html.pro-mode .free-chip{
+  color:#dedede!important;
+  background:#1a1b1d!important;
+  border-color:#3b3c40!important;
+}
+html.pro-mode .date-row strong{color:#fff!important}
+html.pro-mode .date-nav{color:#7e8084!important}
+
+html.pro-mode .section-title-row{
+  background:linear-gradient(180deg,#161719,#111214)!important;
+  border-top:1px solid #35363a;
+  border-bottom:1px solid #292a2d;
+}
+html.pro-mode .section-title-row small{color:#999b9f!important}
+html.pro-mode .section-title-row h2{color:#fff!important}
+html.pro-mode .count-label{
+  background:#f0f0ee!important;
+  color:#111214!important;
+  border:0!important;
+}
+html.pro-mode .lead{color:#929499!important}
+
+html.pro-mode .venue-legend{color:#9b9da1!important}
+html.pro-mode .venue-legend span{
+  background:#151618!important;
+  border-color:#35363a!important;
+  color:#bdbec1!important;
+  box-shadow:none!important;
+}
+html.pro-mode .venue-tile{
+  background:#141517!important;
+  border-color:#35373b!important;
+  box-shadow:0 5px 16px rgba(0,0,0,.24)!important;
+}
+html.pro-mode .venue-name{
+  background:#191a1c!important;
+  color:#f3f3f3!important;
+  border-bottom-color:#303236!important;
+}
+html.pro-mode .venue-meta{
+  background:#111214!important;
+  color:#bbbcc0!important;
+}
+html.pro-mode .venue-meta strong{
+  color:#fff!important;
+  border-right-color:#303236!important;
+}
+html.pro-mode .venue-meta em{color:#8f9195!important}
+
+/* State colors remain muted for instant readability */
+html.pro-mode .venue-tile.live{border-color:#76787d!important}
+html.pro-mode .venue-tile.live .venue-name{background:#1c1d1f!important}
+html.pro-mode .venue-tile.live .venue-strip{background:#e8e8e6!important;color:#111214!important}
+html.pro-mode .venue-tile.watch{border-color:#6a6251!important}
+html.pro-mode .venue-tile.watch .venue-name{background:#1b1915!important}
+html.pro-mode .venue-tile.watch .venue-strip{background:#81755d!important;color:#fff!important}
+html.pro-mode .venue-tile.skip{border-color:#654e52!important}
+html.pro-mode .venue-tile.skip .venue-name{background:#1c1718!important}
+html.pro-mode .venue-tile.skip .venue-strip{background:#74565b!important}
+html.pro-mode .venue-tile.settled{border-color:#4f625b!important}
+html.pro-mode .venue-tile.settled .venue-name{background:#161b19!important}
+html.pro-mode .venue-tile.settled .venue-strip{background:#566b63!important}
+html.pro-mode .venue-tile.idle{
+  opacity:.48!important;
+  background:#111214!important;
+  border-color:#2d2e31!important;
+}
+html.pro-mode .venue-tile.idle .venue-name,
+html.pro-mode .venue-tile.idle .venue-meta{background:#111214!important}
+
+html.pro-mode .race-card,
+html.pro-mode .result-card{
+  background:#151618!important;
+  border-color:#34363a!important;
+  box-shadow:0 5px 16px rgba(0,0,0,.22)!important;
+}
+html.pro-mode .race-card strong,
+html.pro-mode .result-card strong{color:#f6f6f4!important}
+html.pro-mode .race-card small,
+html.pro-mode .result-card small{color:#8f9195!important}
+
+html.pro-mode .performance-section{
+  background:#141517!important;
+  border-color:#34363a!important;
+  color:#f4f4f2!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.24)!important;
+}
+html.pro-mode .performance-section .lead{color:#8f9195!important}
+html.pro-mode .performance-section .period-tabs{
+  background:#0d0e0f!important;
+  border-color:#303236!important;
+}
+html.pro-mode .performance-section .period{color:#888a8e!important}
+html.pro-mode .performance-section .period.active{
+  background:#f1f1ef!important;
+  color:#111214!important;
+  box-shadow:none!important;
+}
+html.pro-mode .performance-section .stats-table{
+  background:#17181a!important;
+  border-color:#34363a!important;
+}
+html.pro-mode .performance-section .stats-table>div{border-color:#292a2d!important}
+html.pro-mode .performance-section .stats-table span,
+html.pro-mode .performance-section .stats-table small{color:#8f9195!important}
+html.pro-mode .performance-section .stats-table strong{color:#fff!important}
+
+html.pro-mode .club-panel{
+  background:linear-gradient(180deg,#17181a,#111214)!important;
+  border-color:#383a3e!important;
+  color:#f7f7f5!important;
+}
+html.pro-mode .club-panel-inner>span{color:#aaa!important}
+html.pro-mode .club-panel-inner h2{color:#fff!important}
+html.pro-mode .club-panel-inner p{color:#929499!important}
+html.pro-mode .club-button{
+  background:#f3f3f1!important;
+  color:#111214!important;
+}
+html.pro-mode footer{
+  background:#090909!important;
+  border-top-color:#242528!important;
+  color:#6e7074!important;
+}
+html.pro-mode footer strong{color:#b7b8bb!important}
+
+html.pro-mode .bottom-app-nav{
+  background:rgba(11,11,12,.985);
+  border-top-color:#2a2b2e;
+  box-shadow:0 -7px 24px rgba(0,0,0,.34);
+}
+html.pro-mode .bottom-app-nav a{color:#6f7175}
+html.pro-mode .bottom-app-nav a b{color:#85878b}
+html.pro-mode .bottom-app-nav a.active,
+html.pro-mode .bottom-app-nav a.active b{color:#fff}
+
+html.pro-mode .top-menu-panel{
+  background:#151618;
+  border-color:#36383b;
+  box-shadow:0 18px 42px rgba(0,0,0,.48);
+}
+html.pro-mode .top-menu-panel a{color:#e7e7e7}
+html.pro-mode .top-menu-panel a:active{background:#202124}
+
+/* PRO sheets */
+html.pro-mode .sheet-backdrop{background:rgba(0,0,0,.76)}
+html.pro-mode .bottom-sheet{
+  background:linear-gradient(180deg,#18191b,#0f1011);
+  box-shadow:0 -18px 50px rgba(0,0,0,.58);
+}
+html.pro-mode .sheet-handle{background:#4b4d51}
+html.pro-mode .sheet-head{background:rgba(24,25,27,.96)}
+html.pro-mode .sheet-head small{color:#a7a8ab}
+html.pro-mode .sheet-head h2{color:#fff}
+html.pro-mode .sheet-back{
+  background:#111214;
+  border-color:#45474c;
+  color:#fff;
+}
+html.pro-mode .sheet-state{background:#252629;color:#c7c8cb}
+html.pro-mode .venue-sheet-meta div{
+  background:#151618;
+  border-color:#34363a;
+}
+html.pro-mode .venue-sheet-meta span{color:#85878b}
+html.pro-mode .venue-sheet-meta strong{color:#f3f3f3}
+html.pro-mode .race-row{
+  background:#151618;
+  border-color:#34363a;
+}
+html.pro-mode .race-no{background:#202124;color:#f0f0f0}
+html.pro-mode .race-row-main strong{color:#f7f7f5}
+html.pro-mode .race-row-main small{color:#85878b}
+html.pro-mode .race-time{color:#b4b5b8}
+html.pro-mode .race-time b{color:#d9d9d9}
+html.pro-mode .race-row.live{border-color:#74767b;box-shadow:none}
+html.pro-mode .race-row.live .race-no{background:#f0f0ee;color:#111214}
+html.pro-mode .race-row.watch{border-color:#665e4f}
+html.pro-mode .race-row.settled .race-no{background:#53645d;color:#fff}
+html.pro-mode .sheet-loading{color:#8d8f93}
+
 </style>
 </head>
 <body>
@@ -527,7 +781,7 @@ html.pro-mode .sheet-loading{color:#7898ac}
 <section id="race-sheet" class="bottom-sheet race-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="race-sheet-title"><div class="sheet-handle"></div><div class="sheet-head"><button id="race-back" class="sheet-back" type="button">‹</button><div><small>RACE DETAIL</small><h2 id="race-sheet-title">レース詳細</h2></div><span id="race-sheet-state" class="sheet-state">--</span></div><div id="race-detail" class="race-detail"></div></section>
 <nav class="bottom-app-nav" aria-label="下部ナビゲーション"><a href="/"><b>⌂</b><span>ホーム</span></a><a href="/today.html" class="active"><b>▦</b><span>本日の予想</span></a><a href="#performance"><b>↗</b><span>実績</span></a><a href="/club.html"><b>◎</b><span>CLUB</span></a></nav>
 <footer><strong>ONE BOAT</strong><span>BOAT RACE ANALYTICS</span><small>© ONE BOAT</small></footer>
-<script src="/app.js?v=20260918-pagepro1" defer></script>
+<script src="/app.js?v=20260918-pagepro2" defer></script>
 <script>const mb=document.getElementById('topMenuButton'),mp=document.getElementById('topMenuPanel');function closeTopMenu(){mp.classList.remove('open');mb.setAttribute('aria-expanded','false')}mb.addEventListener('click',e=>{e.stopPropagation();const open=mp.classList.toggle('open');mb.setAttribute('aria-expanded',String(open))});document.addEventListener('click',e=>{if(!mp.contains(e.target)&&!mb.contains(e.target))closeTopMenu()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTopMenu()});</script>
 </body>
 </html>
