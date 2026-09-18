@@ -1124,6 +1124,71 @@ html.pro-mode .count-label,
 html.pro-mode .club-button{
   border:1px solid var(--pro-gold-bright)!important;
 }
+
+/* 2026-09-18 Live Results + payout-band performance */
+.band-performance{margin-top:15px;padding-top:14px;border-top:1px solid #e6ebef}
+.band-performance-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:9px}
+.band-performance-head>div small{display:block;font-size:7.5px;font-weight:950;letter-spacing:.16em;color:#6d9fbe}
+.band-performance-head>div strong{display:block;margin-top:3px;font-size:15px;letter-spacing:-.02em;color:#0b355b}
+.band-performance-head>small{max-width:150px;text-align:right;font-size:7.5px;line-height:1.45;color:#8798a5}
+.band-list{display:grid;gap:8px}
+.band-card{display:grid;grid-template-columns:minmax(92px,.85fr) 1.7fr;align-items:center;gap:10px;padding:11px 12px;border:1px solid #e1e7ec;border-radius:11px;background:#fafcfd}
+.band-name strong{display:block;font-size:12.5px;color:#123c60}
+.band-name span{display:block;margin-top:3px;font-size:8px;font-weight:800;color:#8092a0}
+.band-name em{display:inline-block;margin-top:6px;padding:2px 5px;border-radius:4px;background:#eef3f6;color:#788b99;font-size:7px;font-style:normal;font-weight:900}
+.band-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.band-metrics div{min-width:0}
+.band-metrics span{display:block;font-size:7px;font-weight:850;color:#8999a6;white-space:nowrap}
+.band-metrics strong{display:block;margin-top:2px;font-size:13px;color:#0a355d;font-variant-numeric:tabular-nums;white-space:nowrap}
+.band-average{grid-column:1/-1;margin-top:5px;padding-top:6px;border-top:1px solid #edf1f4;font-size:7.5px;color:#82939f}
+.live-results-section .section-title-row{margin-bottom:4px!important}
+.live-results-section .auto-label{display:inline-flex;align-items:center;gap:5px;background:transparent!important;border:0!important;color:#738999!important;font-size:8px!important}
+.live-results-section .auto-label:before{content:"";width:6px;height:6px;border-radius:50%;background:#1a9d70}
+.live-result-card{display:block!important;padding:13px 14px!important;border-radius:12px!important}
+.live-result-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.live-result-head strong{font-size:13px;letter-spacing:-.01em}
+.result-status{display:inline-flex;align-items:center;justify-content:center;min-width:48px;padding:4px 7px;border-radius:999px;font-size:7.5px;font-weight:950;letter-spacing:.04em}
+.result-status.hit{background:#eaf7f1;color:#247a5d}
+.result-status.miss{background:#f2f4f6;color:#7d8992}
+.live-result-outcome{display:flex;align-items:baseline;gap:8px;margin-top:9px}
+.live-result-outcome span{font-size:8px;font-weight:850;color:#7c8e9b}
+.live-result-outcome strong{font-size:18px;color:#0a355d;letter-spacing:.01em}
+.live-result-outcome em{font-size:9px;font-style:normal;font-weight:850;color:#4b7895}
+.result-money-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-top:10px}
+.result-money-grid div{padding:8px 9px;border-radius:8px;background:#f5f8fa}
+.result-money-grid span{display:block;font-size:7px;font-weight:850;color:#8596a2}
+.result-money-grid strong{display:block;margin-top:2px;font-size:11px;color:#193f5e;font-variant-numeric:tabular-nums}
+.result-money-grid strong.positive{color:#177555!important}
+.result-money-grid strong.negative{color:#b7545e!important}
+.bottom-nav-chart-icon{width:19px;height:19px;display:block}
+html.pro-mode .band-performance{border-top-color:#193444}
+html.pro-mode .band-performance-head>div small{color:#c2a75e}
+html.pro-mode .band-performance-head>div strong{color:#eefaff}
+html.pro-mode .band-performance-head>small{color:#6f8796}
+html.pro-mode .band-card{background:#08131d;border-color:#17384c}
+html.pro-mode .band-name strong{color:#e9f8ff}
+html.pro-mode .band-name span{color:#728b9c}
+html.pro-mode .band-name em{background:#111d25;color:#9a8760}
+html.pro-mode .band-metrics span{color:#718899}
+html.pro-mode .band-metrics strong{color:#e7f8ff}
+html.pro-mode .band-average{border-top-color:#163040;color:#718899}
+html.pro-mode .result-status.hit{background:#11271f;color:#77c7a7}
+html.pro-mode .result-status.miss{background:#171d22;color:#8494a0}
+html.pro-mode .live-result-outcome span{color:#758c9c}
+html.pro-mode .live-result-outcome strong{color:#eefaff}
+html.pro-mode .live-result-outcome em{color:#9db7c7}
+html.pro-mode .result-money-grid div{background:#0b1a26}
+html.pro-mode .result-money-grid span{color:#708899}
+html.pro-mode .result-money-grid strong{color:#dff4ff}
+html:not(.pro-mode) #results{order:4}
+html:not(.pro-mode) .performance-section{order:5}
+html:not(.pro-mode) .club-panel{order:6}
+@media(max-width:380px){
+  .band-card{grid-template-columns:86px 1fr;padding:10px}
+  .band-metrics strong{font-size:12px}
+  .live-result-card{padding:12px!important}
+}
+
 </style>
 </head>
 <body>
@@ -1155,16 +1220,16 @@ html.pro-mode .club-button{
     <p class="lead public-lead">正式ENTERのみ公開</p>
     <div id="today-list" class="race-list"><div class="skeleton"></div><div class="skeleton"></div></div>
   </section>
-  <section class="page-section performance-section" id="performance"><div class="section-title-row"><div><small>FREE PUBLIC PERFORMANCE</small><h2>無料公開実績</h2></div><span class="auto-label">自動更新</span></div><p class="lead">無料公開した正式予想だけを集計します。非公開のENTER、見送り、様子見、投資0円は含めません。</p><div class="period-tabs" role="tablist"><button class="period active" data-period="today">今日</button><button class="period" data-period="days7">7日</button><button class="period" data-period="days30">30日</button><button class="period" data-period="all">累計</button></div><div class="stats-table"><div><span>回収率</span><strong id="m-roi">--</strong></div><div><span>的中率</span><strong id="m-hit">--</strong></div><div><span>収支</span><strong id="m-profit">--</strong><small id="m-races">集計中</small></div></div></section>
-  <section class="page-section" id="results"><div class="section-title-row"><div><small>FREE PUBLIC RESULTS</small><h2>直近の無料公開結果</h2></div></div><div id="result-list" class="result-list"><div class="skeleton"></div></div><p class="transparency">無料公開したレースは、的中・不的中を区別せずそのまま残します。</p></section>
+  <section class="page-section live-results-section" id="results"><div class="section-title-row"><div><small>LIVE RESULTS</small><h2>最新結果</h2></div><span class="auto-label">自動更新</span></div><div id="result-list" class="result-list"><div class="skeleton"></div></div><p class="transparency">的中だけを選ばず、無料公開したレースを結果順にそのまま表示します。</p></section>
+  <section class="page-section performance-section" id="performance"><div class="section-title-row"><div><small>FREE PUBLIC PERFORMANCE</small><h2>無料公開実績</h2></div><span class="auto-label">自動集計</span></div><p class="lead">無料公開した正式ENTERのみ集計。非公開・見送り・様子見・投資0円は含めません。</p><div class="period-tabs" role="tablist"><button class="period active" data-period="today">今日</button><button class="period" data-period="days7">7日</button><button class="period" data-period="days30">30日</button><button class="period" data-period="all">累計</button></div><div class="stats-table"><div><span>回収率</span><strong id="m-roi">--</strong></div><div><span>的中率</span><strong id="m-hit">--</strong></div><div><span>収支</span><strong id="m-profit">--</strong><small id="m-races">集計中</small></div></div><div class="band-performance"><div class="band-performance-head"><div><small>PERFORMANCE BY ODDS</small><strong>配当帯別パフォーマンス</strong></div><small>予想確定時の主配分オッズで1レース1分類</small></div><div id="band-performance" class="band-list"><div class="skeleton"></div></div></div></section>
   <section class="club-panel" id="club"><div class="club-panel-inner"><span>ACCOUNT & PLAN</span><h2>料金・会員情報</h2><p>無料会員・1日PASS・月額CLUBの料金、有効期間、自動更新の有無を確認できます。</p><a class="club-button" href="/club.html">料金・プランを確認</a></div></section>
 </main>
 <div id="sheet-backdrop" class="sheet-backdrop" hidden></div>
 <section id="venue-sheet" class="bottom-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="venue-sheet-title"><div class="sheet-handle"></div><div class="sheet-head"><button id="venue-close" class="sheet-back" type="button">×</button><div><small>BOAT RACE</small><h2 id="venue-sheet-title">場詳細</h2></div><span id="venue-sheet-state" class="sheet-state">--</span></div><div id="venue-sheet-meta" class="venue-sheet-meta"></div><div id="venue-races" class="venue-races"></div></section>
 <section id="race-sheet" class="bottom-sheet race-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="race-sheet-title"><div class="sheet-handle"></div><div class="sheet-head"><button id="race-back" class="sheet-back" type="button">‹</button><div><small>RACE DETAIL</small><h2 id="race-sheet-title">レース詳細</h2></div><span id="race-sheet-state" class="sheet-state">--</span></div><div id="race-detail" class="race-detail"></div></section>
-<nav class="bottom-app-nav" aria-label="下部ナビゲーション"><a href="/"><b>⌂</b><span>ホーム</span></a><a href="/today.html" class="active"><b>▦</b><span>本日の予想</span></a><a href="#performance"><b>↗</b><span>実績</span></a><a href="/club.html"><b>◎</b><span>CLUB</span></a></nav>
+<nav class="bottom-app-nav" aria-label="下部ナビゲーション"><a href="/"><b>⌂</b><span>ホーム</span></a><a href="/today.html" class="active"><b>▦</b><span>本日の予想</span></a><a href="#results"><b><svg class="bottom-nav-chart-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V14M9 19V10M14 19V12M19 19V6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 11.5 9 8.5 13 10.2 20 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></b><span>実績</span></a><a href="/club.html"><b>◎</b><span>CLUB</span></a></nav>
 <footer><strong>ONE BOAT</strong><span>BOAT RACE ANALYTICS</span><small>© ONE BOAT</small></footer>
-<script src="/app.js?v=20260918-private-enter1" defer></script>
+<script src="/app.js?v=20260918-live-results-bands1" defer></script>
 <script src="/ai-picks.js?v=20260918-ai3" defer></script>
 <script>const mb=document.getElementById('topMenuButton'),mp=document.getElementById('topMenuPanel');function closeTopMenu(){mp.classList.remove('open');mb.setAttribute('aria-expanded','false')}mb.addEventListener('click',e=>{e.stopPropagation();const open=mp.classList.toggle('open');mb.setAttribute('aria-expanded',String(open))});document.addEventListener('click',e=>{if(!mp.contains(e.target)&&!mb.contains(e.target))closeTopMenu()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTopMenu()});</script>
 </body>
