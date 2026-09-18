@@ -21,8 +21,8 @@ let STATS=null,CURRENT_VENUE=null,AUTO_OPENED=false;
 function setTone(el,n){if(!el)return;el.classList.remove('positive','negative');if(Number(n)>0)el.classList.add('positive');if(Number(n)<0)el.classList.add('negative')}
 function renderMetrics(key='today'){const x=STATS?.[key];if(!x)return;$('#m-roi').textContent=pct(x.roi);setTone($('#m-roi'),x.roi-100);$('#m-hit').textContent=pct(x.hit_rate);$('#m-profit').textContent=`${x.profit_yen>0?'+':''}${yen(x.profit_yen)}`;setTone($('#m-profit'),x.profit_yen);$('#m-races').textContent=`公開 ${x.races||0}R / ${x.hits||0}的中`}
 function formatJpDate(v){const d=v?new Date(`${String(v).slice(0,10)}T00:00:00+09:00`):new Date();return `${d.getMonth()+1}月${d.getDate()}日(${['日','月','火','水','木','金','土'][d.getDay()]})のレース`}
-function stateLabel(s){return {PUBLIC:'予想公開',WATCH:'様子見',SKIP:'見送り',SETTLED:'結果確定',FINISHED:'本日終了',CLOSED:'終了',NOEVENT:'本日非開催',PENDING:'直前分析中'}[s]||'直前分析中'}
-function stateClass(s){return {PUBLIC:'live',WATCH:'watch',SKIP:'skip',SETTLED:'settled',FINISHED:'idle',CLOSED:'idle',NOEVENT:'idle',PENDING:'pending'}[s]||'pending'}
+function stateLabel(s){return {PUBLIC:'予想公開',WATCH:'様子見',SKIP:'見送り',SETTLED:'結果確定',FINISHED:'本日終了',CLOSED:'終了',NOEVENT:'本日非開催',PENDING:'直前分析中',UPDATING:'更新中'}[s]||'更新中'}
+function stateClass(s){return {PUBLIC:'live',WATCH:'watch',SKIP:'skip',SETTLED:'settled',FINISHED:'idle',CLOSED:'idle',NOEVENT:'idle',PENDING:'pending',UPDATING:'pending'}[s]||'pending'}
 function timeText(v){const m=String(v||'').match(/(\d{1,2}:\d{2})/);return m?m[1]:'--:--'}
 function deadlineMinute(v){const m=String(v||'').match(/(\d{1,2}):(\d{2})/);return m?Number(m[1])*60+Number(m[2]):9999}
 function deadlineLeftText(v){
@@ -37,9 +37,9 @@ function betsOf(r){const p=r?.prediction||{};return Array.isArray(r?.bets)&&r.be
 function ticketOf(x){return x?.ticket||x?.combination||x?.bet||'--'}
 function stakeOf(x){return Number(x?.stake_yen??x?.amount??x?.stake??0)}
 
-function venueTile(v){const cls=stateClass(v.state),quiet=(v.state==='NOEVENT'||v.state==='FINISHED')?' easy-quiet':'',meta=v.state==='NOEVENT'?'開催なし':v.state==='FINISHED'?'全レース終了':`${v.next_race_no||'--'}R　${timeText(v.next_deadline)}`;return `<button class="venue-tile ${cls}${quiet}" type="button" data-code="${String(v.code).padStart(2,'0')}" aria-label="${esc(v.name)} ${stateLabel(v.state)}"><span class="venue-name">${esc(v.name)}</span><span class="venue-strip">${stateLabel(v.state)}</span><span class="venue-meta"><strong>${v.state==='NOEVENT'?'—':`${v.next_race_no||'--'}R`}</strong><em>${esc(meta)}</em></span></button>`}
+function venueTile(v){const cls=stateClass(v.state),quiet=(v.state==='NOEVENT'||v.state==='FINISHED')?' easy-quiet':'',hasRace=Number(v.next_race_no)>=1,meta=v.state==='NOEVENT'?'開催なし':v.state==='FINISHED'?'全レース終了':v.state==='UPDATING'&&!hasRace?'正式データ更新中':`${hasRace?v.next_race_no:'—'}R　${timeText(v.next_deadline)}`;return `<button class="venue-tile ${cls}${quiet}" type="button" data-code="${String(v.code).padStart(2,'0')}" aria-label="${esc(v.name)} ${stateLabel(v.state)}"><span class="venue-name">${esc(v.name)}</span><span class="venue-strip">${stateLabel(v.state)}</span><span class="venue-meta"><strong>${v.state==='NOEVENT'||!hasRace?'—':`${v.next_race_no}R`}</strong><em>${esc(meta)}</em></span></button>`}
 function renderVenues(venues){$('#venue-grid').innerHTML=(venues||[]).map(venueTile).join('');document.querySelectorAll('.venue-tile').forEach(b=>b.addEventListener('click',()=>openVenue(b.dataset.code)))}
-function renderFreeStrip(o){const live=(o?.venues||[]).filter(v=>v.state==='PUBLIC').slice(0,4);const watch=(o?.venues||[]).filter(v=>v.state==='WATCH').slice(0,2);const xs=[...live,...watch];$('#free-strip-list').innerHTML=xs.length?xs.map(v=>`<span class="free-chip ${stateClass(v.state)}">${esc(v.name)} ${stateLabel(v.state)} ${v.next_race_no?`${v.next_race_no}R`:''}</span>`).join(''):'<span class="free-chip">現在公開対象を確認中</span>'}
+function renderFreeStrip(o){const live=(o?.venues||[]).filter(v=>v.state==='PUBLIC').slice(0,4);const watch=(o?.venues||[]).filter(v=>v.state==='WATCH').slice(0,2);const xs=[...live,...watch];const fallback=o?.source?.predictions===false?'予想データを更新中':'現在公開対象を確認中';$('#free-strip-list').innerHTML=xs.length?xs.map(v=>`<span class="free-chip ${stateClass(v.state)}">${esc(v.name)} ${stateLabel(v.state)} ${v.next_race_no?`${v.next_race_no}R`:''}</span>`).join(''):`<span class="free-chip">${fallback}</span>`}
 function publicRaceCard(r){
   const settled=!!r.settlement,status=settled?(r.settlement.hit?'的中':'不的中'):'予想公開',cls=settled?(r.settlement.hit?'hit':'miss'):'locked';
   let sub;
@@ -220,13 +220,13 @@ async function load(){
 
   syncModeCopy();
   $('#today-date').textContent=formatJpDate(o.date);
-  $('#today-count').textContent=`開催 ${o.active_count||0}場`;
+  $('#today-count').textContent=Number.isFinite(Number(o.active_count))&&o.active_count!==null?`開催 ${Number(o.active_count)}場`:'開催情報更新中';
   renderVenues(o.venues||[]);
   renderFreeStrip(o);
   const pro=savedViewMode()==='pro';
   const all=o.public_items||[];
   const items=pro?all:all.filter(x=>!x.settlement).sort((a,b)=>deadlineMinute(a.deadline||a.close_time)-deadlineMinute(b.deadline||b.close_time));
-  $('#public-count').textContent=pro?`公開 ${o.public_count||0}R`:`公開中 ${items.length}R`;
+  $('#public-count').textContent=o.public_count===null||o.public_count===undefined?'更新中':pro?`公開 ${Number(o.public_count)}R`:`公開中 ${items.length}R`;
   $('#today-list').innerHTML=items.length?items.map(publicRaceCard).join(''):(pro?'<div class="race-card"><div class="race-main"><strong>現在、公開対象なし</strong><small>対象レースが確定すると自動表示します</small></div></div>':'<div class="race-card"><div class="race-main"><strong>現在、公開中の予想はありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>');
   document.querySelectorAll('.race-card-button').forEach(b=>b.addEventListener('click',async()=>{await openVenue(b.dataset.vcode);openRace(Number(b.dataset.rno))}));
   $('#result-list').innerHTML=stats?.latest?.length?(stats.latest||[]).slice(0,8).map(resultCard).join(''):'<div class="race-card"><div class="race-main"><strong>結果集計を更新中</strong><small>本日の予想・場情報はそのまま確認できます。</small></div></div>';

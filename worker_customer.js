@@ -22,10 +22,64 @@ async function official(date=jstDate()){const raw=String(date).replaceAll('-',''
 function stadiumsOf(o){return o?.programs?.stadiums||{}}
 function scheduleRaces(st){if(!st?.races)return[];return Object.entries(st.races).map(([rn,r])=>({race_no:num(r?.race_number??rn),deadline:r?.closed_at||r?.close_time||null,close_min:hmMin(r?.closed_at||r?.close_time)})).filter(x=>x.race_no>=1&&x.race_no<=12).sort((a,b)=>a.race_no-b.race_no)}
 function recordState(rec,closed=false){if(!rec)return closed?'CLOSED':'PENDING';if(enter(rec))return rec.settlement?'SETTLED':'PUBLIC';const d=decision(rec);if(closed)return'CLOSED';if(d==='WATCH'||d==='FINALIZING')return'WATCH';if(d==='SKIP')return'SKIP';return'PENDING'}
-function noteFor(state){return state==='WATCH'?'直前情報を確認中':state==='SKIP'?'購入条件を満たさず見送り':state==='CLOSED'?'レース終了':state==='PENDING'?'直前分析中':''}
+function noteFor(state){return state==='WATCH'?'直前情報を確認中':state==='SKIP'?'購入条件を満たさず見送り':state==='CLOSED'?'レース終了':state==='PENDING'?'直前分析中':state==='UPDATING'?'正式データを更新中':''}
 function publicItem(r,scheduleMap){const code=num(r.venue_code),rn=num(r.race_no),sc=scheduleMap?.get(`${code}-${rn}`),safe=safeRecord(r);return {...safe,venue_code:code,venue_name:VENUES[code-1]||`場${code}`,race_no:rn,deadline:r.deadline||r.close_time||sc?.deadline||null}}
-async function buildOverview(){const date=jstDate();const [off,rows]=await Promise.all([official(date),sourceHistory({date,limit:500})]);const stMap=stadiumsOf(off),now=nowMin(),byVenue=new Map(),scheduleMap=new Map();for(const r of rows){const c=num(r.venue_code);if(!byVenue.has(c))byVenue.set(c,[]);byVenue.get(c).push(r)}const venues=[];for(let code=1;code<=24;code++){const st=stMap[String(code)]||stMap[pad(code)],rs=scheduleRaces(st);rs.forEach(x=>scheduleMap.set(`${code}-${x.race_no}`,x));if(!rs.length){venues.push({code,name:VENUES[code-1],state:'NOEVENT',next_race_no:null,next_deadline:null,public_count:0});continue}const next=rs.find(x=>x.close_min===null||x.close_min>=now-1);const vr=(byVenue.get(code)||[]).slice().sort((a,b)=>num(a.race_no)-num(b.race_no));const publicRows=vr.filter(enter);if(!next){venues.push({code,name:VENUES[code-1],state:'FINISHED',next_race_no:12,next_deadline:rs[rs.length-1]?.deadline||null,public_count:publicRows.length});continue}const futurePublic=publicRows.find(r=>num(r.race_no)>=next.race_no&&!r.settlement),targetRec=futurePublic||vr.find(r=>num(r.race_no)===next.race_no),targetNo=targetRec?num(targetRec.race_no):next.race_no,targetSc=rs.find(x=>x.race_no===targetNo)||next,state=recordState(targetRec,false);venues.push({code,name:VENUES[code-1],state,next_race_no:targetNo,next_deadline:targetSc?.deadline||null,public_count:publicRows.length})}const publicItems=rows.filter(enter).sort((a,b)=>num(a.venue_code)-num(b.venue_code)||num(a.race_no)-num(b.race_no)).map(r=>publicItem(r,scheduleMap));return{ok:true,date,active_count:venues.filter(v=>v.state!=='NOEVENT'&&v.state!=='FINISHED').length,public_count:publicItems.length,venues,public_items:publicItems}}
-async function buildVenue(code){code=num(code);if(code<1||code>24)throw new Error('bad_venue');const date=jstDate();const [off,rows]=await Promise.all([official(date),sourceHistory({date,venue:code,limit:100})]);const stMap=stadiumsOf(off),st=stMap[String(code)]||stMap[pad(code)],rs=scheduleRaces(st),now=nowMin(),recBy=new Map(rows.map(r=>[num(r.race_no),r]));if(!rs.length)return{ok:true,date,code,name:VENUES[code-1],state:'NOEVENT',public_count:0,races:[]};const races=rs.map(sc=>{const rec=recBy.get(sc.race_no)||null,closed=sc.close_min!==null&&sc.close_min<now-1,state=recordState(rec,closed);return{race_no:sc.race_no,deadline:sc.deadline,state,note:noteFor(state),record:safeRecord(rec)}});const next=races.find(r=>{const m=hmMin(r.deadline);return m===null||m>=now-1});const publicCount=rows.filter(enter).length;let state='FINISHED';if(next)state=next.state;if(next&&state==='PENDING'){const future=races.find(r=>r.race_no>=next.race_no&&(r.state==='PUBLIC'||r.state==='WATCH'||r.state==='SKIP'));if(future)state=future.state}return{ok:true,date,code,name:VENUES[code-1],state,public_count:publicCount,races}}
+async function buildOverview(){
+  const date=jstDate();
+  const [offRes,rowsRes]=await Promise.allSettled([official(date),sourceHistory({date,limit:500})]);
+  const scheduleAvailable=offRes.status==='fulfilled',historyAvailable=rowsRes.status==='fulfilled';
+  const off=scheduleAvailable?offRes.value:null,rows=historyAvailable?rowsRes.value:[];
+  const stMap=scheduleAvailable?stadiumsOf(off):{},now=nowMin(),byVenue=new Map(),scheduleMap=new Map();
+  for(const r of rows){const c=num(r.venue_code);if(!byVenue.has(c))byVenue.set(c,[]);byVenue.get(c).push(r)}
+  const venues=[];
+  for(let code=1;code<=24;code++){
+    const vr=(byVenue.get(code)||[]).slice().sort((a,b)=>num(a.race_no)-num(b.race_no));
+    const publicRows=vr.filter(enter);
+    if(!scheduleAvailable){
+      const targetRec=publicRows.find(r=>!r.settlement)||vr.find(r=>!r.settlement)||vr[vr.length-1]||null;
+      const state=targetRec?recordState(targetRec,false):'UPDATING';
+      venues.push({code,name:VENUES[code-1],state,next_race_no:targetRec?num(targetRec.race_no):null,next_deadline:targetRec?.deadline||targetRec?.close_time||null,public_count:historyAvailable?publicRows.length:null});
+      continue;
+    }
+    const st=stMap[String(code)]||stMap[pad(code)],rs=scheduleRaces(st);
+    rs.forEach(x=>scheduleMap.set(`${code}-${x.race_no}`,x));
+    if(!rs.length){venues.push({code,name:VENUES[code-1],state:'NOEVENT',next_race_no:null,next_deadline:null,public_count:historyAvailable?0:null});continue}
+    const next=rs.find(x=>x.close_min===null||x.close_min>=now-1);
+    if(!next){venues.push({code,name:VENUES[code-1],state:'FINISHED',next_race_no:12,next_deadline:rs[rs.length-1]?.deadline||null,public_count:historyAvailable?publicRows.length:null});continue}
+    const futurePublic=publicRows.find(r=>num(r.race_no)>=next.race_no&&!r.settlement);
+    const targetRec=futurePublic||vr.find(r=>num(r.race_no)===next.race_no);
+    const targetNo=targetRec?num(targetRec.race_no):next.race_no,targetSc=rs.find(x=>x.race_no===targetNo)||next;
+    const state=historyAvailable?recordState(targetRec,false):'UPDATING';
+    venues.push({code,name:VENUES[code-1],state,next_race_no:targetNo,next_deadline:targetSc?.deadline||null,public_count:historyAvailable?publicRows.length:null});
+  }
+  const publicItems=historyAvailable?rows.filter(enter).sort((a,b)=>num(a.venue_code)-num(b.venue_code)||num(a.race_no)-num(b.race_no)).map(r=>publicItem(r,scheduleMap)):[];
+  return{ok:true,date,degraded:!scheduleAvailable||!historyAvailable,source:{schedule:scheduleAvailable,predictions:historyAvailable},active_count:scheduleAvailable?venues.filter(v=>v.state!=='NOEVENT'&&v.state!=='FINISHED').length:null,public_count:historyAvailable?publicItems.length:null,venues,public_items:publicItems}
+}
+async function buildVenue(code){
+  code=num(code);if(code<1||code>24)throw new Error('bad_venue');
+  const date=jstDate();
+  const [offRes,rowsRes]=await Promise.allSettled([official(date),sourceHistory({date,venue:code,limit:100})]);
+  const scheduleAvailable=offRes.status==='fulfilled',historyAvailable=rowsRes.status==='fulfilled';
+  const off=scheduleAvailable?offRes.value:null,rows=historyAvailable?rowsRes.value:[];
+  const stMap=scheduleAvailable?stadiumsOf(off):{},st=scheduleAvailable?(stMap[String(code)]||stMap[pad(code)]):null,officialRs=scheduleAvailable?scheduleRaces(st):[];
+  const now=nowMin(),recBy=new Map(rows.map(r=>[num(r.race_no),r]));
+  if(scheduleAvailable&&!officialRs.length)return{ok:true,date,code,name:VENUES[code-1],state:'NOEVENT',public_count:historyAvailable?0:null,races:[],degraded:!historyAvailable,source:{schedule:true,predictions:historyAvailable}};
+  const rs=scheduleAvailable?officialRs:Array.from({length:12},(_,i)=>{const rec=recBy.get(i+1);const deadline=rec?.deadline||rec?.close_time||null;return{race_no:i+1,deadline,close_min:hmMin(deadline)}});
+  const races=rs.map(sc=>{
+    const rec=recBy.get(sc.race_no)||null,closed=scheduleAvailable&&sc.close_min!==null&&sc.close_min<now-1;
+    const state=closed?'CLOSED':historyAvailable?recordState(rec,false):'UPDATING';
+    return{race_no:sc.race_no,deadline:sc.deadline,state,note:noteFor(state),record:safeRecord(rec)}
+  });
+  const next=scheduleAvailable?races.find(r=>{const m=hmMin(r.deadline);return m===null||m>=now-1}):races.find(r=>r.state!=='CLOSED'&&r.state!=='SETTLED');
+  const publicCount=historyAvailable?rows.filter(enter).length:null;
+  let state=scheduleAvailable?'FINISHED':'UPDATING';
+  if(next)state=next.state;
+  if(next&&state==='PENDING'){
+    const future=races.find(r=>r.race_no>=next.race_no&&(r.state==='PUBLIC'||r.state==='WATCH'||r.state==='SKIP'));
+    if(future)state=future.state
+  }
+  return{ok:true,date,code,name:VENUES[code-1],state,public_count:publicCount,races,degraded:!scheduleAvailable||!historyAvailable,source:{schedule:scheduleAvailable,predictions:historyAvailable}}
+}
 function engineLaneInputs(rec){const xs=rec?.prediction?.input_snapshot?.lanes;return Array.isArray(xs)?xs:[]}
 function candidateSet(v){if(!Array.isArray(v))return[];return v.slice(0,6).map(x=>({lane:num(x?.lane),probability:nullableNum(x?.probability)})).filter(x=>x.lane>=1&&x.lane<=6)}
 function safeEngine(rec){if(!rec)return{available:false};const p=rec?.prediction||{},r=p?.candidate_rankings||{},first=candidateSet(r.first),second=candidateSet(r.second),third=candidateSet(r.third);const completeness=nullableNum(p?.input_snapshot?.data_completeness),uncertainty=nullableNum(p?.final_snapshot?.uncertainty);const available=first.length>0||second.length>0||third.length>0||completeness!==null||uncertainty!==null;return{available,decision:decision(rec)||null,model_version:p.model_version||rec.model_version||null,calculated_at:p.calculated_at||p.updated_at||rec.captured_at||null,data_completeness:completeness,uncertainty,candidate_rankings:{first,second,third}}}
