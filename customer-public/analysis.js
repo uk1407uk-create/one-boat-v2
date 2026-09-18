@@ -11,8 +11,8 @@ if(enforceOneBoatCanonical()) throw new Error('canonical_redirect');
 window.addEventListener('pageshow',()=>{enforceOneBoatCanonical()});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)enforceOneBoatCanonical()});
 const $=s=>document.querySelector(s);
-const API='https://imhzjlxbnovjvqlyawmg.supabase.co/functions/v1/one-boat-race-analysis-api';
-const LIVE_ORIGINAL_API='https://imhzjlxbnovjvqlyawmg.supabase.co/functions/v1/one-boat-live-original';
+const API='/api/member/analysis';
+const LIVE_ORIGINAL_API='/api/member/live-original';
 const VENUES=['桐生','戸田','江戸川','平和島','多摩川','浜名湖','蒲郡','常滑','津','三国','びわこ','住之江','尼崎','鳴門','丸亀','児島','宮島','徳山','下関','若松','芦屋','福岡','唐津','大村'];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const params=new URLSearchParams(location.search);
@@ -27,7 +27,7 @@ let ODDS_FIRST=1;
 const VIEW_MODE_KEY='one_boat_view_mode';
 const yen=n=>`${Math.round(Number(n||0)).toLocaleString('ja-JP')}円`;
 function saveViewMode(mode){try{localStorage.setItem(VIEW_MODE_KEY,mode==='pro'?'pro':'easy')}catch{}}
-function stateLabel(s){return {PUBLIC:'予想公開',WATCH:'様子見',SKIP:'見送り',PRIVATE:'公開対象外',SETTLED:'結果確定',FINISHED:'本日終了',CLOSED:'終了',NOEVENT:'本日非開催',PENDING:'未判定'}[s]||'未判定'}
+function stateLabel(s){return {PUBLIC:'予想公開',WATCH:'様子見',SKIP:'見送り',PRIVATE:'予想完了',SETTLED:'結果確定',FINISHED:'本日終了',CLOSED:'終了',NOEVENT:'本日非開催',PENDING:'未判定'}[s]||'未判定'}
 function publicRecord(r){const d=String(r?.decision||r?.prediction?.decision||'').toUpperCase(),stake=Number(r?.stake_total_yen??r?.prediction?.stake_total_yen??0);return d==='ENTER'&&stake>0}
 function officialBets(r){const p=r?.prediction||{};return Array.isArray(r?.bets)&&r.bets.length?r.bets:Array.isArray(p.production_picks)?p.production_picks:[]}
 function officialTicket(x){return x?.ticket||x?.combination||x?.bet||'—'}
@@ -378,6 +378,45 @@ function renderOdds(o){
   renderOddsGroup();
 }
 
+function paywallNext(){
+  return `/analysis.html?date=${encodeURIComponent(DATE)}&venue=${CODE}&race=${RACE}`;
+}
+function showPaywallMessage(text){
+  const m=$('#paywall-message');if(!m)return;m.hidden=false;m.textContent=text;
+}
+async function startPaywallCheckout(plan,button){
+  if(!['day_pass','club_monthly'].includes(plan))return;
+  button.disabled=true;
+  try{
+    const r=await fetch('/api/member/checkout-intent',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'content-type':'application/json'},body:JSON.stringify({plan})});
+    const d=await r.json().catch(()=>({}));
+    if(r.status===401){
+      location.href=`/login?next=${encodeURIComponent('/club.html?buy='+plan)}`;
+      return;
+    }
+    if(!r.ok){showPaywallMessage(d.message||'購入手続きを開始できませんでした。');return}
+    if(d.url)location.href=d.url;
+  }catch{showPaywallMessage('購入手続きを開始できませんでした。')}
+  finally{button.disabled=false}
+}
+function setupPaywallButtons(){
+  document.querySelectorAll('[data-paywall-plan]').forEach(b=>b.addEventListener('click',()=>startPaywallCheckout(b.dataset.paywallPlan,b)));
+}
+function renderPrivatePaywall(d,pub){
+  DATA=null;
+  document.body.setAttribute('aria-busy','false');
+  document.body.classList.add('analysis-locked');
+  const race=(pub?.races||[]).find(x=>Number(x.race_no)===RACE);
+  $('#race-title').textContent=`${venueName()} ${RACE}R`;
+  $('#race-subtitle').textContent='予想完了 / 会員向け詳細';
+  $('#race-date').textContent=dateJp(pub?.date||DATE);
+  $('#race-deadline').textContent=String(race?.deadline||'—').match(/\d{1,2}:\d{2}/)?.[0]||'—';
+  $('#race-updated').textContent='—';
+  const st=$('#race-state');st.textContent='会員向け';st.className='state-badge locked';
+  renderOfficialPrediction(pub);
+  const p=$('#analysis-paywall');if(p)p.hidden=false;
+  const msg=$('#page-message');if(msg)msg.hidden=true;
+}
 function setupTabs(){
   document.querySelectorAll('.analysis-tab').forEach(b=>b.addEventListener('click',()=>{
     document.querySelectorAll('.analysis-tab').forEach(x=>x.classList.remove('active'));
@@ -420,8 +459,19 @@ async function load(){
     const publicPromise=DATE===jstDate()
       ?fetch(`/api/public/venue?code=${encodeURIComponent(String(CODE).padStart(2,'0'))}`,{cache:'no-store'}).then(x=>x.ok?x.json():null).catch(()=>null)
       :Promise.resolve(null);
-    const r=await fetch(u,{cache:'no-store',headers:{accept:'application/json'}});
+    const r=await fetch(u,{credentials:'same-origin',cache:'no-store',headers:{accept:'application/json'}});
     let d=null;try{d=await r.json()}catch{}
+    if(r.status===402&&d?.error==='payment_required'){
+      const pub=await publicPromise;
+      renderPrivatePaywall(d,pub);
+      return;
+    }
+    if(r.status===503&&d?.error==='entitlement_unavailable'){
+      const pub=await publicPromise;
+      renderPrivatePaywall(d,pub);
+      showPaywallMessage(d.message||'会員状態を確認できません。');
+      return;
+    }
     if(!r.ok||!d?.ok)throw Error(d?.error||`api_${r.status}`);
     render(d);
     const pub=await publicPromise;
@@ -498,6 +548,7 @@ document.addEventListener('visibilitychange',()=>{
 });
 
 setupViewMode();
+setupPaywallButtons();
 setupTabs();
 setupDisplayTabs();
 load().finally(()=>{scheduleOfficialRefresh();scheduleLiveOriginalRefresh()});
