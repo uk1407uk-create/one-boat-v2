@@ -3,6 +3,7 @@
   "name": "one-boat-customer",
   "main": "worker_customer_hero.js",
   "compatibility_date": "2026-09-16",
+  "workers_dev": true,
   "routes": [
     { "pattern": "one-boat-club.jp", "custom_domain": true },
     { "pattern": "www.one-boat-club.jp", "custom_domain": true }
