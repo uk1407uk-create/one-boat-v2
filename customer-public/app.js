@@ -11,6 +11,7 @@ window.addEventListener('pageshow',()=>{enforceOneBoatCanonical()});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)enforceOneBoatCanonical()});
 const NOTE_URL='';
 const FREE_STATS_URL='https://imhzjlxbnovjvqlyawmg.supabase.co/functions/v1/one-boat-public-free-stats';
+const FREE_VISIBILITY_URL='https://imhzjlxbnovjvqlyawmg.supabase.co/functions/v1/one-boat-public-visibility';
 const VENUES=['桐生','戸田','江戸川','平和島','多摩川','浜名湖','蒲郡','常滑','津','三国','びわこ','住之江','尼崎','鳴門','丸亀','児島','宮島','徳山','下関','若松','芦屋','福岡','唐津','大村'];
 const $=s=>document.querySelector(s);
 const yen=n=>`${Math.round(Number(n||0)).toLocaleString('ja-JP')}円`;
@@ -211,6 +212,23 @@ async function load(){
     return;
   }
 
+  try{
+    const vu=new URL(FREE_VISIBILITY_URL);
+    vu.searchParams.set('date',o.date||new Date(Date.now()+32400000).toISOString().slice(0,10));
+    vu.searchParams.set('scope','site');
+    const vr=await fetch(vu,{cache:'no-store'});
+    if(vr.ok){
+      const vj=await vr.json();
+      if(vj?.ok){
+        const n=Number(vj.count);
+        if(Number.isFinite(n)){
+          o.free_limit=30;
+          o.free_count=n;
+          o.free_remaining=Math.max(0,30-n);
+        }
+      }
+    }
+  }catch{}
   let stats=null;
   try{
     const r=await fetch(FREE_STATS_URL,{cache:'no-store'});
