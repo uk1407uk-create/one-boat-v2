@@ -1026,24 +1026,14 @@ body{
 }
 .start-boat-shell.template-boat:after{display:none!important}
 
-/* Recolor only via whole-image tone shift; white spray / black motor remain stable enough */
-.start-boat-shell.template-boat.lane-boat-1 img{
-  filter:grayscale(1) brightness(1.65) contrast(.88);
-}
-.start-boat-shell.template-boat.lane-boat-2 img{
-  filter:grayscale(1) brightness(.58) contrast(1.15);
-}
-.start-boat-shell.template-boat.lane-boat-3 img{
-  filter:none;
-}
-.start-boat-shell.template-boat.lane-boat-4 img{
-  filter:hue-rotate(210deg) saturate(1.2) brightness(.92);
-}
-.start-boat-shell.template-boat.lane-boat-5 img{
-  filter:hue-rotate(55deg) saturate(1.22) brightness(1.02);
-}
+/* Lane colors are baked into dedicated transparent assets. Do not recolor with CSS. */
+.start-boat-shell.template-boat.lane-boat-1 img,
+.start-boat-shell.template-boat.lane-boat-2 img,
+.start-boat-shell.template-boat.lane-boat-3 img,
+.start-boat-shell.template-boat.lane-boat-4 img,
+.start-boat-shell.template-boat.lane-boat-5 img,
 .start-boat-shell.template-boat.lane-boat-6 img{
-  filter:hue-rotate(115deg) saturate(1.05) brightness(.88);
+  filter:none!important;
 }
 
 /* Cover original number 3 and render correct lane number cleanly */
