@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0b0b0c">
 <meta name="robots" content="noindex,follow">
 <title>レース分析｜ONE BOAT</title>
-<meta name="description" content="ONE BOAT レース分析。専用APIの正式データだけを使い、選手・展示・水面・オッズを確認して自分用のMY予想を組み立てられます。">
+<meta name="description" content="ONE BOAT レース分析。専用APIの正式データだけを使い、選手・展示・水面・オッズを確認できます。">
 <link rel="stylesheet" href="/analysis.css?v=20260918-ui4">
 </head>
 <body aria-busy="true">
@@ -32,8 +32,6 @@
       <div><span>締切</span><strong id="race-deadline">—</strong></div>
       <div><span>データ更新</span><strong id="race-updated">—</strong></div>
     </div>
-
-    <div class="separation-note"><i></i><span>MY予想は自分用。ONE BOAT公式予想・成績・回収率には反映されません。</span></div>
   </section>
 
 
@@ -50,7 +48,6 @@
     <button class="analysis-tab active" type="button" data-tab="basic">基本</button>
     <button class="analysis-tab" type="button" data-tab="live">展示</button>
     <button class="analysis-tab" type="button" data-tab="odds">オッズ</button>
-    <button class="analysis-tab" type="button" data-tab="my">MY予想</button>
   </nav>
 
   <div id="page-message" class="page-message" hidden></div>
@@ -123,27 +120,6 @@
     <p class="section-help">120通りを一気に並べず、1着艇ごとに20通りへ分けて見やすくしています。数値はAPIの正式値そのままです。</p>
     <div id="odds-filter" class="odds-filter" aria-label="1着艇で絞り込み"></div>
     <div id="odds-content" class="empty-card"><strong>オッズを確認中</strong><p>取得できた正式データのみ表示します。</p></div>
-  </section>
-
-  <section class="tab-panel" data-panel="my">
-    <div class="section-head">
-      <div><small>MY PICK</small><h2>MY予想</h2></div>
-      <span class="my-tag">端末内のみ</span>
-    </div>
-    <p class="section-help">1着・2着・3着を順番に選ぶだけ。公式予想とは完全に別管理です。</p>
-
-    <div class="my-picker">
-      <div class="pick-row"><div class="pick-label"><b>1</b><span>1着</span></div><div class="lane-buttons" data-place="first"></div></div>
-      <div class="pick-row"><div class="pick-label"><b>2</b><span>2着</span></div><div class="lane-buttons" data-place="second"></div></div>
-      <div class="pick-row"><div class="pick-label"><b>3</b><span>3着</span></div><div class="lane-buttons" data-place="third"></div></div>
-    </div>
-
-    <div class="my-result">
-      <small>MY予想</small>
-      <strong id="my-ticket">— - — - —</strong>
-      <button id="clear-my" type="button">クリア</button>
-    </div>
-    <p class="local-only">この内容はこのiPhoneのブラウザ内だけに保存されます。ONE BOATの公式予想・結果・収支・検証データには送信されません。</p>
   </section>
 
   <section class="official-cta">
