@@ -42,7 +42,7 @@ function venueTile(v){const cls=stateClass(v.state),quiet=(v.state==='NOEVENT'||
 function renderVenues(venues){$('#venue-grid').innerHTML=(venues||[]).map(venueTile).join('');document.querySelectorAll('.venue-tile').forEach(b=>b.addEventListener('click',()=>openVenue(b.dataset.code)))}
 function freeProgressModel(o){
   const limit=Number(o?.free_limit??30);
-  const raw=o?.free_count??o?.public_count;
+  const raw=o?.free_count;
   const count=raw===null||raw===undefined?null:Number(raw);
   if(!Number.isFinite(count))return{available:false,limit:30,count:null,remaining:null,complete:false};
   const safeLimit=Number.isFinite(limit)&&limit>0?limit:30,safeCount=Math.max(0,Math.min(safeLimit,count)),remaining=Math.max(0,safeLimit-safeCount);
