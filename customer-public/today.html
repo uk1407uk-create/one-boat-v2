@@ -6,6 +6,13 @@
 <meta name="theme-color" content="#0877d7" />
 <title>本日の予想｜ONE BOAT</title>
 <meta name="description" content="ONE BOAT 本日の24場・公開予想・実績" />
+<script>
+try{
+  const q=new URLSearchParams(location.search).get('mode');
+  const m=(q==='pro'||q==='easy')?q:localStorage.getItem('one_boat_view_mode');
+  if(m==='pro')document.documentElement.classList.add('pro-mode');
+}catch{}
+</script>
 <link rel="stylesheet" href="/styles.css?v=20260918-bright2" />
 <style>
 :root{
@@ -181,6 +188,306 @@ footer{background:transparent!important;color:#6d8394!important;padding-bottom:8
 }
 .pro-jump b{font-size:26px;font-weight:400}
 
+
+/* Page-level beginner / PRO mode */
+.page-mode-shell{
+  padding:10px 10px 0;
+  background:#fff;
+  transition:background .18s ease;
+}
+.page-mode-switch{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+  padding:4px;
+  border:1px solid #c8dce8;
+  border-radius:13px;
+  background:#edf6fb;
+  box-shadow:0 5px 14px rgba(10,73,115,.05);
+}
+.page-mode-button{
+  min-height:48px;
+  border:0;
+  border-radius:10px;
+  background:transparent;
+  color:#58758a;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  -webkit-tap-highlight-color:transparent;
+}
+.page-mode-button span{font-size:14px;font-weight:950;letter-spacing:.02em}
+.page-mode-button small{font-size:8px;font-weight:800;opacity:.8}
+html:not(.pro-mode) #page-mode-easy{
+  background:#fff;
+  color:#0877d7;
+  box-shadow:0 3px 10px rgba(8,119,215,.13);
+}
+.pro-underground-label{
+  display:none;
+  align-items:center;
+  gap:8px;
+  margin:8px 2px 0;
+  color:#4e7892;
+  font-size:7px;
+  font-weight:950;
+  letter-spacing:.2em;
+}
+.pro-underground-label i{height:1px;flex:1;background:currentColor;opacity:.35}
+
+/* PRO = dark "back room" view. Data is identical; presentation only. */
+html.pro-mode{background:#030914;color-scheme:dark}
+html.pro-mode body{
+  color:#eaf7ff;
+  background:
+    radial-gradient(circle at 50% -8%,rgba(0,157,255,.18),transparent 33%),
+    linear-gradient(180deg,#06111f 0%,#030914 58%,#020711 100%);
+}
+html.pro-mode .top-header{
+  background:linear-gradient(135deg,#020711 0%,#071b31 55%,#06385e 100%);
+  border-bottom-color:#0b4f7b;
+  box-shadow:0 5px 18px rgba(0,0,0,.42);
+}
+html.pro-mode .top-logo .accent{color:#38d7ff}
+html.pro-mode .top-club{
+  border-color:#237aa7;
+  background:rgba(7,35,57,.85);
+  color:#c9f4ff;
+}
+html.pro-mode .quick-nav{
+  background:#06111f;
+  border-bottom-color:#12324b;
+}
+html.pro-mode .quick-nav a{
+  color:#648399;
+  border-right-color:#10283a;
+}
+html.pro-mode .quick-nav a strong{color:#8aafc7}
+html.pro-mode .quick-nav a.active{
+  background:linear-gradient(180deg,#0a1b2b,#081522);
+  box-shadow:inset 0 -3px 0 #22c8ff;
+}
+html.pro-mode .quick-nav a.active strong{color:#4bd7ff}
+html.pro-mode .page-mode-shell{
+  background:#050e19;
+  padding-top:11px;
+}
+html.pro-mode .page-mode-switch{
+  border-color:#164566;
+  background:#020811;
+  box-shadow:inset 0 0 0 1px rgba(37,197,255,.035),0 7px 22px rgba(0,0,0,.25);
+}
+html.pro-mode .page-mode-button{color:#6f91a8}
+html.pro-mode #page-mode-pro{
+  color:#e7fbff;
+  background:linear-gradient(135deg,#08233b,#075786);
+  box-shadow:inset 0 0 0 1px rgba(83,220,255,.28),0 0 16px rgba(18,184,255,.16);
+}
+html.pro-mode #page-mode-pro span{color:#54dcff;text-shadow:0 0 12px rgba(84,220,255,.35)}
+html.pro-mode .pro-underground-label{display:flex;color:#3abfe9}
+html.pro-mode .today-intro{
+  background:#050e19;
+  border-bottom-color:#123149;
+}
+html.pro-mode .today-intro .eyebrow{color:#39c7f3}
+html.pro-mode .today-intro h1{color:#f0f9ff}
+html.pro-mode .today-intro h1 .blue{color:#44d0ff}
+html.pro-mode .today-intro p{color:#7e9bb0}
+html.pro-mode .today-summary{
+  background:#081523!important;
+  border-color:#173a54!important;
+  box-shadow:0 7px 22px rgba(0,0,0,.24)!important;
+}
+html.pro-mode .free-strip-title{color:#42c9f0!important}
+html.pro-mode .free-chip{
+  color:#a7d8ef!important;
+  background:#0a1a29!important;
+  border-color:#1a4868!important;
+}
+html.pro-mode .page-section{background:transparent}
+html.pro-mode .date-row{
+  background:#081523!important;
+  border-color:#173a54!important;
+}
+html.pro-mode .date-row small{color:#43c8f1!important}
+html.pro-mode .date-row strong{color:#e8f7ff!important}
+html.pro-mode .date-nav{color:#587b92!important}
+html.pro-mode .section-title-row{
+  background:linear-gradient(90deg,#071727 0%,#073d61 65%,#075b83 100%)!important;
+  border-top:1px solid #0c537d;
+  border-bottom:1px solid #0b4b70;
+}
+html.pro-mode .section-title-row small{color:#58d5fb!important}
+html.pro-mode .section-title-row h2{color:#eefaff!important}
+html.pro-mode .count-label{
+  background:#06253b!important;
+  color:#5cdcff!important;
+  border:1px solid #17618a!important;
+}
+html.pro-mode .lead{color:#7897aa!important}
+html.pro-mode .venue-legend{color:#82a1b5!important}
+html.pro-mode .venue-legend span{
+  background:#071420!important;
+  border-color:#193d55!important;
+  color:#91afc1!important;
+  box-shadow:none!important;
+}
+html.pro-mode .venue-tile{
+  background:#07131f!important;
+  border-color:#1c465f!important;
+  box-shadow:0 4px 12px rgba(0,0,0,.22)!important;
+}
+html.pro-mode .venue-name{
+  background:#091824!important;
+  color:#d9f4ff!important;
+  border-bottom-color:#183a50!important;
+}
+html.pro-mode .venue-meta{
+  background:#06111c!important;
+  color:#9ec2d7!important;
+}
+html.pro-mode .venue-meta strong{
+  color:#d7f4ff!important;
+  border-right-color:#18384d!important;
+}
+html.pro-mode .venue-meta em{color:#789bb0!important}
+html.pro-mode .venue-tile.live{
+  border-color:#20bff1!important;
+  box-shadow:0 0 0 1px rgba(32,191,241,.18),0 0 17px rgba(0,166,230,.12)!important;
+}
+html.pro-mode .venue-tile.live .venue-name{background:linear-gradient(180deg,#09243a,#081925)!important}
+html.pro-mode .venue-tile.live .venue-strip{background:#087eae!important;color:#dffaff}
+html.pro-mode .venue-tile.watch{border-color:#947129!important}
+html.pro-mode .venue-tile.watch .venue-name{background:#18160e!important}
+html.pro-mode .venue-tile.watch .venue-strip{background:#80601c!important}
+html.pro-mode .venue-tile.skip{border-color:#74343c!important}
+html.pro-mode .venue-tile.skip .venue-name{background:#1a0d12!important}
+html.pro-mode .venue-tile.skip .venue-strip{background:#71313b!important}
+html.pro-mode .venue-tile.settled{border-color:#266d5b!important}
+html.pro-mode .venue-tile.settled .venue-name{background:#092019!important}
+html.pro-mode .venue-tile.settled .venue-strip{background:#17634e!important}
+html.pro-mode .venue-tile.idle{
+  opacity:.5!important;
+  background:#07111a!important;
+  border-color:#253746!important;
+}
+html.pro-mode .venue-tile.idle .venue-name,
+html.pro-mode .venue-tile.idle .venue-meta{
+  background:#07111a!important;
+  color:#607687!important;
+}
+html.pro-mode .race-card,
+html.pro-mode .result-card{
+  background:#071522!important;
+  border-color:#173b54!important;
+  box-shadow:0 3px 10px rgba(0,0,0,.2)!important;
+  color:#d9f2ff!important;
+}
+html.pro-mode .race-card strong,
+html.pro-mode .result-card strong{color:#e5f8ff}
+html.pro-mode .race-card small,
+html.pro-mode .result-card small{color:#7898ad}
+html.pro-mode .performance-section{
+  background:#071420!important;
+  border-color:#17394f!important;
+  color:#e8f8ff!important;
+  box-shadow:0 7px 20px rgba(0,0,0,.23)!important;
+}
+html.pro-mode .performance-section .lead{color:#7897aa!important}
+html.pro-mode .performance-section .period-tabs{
+  background:#030b13!important;
+  border-color:#17384d!important;
+}
+html.pro-mode .performance-section .period{color:#7190a4!important}
+html.pro-mode .performance-section .period.active{
+  background:#086a96!important;
+  color:#e8fbff!important;
+  box-shadow:0 0 12px rgba(27,193,246,.12);
+}
+html.pro-mode .performance-section .stats-table{
+  background:#071522!important;
+  border-color:#17394f!important;
+}
+html.pro-mode .performance-section .stats-table>div{border-color:#123044!important}
+html.pro-mode .performance-section .stats-table span,
+html.pro-mode .performance-section .stats-table small{color:#7898ac!important}
+html.pro-mode .performance-section .stats-table strong{color:#e9f9ff!important}
+html.pro-mode .transparency{color:#67869b!important}
+html.pro-mode .club-panel{
+  background:linear-gradient(135deg,#071522,#08273b)!important;
+  border-color:#174e6c!important;
+  color:#e9f9ff!important;
+}
+html.pro-mode .club-panel-inner>span{color:#48d2fb!important}
+html.pro-mode .club-panel-inner h2{color:#f0fbff!important}
+html.pro-mode .club-panel-inner p{color:#86a5b8!important}
+html.pro-mode .club-button{background:#0a6f9d!important;color:#effcff!important}
+html.pro-mode footer{background:#020711!important;color:#56758a!important;border-top-color:#10283b!important}
+html.pro-mode footer strong{color:#9ecde2!important}
+html.pro-mode .bottom-app-nav{
+  background:rgba(3,10,17,.98);
+  border-top-color:#17364b;
+  box-shadow:0 -7px 24px rgba(0,0,0,.35);
+}
+html.pro-mode .bottom-app-nav a{color:#607f94}
+html.pro-mode .bottom-app-nav a b{color:#69899e}
+html.pro-mode .bottom-app-nav a.active,
+html.pro-mode .bottom-app-nav a.active b{color:#43d1ff}
+html.pro-mode .top-menu-panel{
+  background:#071522;
+  border-color:#1b4661;
+  box-shadow:0 18px 42px rgba(0,0,0,.5);
+}
+html.pro-mode .top-menu-panel a{color:#c4e8f6}
+html.pro-mode .top-menu-panel a:active{background:#0a2235}
+
+/* PRO sheets stay in the same dark system before entering the detailed PRO page. */
+html.pro-mode .sheet-backdrop{background:rgba(0,4,9,.76)}
+html.pro-mode .bottom-sheet{
+  background:linear-gradient(180deg,#071421,#030a12);
+  box-shadow:0 -18px 50px rgba(0,0,0,.58);
+}
+html.pro-mode .sheet-handle{background:#27516a}
+html.pro-mode .sheet-head{background:rgba(7,20,33,.96)}
+html.pro-mode .sheet-head small{color:#4bcdf5}
+html.pro-mode .sheet-head h2{color:#e8f8ff}
+html.pro-mode .sheet-back{
+  background:#071522;
+  border-color:#23516d;
+  color:#52d3fb;
+}
+html.pro-mode .sheet-state{background:#0b2131;color:#8eb4ca}
+html.pro-mode .venue-sheet-meta div{
+  background:#081624;
+  border-color:#173d55;
+}
+html.pro-mode .venue-sheet-meta span{color:#708fa3}
+html.pro-mode .venue-sheet-meta strong{color:#d9f2ff}
+html.pro-mode .race-row{
+  background:#071522;
+  border-color:#173b54;
+}
+html.pro-mode .race-no{background:#0b2437;color:#82ddfb}
+html.pro-mode .race-row-main strong{color:#dff5ff}
+html.pro-mode .race-row-main small{color:#718fa3}
+html.pro-mode .race-time{color:#8eafc3}
+html.pro-mode .race-time b{color:#43c9f1}
+html.pro-mode .race-row.live{
+  border-color:#1eaedc;
+  box-shadow:0 0 13px rgba(16,173,222,.1);
+}
+html.pro-mode .race-row.live .race-no{background:#087aa8;color:#f2fdff}
+html.pro-mode .race-row.watch{border-color:#7d642d}
+html.pro-mode .race-row.settled .race-no{background:#15543f;color:#b6f5df}
+html.pro-mode .sheet-loading{color:#7898ac}
+
+@media(max-width:380px){
+  .page-mode-shell{padding-left:8px;padding-right:8px}
+  .page-mode-button{min-height:45px}
+}
+
 </style>
 </head>
 <body>
@@ -192,6 +499,13 @@ footer{background:transparent!important;color:#6d8394!important;padding-bottom:8
 </header>
 <nav class="quick-nav" aria-label="クイックメニュー"><a href="/"><strong>HOME</strong><span>トップ</span></a><a href="/today.html" class="active"><strong>本日</strong><span>予想</span></a><a href="#performance"><strong>実績</strong><span>収支</span></a><a href="/club.html"><strong>CLUB</strong><span>会員</span></a></nav>
 <main>
+  <section class="page-mode-shell" aria-label="表示モード切替">
+    <div class="page-mode-switch" role="group" aria-label="表示モード">
+      <button id="page-mode-easy" class="page-mode-button" type="button" data-page-mode="easy"><span>かんたん</span><small>ひと目で確認</small></button>
+      <button id="page-mode-pro" class="page-mode-button" type="button" data-page-mode="pro"><span>PRO</span><small>詳細分析</small></button>
+    </div>
+    <div class="pro-underground-label" aria-hidden="true"><i></i><span>PRO MODE / DEEP ANALYSIS</span><i></i></div>
+  </section>
   <section class="today-intro" aria-label="本日の予想"><div class="eyebrow">ONE BOAT ANALYTICS</div><h1>本日の予想<span class="blue">本日の24場</span></h1><p>管理側で確定した状態だけを表示。予想公開・様子見・見送り・結果を同じ画面で確認できます。</p></section>
   <div class="today-summary"><section class="free-strip" aria-label="本日の公開状況"><div class="free-strip-title">TODAY STATUS</div><div id="free-strip-list" class="free-strip-list">開催情報を確認中</div></section></div>
   <section class="page-section today-section" id="today">
@@ -213,7 +527,7 @@ footer{background:transparent!important;color:#6d8394!important;padding-bottom:8
 <section id="race-sheet" class="bottom-sheet race-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="race-sheet-title"><div class="sheet-handle"></div><div class="sheet-head"><button id="race-back" class="sheet-back" type="button">‹</button><div><small>RACE DETAIL</small><h2 id="race-sheet-title">レース詳細</h2></div><span id="race-sheet-state" class="sheet-state">--</span></div><div id="race-detail" class="race-detail"></div></section>
 <nav class="bottom-app-nav" aria-label="下部ナビゲーション"><a href="/"><b>⌂</b><span>ホーム</span></a><a href="/today.html" class="active"><b>▦</b><span>本日の予想</span></a><a href="#performance"><b>↗</b><span>実績</span></a><a href="/club.html"><b>◎</b><span>CLUB</span></a></nav>
 <footer><strong>ONE BOAT</strong><span>BOAT RACE ANALYTICS</span><small>© ONE BOAT</small></footer>
-<script src="/app.js?v=20260918-mode1" defer></script>
+<script src="/app.js?v=20260918-pagepro1" defer></script>
 <script>const mb=document.getElementById('topMenuButton'),mp=document.getElementById('topMenuPanel');function closeTopMenu(){mp.classList.remove('open');mb.setAttribute('aria-expanded','false')}mb.addEventListener('click',e=>{e.stopPropagation();const open=mp.classList.toggle('open');mb.setAttribute('aria-expanded',String(open))});document.addEventListener('click',e=>{if(!mp.contains(e.target)&&!mb.contains(e.target))closeTopMenu()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTopMenu()});</script>
 </body>
 </html>
