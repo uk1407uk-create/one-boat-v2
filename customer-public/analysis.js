@@ -321,12 +321,17 @@ function renderMotorDetails(d){
 }
 
 function renderEngine(e){
+  const section=$('#official-evaluation-section');
   const items=[['展示',e?.exhibition],['ST',e?.st],['モーター',e?.motor],['コース',e?.course],['総合',e?.total]];
   const has=items.some(([,v])=>!missing(v));
-  $('#engine-summary').innerHTML=has
-    ?items.map(([label,v],i)=>`<div class="engine-metric ${i===4?'total':''}"><span>${label}</span><strong>${evalValue(v)}</strong></div>`).join('')
-    :'<div class="eval-empty"><span>正式評価</span><strong>現在は未連携</strong><small>score_breakdown が空のため、④側では作りません。</small></div>';
-  $('#engine-rankings').innerHTML=has&&e?.updated_at?`<div class="data-note">更新 ${updated(e.updated_at)}</div>`:'';
+  if(section)section.hidden=!has;
+  if(!has){
+    $('#engine-summary').innerHTML='';
+    $('#engine-rankings').innerHTML='';
+    return;
+  }
+  $('#engine-summary').innerHTML=items.map(([label,v],i)=>`<div class="engine-metric ${i===4?'total':''}"><span>${label}</span><strong>${evalValue(v)}</strong></div>`).join('');
+  $('#engine-rankings').innerHTML=e?.updated_at?`<div class="data-note">更新 ${updated(e.updated_at)}</div>`:'';
 }
 
 function comboFirst(s){const m=String(s||'').match(/[1-6]/);return m?Number(m[0]):null}
