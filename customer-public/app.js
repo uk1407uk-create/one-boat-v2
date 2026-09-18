@@ -87,6 +87,10 @@ function shortOfficialReason(v,max=118){
 function openRace(rno){
   const r=(CURRENT_VENUE?.races||[]).find(x=>Number(x.race_no)===Number(rno));
   if(!r)return;
+  if(savedViewMode()==='pro'){
+    location.href=proRaceUrl(r);
+    return;
+  }
   showRaceSheet();
   $('#race-sheet-title').textContent=`${CURRENT_VENUE.name} ${rno}R`;
   $('#race-sheet-state').className=`sheet-state ${stateClass(r.state)}`;
