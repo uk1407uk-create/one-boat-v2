@@ -560,6 +560,16 @@ body[aria-busy="true"] .analysis-tabs{opacity:.72}
 }
 .pro-bets strong{font-size:17px;color:#0b3b63}
 .pro-bets span{font-size:12px;font-weight:900;color:#0877c8}
+
+.pro-bets .pick-role{font-size:9px;color:#0a6cae;background:#eaf7ff;border:1px solid #c8e4f3;border-radius:999px;padding:4px 7px}
+.pro-allocation{margin-top:10px;border:1px solid #cbdde8;border-radius:10px;background:#fff;overflow:hidden}
+.pro-allocation summary{min-height:46px;padding:10px 11px;display:flex;align-items:center;justify-content:space-between;gap:10px;list-style:none;cursor:pointer;color:#0c456f;font-size:11px;font-weight:950}
+.pro-allocation summary::-webkit-details-marker{display:none}
+.pro-allocation summary:after{content:'＋';margin-left:2px;color:#6f8799;font-size:16px}
+.pro-allocation[open] summary:after{content:'−'}
+.pro-allocation summary b{margin-left:auto;color:#0877c8;font-size:11px}
+.pro-allocation-body{padding:0 10px 10px;border-top:1px solid #e2ebf1}
+.pro-allocation-body p{margin:8px 1px 0;color:#6f8393;font-size:9.5px;line-height:1.55}
 .pro-official-empty{
   padding:8px 3px;
   text-align:center;
@@ -728,6 +738,14 @@ body{
 }
 .pro-bets strong{color:#fff}
 .pro-bets span{color:#d6d6d4}
+
+.pro-bets .pick-role{color:#efefef;background:#242527;border-color:#47494d}
+.pro-allocation{background:#151618;border-color:#3a3c40}
+.pro-allocation summary{color:#f1f1ef}
+.pro-allocation summary b{color:#d6d6d4}
+.pro-allocation summary:after{color:#8d8f93}
+.pro-allocation-body{border-top-color:#303236}
+.pro-allocation-body p{color:#8f9195}
 .pro-official-empty strong{color:#fff}
 .pro-official-empty p{color:#8f9195}
 
