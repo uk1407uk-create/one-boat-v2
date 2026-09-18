@@ -266,7 +266,7 @@ function renderOfficialPrediction(v){
   if(!box)return;
   const r=(v?.races||[]).find(x=>Number(x.race_no)===RACE);
   if(!r){
-    box.innerHTML='<div class="pro-official-empty"><strong>公式予想データ確認中</strong><p>詳細分析データは下で確認できます。</p></div>';
+    box.innerHTML='<div class="pro-official-empty"><strong>正式判断を確認中</strong><p>ONE BOATの正式記録が取得でき次第、判断理由を先に表示します。</p></div>';
     return;
   }
   const rec=r.record||{},p=rec.prediction||{},bets=officialBets(rec);
@@ -275,31 +275,31 @@ function renderOfficialPrediction(v){
   const theory=textValue(p.selected_theory||p.current_theory||p.strategy||rec.theory||'');
   const support=materialList(p.support_materials||rec.support_materials);
   const opposing=materialList(p.opposing_materials||rec.opposing_materials);
-  let html=`<div class="pro-official-head"><div><small>OFFICIAL PREDICTION</small><h2>ONE BOAT正式予想</h2></div><span>${esc(stateLabel(r.state))}</span></div>
+  const label=stateLabel(r.state);
+  let html=`<div class="pro-official-head"><div><small>OFFICIAL DECISION</small><h2>ONE BOATの正式判断</h2></div><span>${esc(label)}</span></div>
     <div class="pro-official-grid">
-      <div><span>締切</span><strong>${esc(String(r.deadline||'—').match(/\d{1,2}:\d{2}/)?.[0]||'—')}</strong></div>
-      <div><span>判定</span><strong>${esc(stateLabel(r.state))}</strong></div>
+      <div><span>締切</span><strong>${esc(String(r.deadline||'—').match(/\\d{1,2}:\\d{2}/)?.[0]||'—')}</strong></div>
+      <div><span>判定</span><strong>${esc(label)}</strong></div>
       <div><span>買い目</span><strong>${r.state==='PRIVATE'?'非公開':publicRecord(rec)?`${bets.length}点`:'購入なし'}</strong></div>
-    </div>`;
+    </div>
+    <div class="decision-trace"><small>WHY THIS DECISION</small><h3>この判断の決め手</h3><p>${esc(reason||(publicRecord(rec)?'正式ENTERとして確定しています。下の記録で判断材料を確認できます。':r.note||'正式判定を表示しています。'))}</p></div>
+    <div class="pro-data-principle"><strong>PROの見方</strong><span>データを大量表示する画面ではありません。正式予想に紐づく判断記録を先に見て、必要な補助データだけ下で確認します。</span></div>`;
+  if(theory||support.length||opposing.length){
+    html+='<div class="decision-materials">';
+    if(theory)html+=`<div class="decision-material theory"><span>採用理論</span><strong>${esc(theory)}</strong></div>`;
+    if(support.length)html+=`<div class="decision-material support"><span>支持材料</span><ul>${support.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`;
+    if(opposing.length)html+=`<div class="decision-material caution"><span>不安材料</span><ul>${opposing.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`;
+    html+='</div>';
+  }
   if(publicRecord(rec)){
-    html+=`<div class="pro-official-section"><b>推奨買い目</b>${bets.length?`<div class="pro-bets pro-bets-picks">${bets.map(x=>`<div><strong>${esc(officialTicket(x))}</strong><span class="pick-role">${officialRole(x)}</span><small class="pro-final-odds">最終オッズ予想 ${officialFinalOddsRange(x,r.deadline)}</small></div>`).join('')}</div><p class="pro-odds-note">※最終オッズ予想は、予想確定時の現在オッズと締切までの残り時間から算出した参考レンジです。確定オッズではなく、投票状況により範囲外となる場合があります。表示用の参考値で、ENTER判定・買い目・公式実績を後から変更するものではありません。</p>`:'<p>買い目取得待ち</p>'}</div>`;
+    html+=`<div class="pro-official-section"><b>推奨買い目</b>${bets.length?`<div class="pro-bets pro-bets-picks">${bets.map(x=>`<div><strong>${esc(officialTicket(x))}</strong><span class="pick-role">${officialRole(x)}</span><small class="pro-final-odds">最終オッズ予想 ${officialFinalOddsRange(x,r.deadline)}</small></div>`).join('')}</div><p class="pro-odds-note">※最終オッズ予想は予想確定時の現在オッズと締切までの残り時間から算出した参考レンジです。確定オッズではなく、ENTER判定・買い目・公式実績を後から変更するものではありません。</p>`:'<p>買い目取得待ち</p>'}</div>`;
     if(bets.length){
-      html+=`<details class="pro-allocation">
-        <summary><span>資金配分を見る</span><b>合計 ${yen(stake)}</b></summary>
-        <div class="pro-allocation-body">
-          <div class="pro-bets">${bets.map(x=>`<div><strong>${esc(officialTicket(x))}</strong><span>${yen(officialStake(x))}</span></div>`).join('')}</div>
-          <p>公式成績はレース前に確定したこの正式資金配分を基準に集計します。</p>
-        </div>
-      </details>`;
+      html+=`<details class="pro-allocation"><summary><span>資金配分を見る</span><b>合計 ${yen(stake)}</b></summary><div class="pro-allocation-body"><div class="pro-bets">${bets.map(x=>`<div><strong>${esc(officialTicket(x))}</strong><span>${yen(officialStake(x))}</span></div>`).join('')}</div><p>公式成績はレース前に確定した正式資金配分を基準に集計します。</p></div></details>`;
     }
   }
-  if(reason)html+=`<div class="pro-official-section"><b>予想根拠</b><p>${esc(reason)}</p></div>`;
-  if(theory)html+=`<div class="pro-official-section"><b>採用理論</b><p>${esc(theory)}</p></div>`;
-  if(support.length)html+=`<div class="pro-official-section"><b>支持材料</b><ul>${support.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`;
-  if(opposing.length)html+=`<div class="pro-official-section caution"><b>不安材料</b><ul>${opposing.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`;
-  if(r.state==='PRIVATE')html+=`<div class="pro-official-section"><b>公開状況</b><p>このレースの正式予想は本日の無料公開対象外です。</p></div>`;
+  if(r.state==='PRIVATE')html+=`<div class="pro-official-section"><b>公開状況</b><p>ONE BOATでは正式判断済みですが、本日の無料公開対象外です。有料版では正式ENTER全件を確認できる設計です。</p></div>`;
   box.innerHTML=html;
-  if(r.deadline)$('#race-deadline').textContent=String(r.deadline).match(/\d{1,2}:\d{2}/)?.[0]||'—';
+  if(r.deadline)$('#race-deadline').textContent=String(r.deadline).match(/\\d{1,2}:\\d{2}/)?.[0]||'—';
 }
 
 function renderMotorDetails(d){
@@ -378,30 +378,10 @@ function renderOdds(o){
   renderOddsGroup();
 }
 
-function paywallNext(){
-  return `/analysis.html?date=${encodeURIComponent(DATE)}&venue=${CODE}&race=${RACE}`;
-}
 function showPaywallMessage(text){
   const m=$('#paywall-message');if(!m)return;m.hidden=false;m.textContent=text;
 }
-async function startPaywallCheckout(plan,button){
-  if(!['day_pass','club_monthly'].includes(plan))return;
-  button.disabled=true;
-  try{
-    const r=await fetch('/api/member/checkout-intent',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'content-type':'application/json'},body:JSON.stringify({plan})});
-    const d=await r.json().catch(()=>({}));
-    if(r.status===401){
-      location.href=`/login?next=${encodeURIComponent('/club.html?buy='+plan)}`;
-      return;
-    }
-    if(!r.ok){showPaywallMessage(d.message||'購入手続きを開始できませんでした。');return}
-    if(d.url)location.href=d.url;
-  }catch{showPaywallMessage('購入手続きを開始できませんでした。')}
-  finally{button.disabled=false}
-}
-function setupPaywallButtons(){
-  document.querySelectorAll('[data-paywall-plan]').forEach(b=>b.addEventListener('click',()=>startPaywallCheckout(b.dataset.paywallPlan,b)));
-}
+function setupPaywallButtons(){}
 function renderPrivatePaywall(d,pub){
   DATA=null;
   document.body.setAttribute('aria-busy','false');
@@ -438,7 +418,7 @@ function render(d){
   DATA=d;
   const race=d.race||{};
   $('#race-title').textContent=`${venueName()} ${race.race_no||RACE}R`;
-  $('#race-subtitle').textContent='選手・展示・オッズを自分で比較';
+  $('#race-subtitle').textContent='正式判断を先に確認。必要な補助データだけ深掘り';
   $('#race-date').textContent=dateJp(race.date||DATE);
   $('#race-deadline').textContent='—';
   $('#race-updated').textContent=updated(d.trifecta_odds?.updated_at||d.exhibition_detail?.updated_at||d.original_exhibition?.updated_at);
