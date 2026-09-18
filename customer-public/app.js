@@ -39,7 +39,15 @@ function stakeOf(x){return Number(x?.stake_yen??x?.amount??x?.stake??0)}
 
 function venueTile(v){const cls=stateClass(v.state),quiet=(v.state==='NOEVENT'||v.state==='FINISHED')?' easy-quiet':'',hasRace=Number(v.next_race_no)>=1,meta=v.state==='NOEVENT'?'開催なし':v.state==='FINISHED'?'全レース終了':v.state==='UPDATING'&&!hasRace?'正式データ更新中':`${hasRace?v.next_race_no:'—'}R　${timeText(v.next_deadline)}`;return `<button class="venue-tile ${cls}${quiet}" type="button" data-code="${String(v.code).padStart(2,'0')}" aria-label="${esc(v.name)} ${stateLabel(v.state)}"><span class="venue-name">${esc(v.name)}</span><span class="venue-strip">${stateLabel(v.state)}</span><span class="venue-meta"><strong>${v.state==='NOEVENT'||!hasRace?'—':`${v.next_race_no}R`}</strong><em>${esc(meta)}</em></span></button>`}
 function renderVenues(venues){$('#venue-grid').innerHTML=(venues||[]).map(venueTile).join('');document.querySelectorAll('.venue-tile').forEach(b=>b.addEventListener('click',()=>openVenue(b.dataset.code)))}
-function renderFreeStrip(o){const live=(o?.venues||[]).filter(v=>v.state==='PUBLIC').slice(0,4);const watch=(o?.venues||[]).filter(v=>v.state==='WATCH').slice(0,2);const xs=[...live,...watch];const fallback=o?.source?.predictions===false?'予想データを更新中':'現在公開対象を確認中';$('#free-strip-list').innerHTML=xs.length?xs.map(v=>`<span class="free-chip ${stateClass(v.state)}">${esc(v.name)} ${stateLabel(v.state)} ${v.next_race_no?`${v.next_race_no}R`:''}</span>`).join(''):`<span class="free-chip">${fallback}</span>`}
+function renderFreeStrip(o){
+  const live=(o?.venues||[]).filter(v=>v.state==='PUBLIC').slice(0,4),watch=(o?.venues||[]).filter(v=>v.state==='WATCH').slice(0,2),xs=[...live,...watch];
+  const limit=Number(o?.free_limit??30),count=Number(o?.free_count??o?.public_count),remaining=Number(o?.free_remaining);
+  const hasCount=Number.isFinite(count),hasRemaining=Number.isFinite(remaining);
+  const progress=hasCount?`<span class="free-chip free-progress"><strong>本日の無料予想 ${count}/${limit}R</strong><b>残り${hasRemaining?remaining:Math.max(0,limit-count)}R</b><small>※正式ENTERが出たレースのみ公開</small></span>`:'';
+  const fallback=o?.source?.predictions===false?'予想データを更新中':'現在公開対象を確認中';
+  const status=xs.length?xs.map(v=>`<span class="free-chip ${stateClass(v.state)}">${esc(v.name)} ${stateLabel(v.state)} ${v.next_race_no?`${v.next_race_no}R`:''}</span>`).join(''):`<span class="free-chip">${fallback}</span>`;
+  $('#free-strip-list').innerHTML=progress+status;
+}
 function publicRaceCard(r){
   const settled=!!r.settlement,status=settled?(r.settlement.hit?'的中':'不的中'):'予想公開',cls=settled?(r.settlement.hit?'hit':'miss'):'locked';
   let sub;
@@ -226,7 +234,7 @@ async function load(){
   const pro=savedViewMode()==='pro';
   const all=o.public_items||[];
   const items=pro?all:all.filter(x=>!x.settlement).sort((a,b)=>deadlineMinute(a.deadline||a.close_time)-deadlineMinute(b.deadline||b.close_time));
-  $('#public-count').textContent=o.public_count===null||o.public_count===undefined?'更新中':pro?`公開 ${Number(o.public_count)}R`:`公開中 ${items.length}R`;
+  $('#public-count').textContent=o.public_count===null||o.public_count===undefined?'更新中':pro?`無料 ${Number(o.public_count)}/${Number(o.free_limit||30)}R`:`公開中 ${items.length}R`;
   $('#today-list').innerHTML=items.length?items.map(publicRaceCard).join(''):(pro?'<div class="race-card"><div class="race-main"><strong>現在、公開対象なし</strong><small>対象レースが確定すると自動表示します</small></div></div>':'<div class="race-card"><div class="race-main"><strong>現在、公開中の予想はありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>');
   document.querySelectorAll('.race-card-button').forEach(b=>b.addEventListener('click',async()=>{await openVenue(b.dataset.vcode);openRace(Number(b.dataset.rno))}));
   $('#result-list').innerHTML=stats?.latest?.length?(stats.latest||[]).slice(0,8).map(resultCard).join(''):'<div class="race-card"><div class="race-main"><strong>結果集計を更新中</strong><small>本日の予想・場情報はそのまま確認できます。</small></div></div>';
