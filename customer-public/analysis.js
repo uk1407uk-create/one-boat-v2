@@ -12,6 +12,7 @@ window.addEventListener('pageshow',()=>{enforceOneBoatCanonical()});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)enforceOneBoatCanonical()});
 const $=s=>document.querySelector(s);
 const API='https://imhzjlxbnovjvqlyawmg.supabase.co/functions/v1/one-boat-race-analysis-api';
+const LIVE_ORIGINAL_API='https://imhzjlxbnovjvqlyawmg.supabase.co/functions/v1/one-boat-live-original';
 const VENUES=['桐生','戸田','江戸川','平和島','多摩川','浜名湖','蒲郡','常滑','津','三国','びわこ','住之江','尼崎','鳴門','丸亀','児島','宮島','徳山','下関','若松','芦屋','福岡','唐津','大村'];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const params=new URLSearchParams(location.search);
@@ -437,6 +438,40 @@ async function load(){
     }
 }
 
+async function refreshLiveOriginal(){
+  if(DATE!==jstDate()||CODE===3||document.hidden)return false;
+  const current=DATA?.original_exhibition;
+  if(current?.available===true&&Array.isArray(current?.boats)&&current.boats.length===6)return true;
+  try{
+    const u=new URL(LIVE_ORIGINAL_API);
+    u.searchParams.set('date',DATE);
+    u.searchParams.set('venue',String(CODE));
+    u.searchParams.set('race',String(RACE));
+    u.searchParams.set('_',String(Date.now()));
+    const r=await fetch(u,{cache:'no-store',headers:{accept:'application/json'}});
+    if(!r.ok)return false;
+    const d=await r.json();
+    if(d?.ok===true&&d?.available===true){
+      if(!DATA)DATA={};
+      DATA.original_exhibition=d;
+      renderOriginalExhibition(DATA);
+      return true;
+    }
+  }catch{}
+  return false;
+}
+let ORIGINAL_TIMER=null;
+function scheduleLiveOriginalRefresh(){
+  if(ORIGINAL_TIMER){clearTimeout(ORIGINAL_TIMER);ORIGINAL_TIMER=null}
+  if(DATE!==jstDate()||CODE===3||document.hidden)return;
+  const current=DATA?.original_exhibition;
+  if(current?.available===true&&Array.isArray(current?.boats)&&current.boats.length===6)return;
+  ORIGINAL_TIMER=setTimeout(async()=>{
+    const done=await refreshLiveOriginal();
+    if(!done)scheduleLiveOriginalRefresh();
+  },5000);
+}
+
 async function refreshOfficialPrediction(){
   if(DATE!==jstDate()||document.hidden)return;
   try{
@@ -453,11 +488,16 @@ function scheduleOfficialRefresh(){
   OFFICIAL_TIMER=setTimeout(async()=>{await refreshOfficialPrediction();scheduleOfficialRefresh()},10000);
 }
 document.addEventListener('visibilitychange',()=>{
-  if(document.hidden){if(OFFICIAL_TIMER)clearTimeout(OFFICIAL_TIMER);OFFICIAL_TIMER=null;return}
+  if(document.hidden){
+    if(OFFICIAL_TIMER)clearTimeout(OFFICIAL_TIMER);OFFICIAL_TIMER=null;
+    if(ORIGINAL_TIMER)clearTimeout(ORIGINAL_TIMER);ORIGINAL_TIMER=null;
+    return;
+  }
   refreshOfficialPrediction().finally(scheduleOfficialRefresh);
+  refreshLiveOriginal().then(done=>{if(!done)scheduleLiveOriginalRefresh()});
 });
 
 setupViewMode();
 setupTabs();
 setupDisplayTabs();
-load().finally(scheduleOfficialRefresh);
+load().finally(()=>{scheduleOfficialRefresh();scheduleLiveOriginalRefresh()});
