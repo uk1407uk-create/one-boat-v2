@@ -1556,3 +1556,127 @@ body{
   .motor-meta small{font-size:7.5px!important}
   .motor-meta b{font-size:9.5px!important}
 }
+
+
+/* PRO gold-edge experiment — reversible visual-only layer */
+:root{
+  --pro-gold:#c99a32;
+  --pro-gold-bright:#e4bd58;
+  --pro-gold-soft:#8b6924;
+  --pro-gold-faint:rgba(201,154,50,.34);
+}
+.app-header{
+  border-bottom:1px solid var(--pro-gold)!important;
+}
+.club-link{
+  border-color:var(--pro-gold)!important;
+  color:#f3d67c!important;
+}
+.race-hero{
+  border-bottom-color:var(--pro-gold)!important;
+}
+.hero-meta{
+  border-color:var(--pro-gold)!important;
+}
+.hero-meta div{
+  border-right-color:var(--pro-gold-soft)!important;
+}
+.view-mode-switch{
+  border-color:var(--pro-gold)!important;
+  background:#0b0d11!important;
+}
+.view-mode{
+  color:#8f9298!important;
+}
+.view-mode.active{
+  color:#111214!important;
+  background:linear-gradient(180deg,#f0cc6a,#bd8a24)!important;
+  box-shadow:0 0 0 1px rgba(255,224,128,.25),0 6px 16px rgba(155,108,18,.18)!important;
+}
+.pro-official,
+.racer-card,
+.ex-card,
+.surface-card,
+.empty-card,
+.official-cta,
+.engine-metric,
+.eval-empty,
+.motor-official-score,
+.motor-row,
+.start-board,
+.original-wrap,
+.odds-item,
+.my-panel,
+.pro-allocation{
+  border-color:var(--pro-gold)!important;
+}
+.analysis-tabs{
+  border-bottom-color:var(--pro-gold)!important;
+}
+.analysis-tab{
+  border-right-color:var(--pro-gold-soft)!important;
+}
+.analysis-tab.active{
+  color:#f5d77d!important;
+  box-shadow:inset 0 -2px 0 var(--pro-gold-bright)!important;
+}
+.subsection{
+  border-top-color:var(--pro-gold-soft)!important;
+}
+.section-head>span,
+.section-head .official-tag,
+.mini-head span,
+.data-note,
+.display-switch-btn,
+.odds-filter-btn,
+.surface-status-line,
+.surface-empty-premium{
+  border-color:var(--pro-gold-soft)!important;
+}
+.display-switch-btn.active,
+.odds-filter-btn.active{
+  border-color:var(--pro-gold)!important;
+  color:#111214!important;
+  background:linear-gradient(180deg,#f0cc6a,#bd8a24)!important;
+}
+.pro-official-grid{
+  border-color:var(--pro-gold)!important;
+}
+.pro-official-grid>div{
+  border-right-color:var(--pro-gold-soft)!important;
+}
+.pro-official-section,
+.pro-allocation-body,
+.motor-meta,
+.racer-quick,
+.racer-details,
+.start-board-head,
+.start-scale,
+.start-row{
+  border-color:var(--pro-gold-soft)!important;
+}
+.pro-bets>div{
+  border-color:var(--pro-gold-soft)!important;
+}
+.motor-row:before,
+.surface-card:before{
+  background:var(--pro-gold)!important;
+}
+.bottom-nav{
+  border-top-color:var(--pro-gold)!important;
+}
+.bottom-nav a.active,
+.bottom-nav a.active b{
+  color:#f2cf6a!important;
+}
+.back-link{
+  color:#f5d77d!important;
+}
+.eyebrow,
+.section-head small,
+.pro-official-head small{
+  color:#caa54e!important;
+}
+.state-badge.live{
+  border:1px solid var(--pro-gold-soft)!important;
+}
