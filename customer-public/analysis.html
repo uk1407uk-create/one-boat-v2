@@ -6,14 +6,13 @@
 <meta name="theme-color" content="#0877d7">
 <meta name="robots" content="noindex,follow">
 <title>レース分析｜ONE BOAT</title>
-<meta name="description" content="ONE BOAT レース分析。専用APIの正式データだけを使い、選手・展示・オッズを確認して自分用のMY予想を組み立てられます。">
-<link rel="stylesheet" href="/analysis.css?v=20260918-analysis1">
-<link rel="stylesheet" href="/analysis-api.css?v=20260918-api2">
+<meta name="description" content="ONE BOAT レース分析。専用APIの正式データだけを使い、選手・展示・水面・オッズを確認して自分用のMY予想を組み立てられます。">
+<link rel="stylesheet" href="/analysis.css?v=20260918-readable2">
 </head>
 <body aria-busy="true">
 <header class="app-header">
   <a class="back-link" href="/today.html" aria-label="本日の予想へ戻る">‹</a>
-  <div class="app-title"><small>ONE BOAT</small><strong>RACE ANALYSIS</strong></div>
+  <div class="app-title"><small>ONE BOAT</small><strong>レース分析</strong></div>
   <a class="club-link" href="/club.html">CLUB</a>
 </header>
 
@@ -21,78 +20,102 @@
   <section class="race-hero" aria-labelledby="race-title">
     <div class="hero-top">
       <div>
-        <p class="eyebrow">SELF ANALYSIS</p>
+        <p class="eyebrow">RACE ANALYSIS</p>
         <h1 id="race-title">レース情報を読み込み中</h1>
-        <p id="race-subtitle" class="subline">専用APIから正式データを取得しています</p>
+        <p id="race-subtitle" class="subline">正式データを取得しています</p>
       </div>
       <span id="race-state" class="state-badge pending">取得中</span>
     </div>
+
     <div class="hero-meta">
       <div><span>開催日</span><strong id="race-date">—</strong></div>
       <div><span>締切</span><strong id="race-deadline">—</strong></div>
-      <div><span>更新</span><strong id="race-updated">—</strong></div>
+      <div><span>データ更新</span><strong id="race-updated">—</strong></div>
     </div>
-    <div class="separation-note"><i></i><span>この画面の「MY予想」はあなた専用です。ONE BOAT公式予想・ENTER成績・回収率には一切反映されません。</span></div>
+
+    <div class="separation-note"><i></i><span>MY予想は自分用。ONE BOAT公式予想・成績・回収率には反映されません。</span></div>
   </section>
 
   <nav class="analysis-tabs" id="analysis-tabs" aria-label="レース分析メニュー">
-    <button class="analysis-tab active" type="button" data-tab="racers">選手</button>
-    <button class="analysis-tab" type="button" data-tab="exhibition">展示</button>
-    <button class="analysis-tab" type="button" data-tab="surface">水面</button>
-    <button class="analysis-tab" type="button" data-tab="engine">評価</button>
+    <button class="analysis-tab active" type="button" data-tab="basic">基本</button>
+    <button class="analysis-tab" type="button" data-tab="live">展示・水面</button>
     <button class="analysis-tab" type="button" data-tab="odds">オッズ</button>
     <button class="analysis-tab" type="button" data-tab="my">MY予想</button>
   </nav>
 
   <div id="page-message" class="page-message" hidden></div>
 
-  <section class="tab-panel active" data-panel="racers">
-    <div class="section-head"><div><small>RACERS</small><h2>選手・成績</h2></div><span>6艇比較</span></div>
-    <p class="section-help">登録番号・全体成績・平均ST・現在進入に対応するコース別ST情報を、専用APIの正式値だけで比較します。</p>
+  <section class="tab-panel active" data-panel="basic">
+    <div class="section-head">
+      <div><small>6 BOATS</small><h2>選手を比較</h2></div>
+      <span>タップで詳細</span>
+    </div>
+    <p class="section-help">まずは「勝率・平均ST・コースST」を6艇で見比べられます。細かい成績は各選手をタップしてください。</p>
     <div id="racer-list" class="racer-list"><div class="skeleton tall"></div><div class="skeleton tall"></div></div>
+
+    <div class="subsection">
+      <div class="section-head compact">
+        <div><small>ONE BOAT</small><h2>正式評価</h2></div>
+        <span class="official-tag">公式値のみ</span>
+      </div>
+      <div id="engine-summary" class="engine-summary"></div>
+      <div id="engine-rankings" class="engine-rankings"></div>
+    </div>
   </section>
 
-  <section class="tab-panel" data-panel="exhibition">
-    <div class="section-head"><div><small>EXHIBITION</small><h2>展示・スタート</h2></div><span id="exhibition-status">取得中</span></div>
-    <p class="section-help">展示タイム・進入・スタート展示・オリジナル展示・一周/半周/まわり足/直線を、取得できた正式値だけ表示します。</p>
-    <div id="exhibition-list" class="data-card"><div class="skeleton"></div></div>
+  <section class="tab-panel" data-panel="live">
+    <div class="section-head">
+      <div><small>EXHIBITION</small><h2>展示・スタート</h2></div>
+      <span id="exhibition-status">取得中</span>
+    </div>
+    <p class="section-help">6艇の進入・展示ST・展示タイムを上段にまとめ、詳細タイムは下に整理しています。</p>
+    <div id="exhibition-list" class="exhibition-list"><div class="skeleton"></div></div>
     <div id="exhibition-note" class="data-note"></div>
-  </section>
 
-  <section class="tab-panel" data-panel="surface">
-    <div class="section-head"><div><small>WATER & WEATHER</small><h2>水面・気象</h2></div><span>正式値のみ</span></div>
-    <div id="surface-grid" class="surface-grid"><div class="skeleton"></div><div class="skeleton"></div></div>
-    <div id="tide-note" class="data-note"></div>
-  </section>
-
-  <section class="tab-panel" data-panel="engine">
-    <div class="section-head"><div><small>ONE BOAT ENGINE</small><h2>正式エンジン評価</h2></div><span class="official-tag">公式値のみ</span></div>
-    <p class="section-help">展示・ST・モーター・コース・総合評価は、正式な score_breakdown に存在する値だけ表示します。④側で再計算しません。</p>
-    <div id="engine-summary" class="engine-summary"></div>
-    <div id="engine-rankings" class="engine-rankings"></div>
+    <div class="subsection">
+      <div class="section-head compact">
+        <div><small>WATER & WEATHER</small><h2>水面・気象</h2></div>
+        <span>正式値のみ</span>
+      </div>
+      <div id="surface-grid" class="surface-grid"><div class="skeleton"></div></div>
+      <div id="tide-note" class="data-note"></div>
+    </div>
   </section>
 
   <section class="tab-panel" data-panel="odds">
-    <div class="section-head"><div><small>TRIFECTA ODDS</small><h2>3連単オッズ</h2></div><span id="odds-updated">更新 —</span></div>
-    <p class="section-help">最大120通り。APIの現在値と更新時刻をそのまま表示し、過去値や推測値では補完しません。</p>
+    <div class="section-head">
+      <div><small>TRIFECTA</small><h2>3連単オッズ</h2></div>
+      <span id="odds-updated">更新 —</span>
+    </div>
+    <p class="section-help">120通りを一気に並べず、1着艇ごとに20通りへ分けて見やすくしています。数値はAPIの正式値そのままです。</p>
+    <div id="odds-filter" class="odds-filter" aria-label="1着艇で絞り込み"></div>
     <div id="odds-content" class="empty-card"><strong>オッズを確認中</strong><p>取得できた正式データのみ表示します。</p></div>
   </section>
 
   <section class="tab-panel" data-panel="my">
-    <div class="section-head"><div><small>MY PICK</small><h2>MY予想</h2></div><span class="my-tag">端末内のみ</span></div>
-    <p class="section-help">1着・2着・3着を選んで、自分用の3連単を組み立てます。実際の舟券購入機能はありません。</p>
+    <div class="section-head">
+      <div><small>MY PICK</small><h2>MY予想</h2></div>
+      <span class="my-tag">端末内のみ</span>
+    </div>
+    <p class="section-help">1着・2着・3着を順番に選ぶだけ。公式予想とは完全に別管理です。</p>
+
     <div class="my-picker">
       <div class="pick-row"><div class="pick-label"><b>1</b><span>1着</span></div><div class="lane-buttons" data-place="first"></div></div>
       <div class="pick-row"><div class="pick-label"><b>2</b><span>2着</span></div><div class="lane-buttons" data-place="second"></div></div>
       <div class="pick-row"><div class="pick-label"><b>3</b><span>3着</span></div><div class="lane-buttons" data-place="third"></div></div>
     </div>
-    <div class="my-result"><small>MY予想</small><strong id="my-ticket">— - — - —</strong><button id="clear-my" type="button">クリア</button></div>
-    <p class="local-only">この内容はこの端末のブラウザ内だけに保存され、ONE BOATの公式予想・結果・収支・検証データには送信されません。</p>
+
+    <div class="my-result">
+      <small>MY予想</small>
+      <strong id="my-ticket">— - — - —</strong>
+      <button id="clear-my" type="button">クリア</button>
+    </div>
+    <p class="local-only">この内容はこのiPhoneのブラウザ内だけに保存されます。ONE BOATの公式予想・結果・収支・検証データには送信されません。</p>
   </section>
 
   <section class="official-cta">
-    <div><small>OFFICIAL PREDICTION</small><h2>ONE BOAT公式予想</h2><p>公式予想は予想エンジンで確定した正式データだけを表示します。MY予想とは完全に別管理です。</p></div>
-    <a id="official-link" href="/today.html">ONE BOAT公式予想を見る <b>›</b></a>
+    <div><small>OFFICIAL</small><h2>ONE BOAT公式予想</h2><p>公式予想は予想エンジンで確定した正式データだけを表示します。</p></div>
+    <a id="official-link" href="/today.html">公式予想を見る <b>›</b></a>
   </section>
 </main>
 
@@ -103,6 +126,6 @@
   <a href="/club.html"><b>◎</b><span>CLUB</span></a>
 </nav>
 
-<script src="/analysis.js?v=20260918-api2" defer></script>
+<script src="/analysis.js?v=20260918-readable2" defer></script>
 </body>
 </html>
