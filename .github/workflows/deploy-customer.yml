@@ -90,6 +90,11 @@ jobs:
           grep -q '/api/auth/login' customer-public/member.js
           grep -q '/api/member/checkout-intent' customer-public/member.js
           grep -q "import base from './worker_member.js'" worker_customer_hero.js
+          grep -q '"/api/\*"' wrangler.customer.jsonc
+          grep -q '"\/\*.html"' wrangler.customer.jsonc
+          grep -q "FREE_STATS_URL='/api/public/stats'" customer-public/app.js
+          ! grep -q 'one-boat-public-visibility' customer-public/app.js
+          grep -q 'scheduleLiveRefresh' customer-public/app.js
 
       - name: Deploy customer Worker
         env:
