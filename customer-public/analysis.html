@@ -38,7 +38,7 @@
 
   <nav class="analysis-tabs" id="analysis-tabs" aria-label="レース分析メニュー">
     <button class="analysis-tab active" type="button" data-tab="basic">基本</button>
-    <button class="analysis-tab" type="button" data-tab="live">展示・水面</button>
+    <button class="analysis-tab" type="button" data-tab="live">展示</button>
     <button class="analysis-tab" type="button" data-tab="odds">オッズ</button>
     <button class="analysis-tab" type="button" data-tab="my">MY予想</button>
   </nav>
@@ -65,12 +65,27 @@
 
   <section class="tab-panel" data-panel="live">
     <div class="section-head">
-      <div><small>EXHIBITION</small><h2>展示・スタート</h2></div>
-      <span id="exhibition-status">取得中</span>
+      <div><small>EXHIBITION</small><h2>直前展示</h2></div>
+      <span>正式値のみ</span>
     </div>
-    <p class="section-help">6艇の進入・展示ST・展示タイムを上段にまとめ、詳細タイムは下に整理しています。</p>
-    <div id="exhibition-list" class="exhibition-list"><div class="skeleton"></div></div>
-    <div id="exhibition-note" class="data-note"></div>
+    <p class="section-help">スタート展示とオリジナル展示を分けて確認できます。スタート展示は6艇の位置とSTを視覚的に表示します。</p>
+
+    <div class="display-switch" aria-label="展示切替">
+      <button type="button" class="display-switch-btn active" data-display="start">スタート展示</button>
+      <button type="button" class="display-switch-btn" data-display="original">オリジナル展示</button>
+    </div>
+
+    <div class="display-panel active" data-display-panel="start">
+      <div class="mini-head"><strong>スタート展示</strong><span id="start-status">取得中</span></div>
+      <div id="start-exhibition" class="start-board"><div class="skeleton tall"></div></div>
+      <div id="start-note" class="data-note"></div>
+    </div>
+
+    <div class="display-panel" data-display-panel="original">
+      <div class="mini-head"><strong>オリジナル展示</strong><span id="original-status">取得中</span></div>
+      <div id="original-exhibition" class="original-wrap"><div class="skeleton tall"></div></div>
+      <div id="original-note" class="data-note"></div>
+    </div>
 
     <div class="subsection">
       <div class="section-head compact">
