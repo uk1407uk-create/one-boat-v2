@@ -62,18 +62,24 @@ function startPosition(v){
 }
 
 function boatSvg(lane,color){
-  return `<svg viewBox="0 0 126 54" aria-label="${lane}号艇" role="img">
-    <path d="M5 39c11-1 18-3 25-7" fill="none" stroke="rgba(255,255,255,.92)" stroke-width="3" stroke-linecap="round"/>
-    <path d="M1 44c15-1 25-4 34-9" fill="none" stroke="rgba(255,255,255,.58)" stroke-width="2" stroke-linecap="round"/>
-    <path d="M19 31h91c5 0 9-2 13-5-3 10-13 17-28 19H43c-11 0-19-4-24-14Z" fill="#f7c63d" stroke="#9a7a13" stroke-width="1"/>
-    <path d="M31 29c7-7 15-12 29-12h29c7 0 13 4 17 12H31Z" fill="#fbfdff" stroke="#8d9ca8" stroke-width="1.2"/>
-    <path d="M58 17c4-8 11-12 20-12 8 0 15 4 18 12H58Z" fill="${color}" stroke="rgba(0,0,0,.25)" stroke-width="1"/>
-    <path d="M70 10c3-5 7-7 12-7 5 0 9 2 11 7" fill="none" stroke="rgba(255,255,255,.42)" stroke-width="2"/>
-    <path d="M48 18h30l-7 11H39Z" fill="rgba(197,222,236,.55)"/>
-    <path d="M96 14v15" stroke="#53616b" stroke-width="1.5"/>
-    <path d="M97 15l14 5-14 5Z" fill="${color}" stroke="rgba(0,0,0,.2)"/>
-    <circle cx="28" cy="36" r="9" fill="rgba(255,255,255,.97)"/>
-    <text x="28" y="39" text-anchor="middle" font-size="9" font-weight="900" fill="#07121d">${lane}</text>
+  const textColor=lane===5?'#1e2d39':'#ffffff';
+  const plateStroke=lane===1?'#9eacb7':color;
+  return `<svg viewBox="0 0 168 58" aria-label="${lane}号艇" role="img">
+    <path d="M3 40c13 0 25-2 38-7" fill="none" stroke="rgba(255,255,255,.86)" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M0 47c17-1 31-4 47-11" fill="none" stroke="rgba(255,255,255,.42)" stroke-width="1.4" stroke-linecap="round"/>
+    <path d="M21 35c13-8 29-11 52-11h63c11 0 20-2 29-7-5 12-18 22-40 27H55c-15 0-27-3-34-9Z" fill="#f8fbfd" stroke="#8fa4b3" stroke-width="1.2"/>
+    <path d="M25 35h108c8 0 15-1 24-5-7 7-18 12-34 15H55c-13 0-23-3-30-10Z" fill="#e7f0f5"/>
+    <path d="M31 34h107c7 0 13-1 19-3" fill="none" stroke="#d7e3ea" stroke-width="1"/>
+    <path d="M47 31c8-10 19-16 35-16h37c10 0 18 5 24 16H47Z" fill="#ffffff" stroke="#91a4b3" stroke-width="1.1"/>
+    <path d="M66 16c5-8 14-12 25-12 11 0 20 4 25 12H66Z" fill="#eaf1f5" stroke="#7f909c" stroke-width="1"/>
+    <path d="M74 15c4-5 10-8 17-8 7 0 13 3 16 8" fill="none" stroke="#c6d3db" stroke-width="1.4"/>
+    <path d="M58 28h73" stroke="${color}" stroke-width="3.2" stroke-linecap="round"/>
+    <path d="M108 15v15" stroke="#526877" stroke-width="1.3"/>
+    <path d="M109 16l15 5-15 5Z" fill="${color}" stroke="rgba(0,0,0,.18)" stroke-width=".7"/>
+    <rect x="44" y="25" width="18" height="13" rx="2.5" fill="${color}" stroke="${plateStroke}" stroke-width=".8"/>
+    <text x="53" y="34.5" text-anchor="middle" font-size="9.5" font-weight="900" fill="${textColor}">${lane}</text>
+    <path d="M139 25l18-7" stroke="#6b7d89" stroke-width="1.2" stroke-linecap="round"/>
+    <path d="M143 33l17-2" stroke="#b3c2cc" stroke-width=".8" stroke-linecap="round"/>
   </svg>`;
 }
 
@@ -96,7 +102,7 @@ function renderStartExhibition(d){
         <div class="start-course"><b>${value(r.course)}</b><span>コース</span></div>
         <div class="start-track">
           <div class="start-line" aria-hidden="true"></div>
-          <div class="start-boat-shell${flying?' flying':''}" style="--boat-x:${startPosition(st)}%" aria-label="${lane}号艅">${boatSvg(lane,colors[lane-1])}</div>
+          <div class="start-boat-shell${flying?' flying':''}" style="--boat-x:${startPosition(st)}%" aria-label="${lane}号艇">${boatSvg(lane,colors[lane-1])}</div>
         </div>
         <div class="start-st ${flying?'flying':''}">${stText(st)}</div>
       </div>`;
