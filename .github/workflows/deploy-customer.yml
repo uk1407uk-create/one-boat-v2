@@ -97,6 +97,10 @@ jobs:
           grep -q 'scheduleLiveRefresh' customer-public/app.js
           grep -q 'REFRESH_BURST_LEFT=2' customer-public/app.js
           grep -q 'setupLazyStats' customer-public/app.js
+          grep -q 'band-performance' customer-public/today.html
+          grep -q 'LIVE RESULTS' customer-public/today.html
+          grep -q 'renderBandPerformance' customer-public/app.js
+          grep -q 'winning_odds' customer-public/app.js
           grep -q 'site_only_keys' worker_customer.js
           ! grep -q 'one-boat-public-visibility' customer-public/app.js
           ! grep -q 'setInterval(load,30000)' customer-public/app.js
