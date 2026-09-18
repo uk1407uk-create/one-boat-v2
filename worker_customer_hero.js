@@ -6,8 +6,9 @@ const VENUES=['桐生','戸田','江戸川','平和島','多摩川','浜名湖',
 
 function canonicalRedirect(request){
   const u=new URL(request.url);
-  if(u.hostname!=='www.one-boat-club.jp') return null;
-  return Response.redirect(`${CANONICAL_ORIGIN}${u.pathname}${u.search}`,308);
+  const legacy=u.hostname==='www.one-boat-club.jp'||u.hostname==='one-boat-customer.uk-1407-uk.workers.dev';
+  if(!legacy) return null;
+  return Response.redirect(`${CANONICAL_ORIGIN}${u.pathname}${u.search}${u.hash}`,308);
 }
 
 async function assetPage(request,env,path){
