@@ -455,7 +455,7 @@ async function load(){
   const normalized=`/analysis.html?date=${encodeURIComponent(DATE)}&venue=${CODE}&race=${RACE}`;
   if(location.pathname+location.search!==normalized)history.replaceState(null,'',normalized);
   try{
-    const u=new URL(API);u.searchParams.set('date',DATE);u.searchParams.set('venue',String(CODE));u.searchParams.set('race',String(RACE));
+    const u=new URL(API,location.origin);u.searchParams.set('date',DATE);u.searchParams.set('venue',String(CODE));u.searchParams.set('race',String(RACE));
     const publicPromise=DATE===jstDate()
       ?fetch(`/api/public/venue?code=${encodeURIComponent(String(CODE).padStart(2,'0'))}`,{cache:'no-store'}).then(x=>x.ok?x.json():null).catch(()=>null)
       :Promise.resolve(null);
@@ -489,11 +489,12 @@ async function load(){
 }
 
 async function refreshLiveOriginal(){
+  if(document.body.classList.contains('analysis-locked'))return true;
   if(DATE!==jstDate()||CODE===3||document.hidden)return false;
   const current=DATA?.original_exhibition;
   if(current?.available===true&&Array.isArray(current?.boats)&&current.boats.length===6)return true;
   try{
-    const u=new URL(LIVE_ORIGINAL_API);
+    const u=new URL(LIVE_ORIGINAL_API,location.origin);
     u.searchParams.set('date',DATE);
     u.searchParams.set('venue',String(CODE));
     u.searchParams.set('race',String(RACE));
@@ -513,7 +514,7 @@ async function refreshLiveOriginal(){
 let ORIGINAL_TIMER=null;
 function scheduleLiveOriginalRefresh(){
   if(ORIGINAL_TIMER){clearTimeout(ORIGINAL_TIMER);ORIGINAL_TIMER=null}
-  if(DATE!==jstDate()||CODE===3||document.hidden)return;
+  if(document.body.classList.contains('analysis-locked')||DATE!==jstDate()||CODE===3||document.hidden)return;
   const current=DATA?.original_exhibition;
   if(current?.available===true&&Array.isArray(current?.boats)&&current.boats.length===6)return;
   ORIGINAL_TIMER=setTimeout(async()=>{
@@ -523,7 +524,7 @@ function scheduleLiveOriginalRefresh(){
 }
 
 async function refreshOfficialPrediction(){
-  if(DATE!==jstDate()||document.hidden)return;
+  if(document.body.classList.contains('analysis-locked')||DATE!==jstDate()||document.hidden)return;
   try{
     const r=await fetch(`/api/public/venue?code=${encodeURIComponent(String(CODE).padStart(2,'0'))}&_=${Date.now()}`,{cache:'no-store'});
     if(!r.ok)return;
@@ -534,7 +535,7 @@ async function refreshOfficialPrediction(){
 let OFFICIAL_TIMER=null;
 function scheduleOfficialRefresh(){
   if(OFFICIAL_TIMER)clearTimeout(OFFICIAL_TIMER);
-  if(document.hidden)return;
+  if(document.body.classList.contains('analysis-locked')||document.hidden)return;
   OFFICIAL_TIMER=setTimeout(async()=>{await refreshOfficialPrediction();scheduleOfficialRefresh()},10000);
 }
 document.addEventListener('visibilitychange',()=>{
