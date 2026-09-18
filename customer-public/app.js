@@ -69,7 +69,7 @@ trackLite('landing');
 function setTone(el,n){if(!el)return;el.classList.remove('positive','negative');if(Number(n)>0)el.classList.add('positive');if(Number(n)<0)el.classList.add('negative')}
 function renderMetrics(key='today'){const x=STATS?.[key];if(!x)return;$('#m-roi').textContent=pct(x.roi);setTone($('#m-roi'),x.roi-100);$('#m-hit').textContent=pct(x.hit_rate);$('#m-profit').textContent=`${x.profit_yen>0?'+':''}${yen(x.profit_yen)}`;setTone($('#m-profit'),x.profit_yen);$('#m-races').textContent=`公開 ${x.races||0}R / ${x.hits||0}的中`;renderBandPerformance(key)}
 function formatJpDate(v){const d=v?new Date(`${String(v).slice(0,10)}T00:00:00+09:00`):new Date();return `${d.getMonth()+1}月${d.getDate()}日(${['日','月','火','水','木','金','土'][d.getDay()]})のレース`}
-function stateLabel(s){return {PUBLIC:'予想公開',WATCH:'様子見',SKIP:'見送り',PRIVATE:'予想完了',SETTLED:'結果確定',FINISHED:'本日終了',CLOSED:'終了',NOEVENT:'本日非開催',PENDING:'直前分析中',UPDATING:'更新中'}[s]||'更新中'}
+function stateLabel(s){return {PUBLIC:'予想公開',WATCH:'様子見',SKIP:'見送り',PRIVATE:'CLUB対象',SETTLED:'結果確定',FINISHED:'本日終了',CLOSED:'終了',NOEVENT:'本日非開催',PENDING:'直前分析中',UPDATING:'更新中'}[s]||'更新中'}
 function stateClass(s){return {PUBLIC:'live',WATCH:'watch',SKIP:'skip',PRIVATE:'idle',SETTLED:'settled',FINISHED:'idle',CLOSED:'idle',NOEVENT:'idle',PENDING:'pending',UPDATING:'pending'}[s]||'pending'}
 function timeText(v){const m=String(v||'').match(/(\d{1,2}:\d{2})/);return m?m[1]:'--:--'}
 function deadlineMinute(v){const m=String(v||'').match(/(\d{1,2}):(\d{2})/);return m?Number(m[1])*60+Number(m[2]):9999}
@@ -81,6 +81,18 @@ function deadlineLeftText(v){
   return left<60?`あと${left}分`:'';
 }
 function publicRecord(r){const d=String(r?.decision||r?.prediction?.decision||'').toUpperCase(),stake=Number(r?.stake_total_yen??r?.prediction?.stake_total_yen??0);return d==='ENTER'&&stake>0}
+async function paidTodayEnter(date){
+  try{
+    const s=await fetch('/api/member/session',{credentials:'same-origin',cache:'no-store'}).then(r=>r.json()).catch(()=>null);
+    if(!s?.logged_in||s?.paid_access!==true)return null;
+    const u=new URL('/api/member/today-enter',location.origin);u.searchParams.set('date',date);
+    const r=await fetch(u,{credentials:'same-origin',cache:'no-store',headers:{accept:'application/json'}});
+    if(!r.ok)return null;
+    const d=await r.json().catch(()=>null);
+    if(!d?.ok||!Array.isArray(d.records))return null;
+    return d.records.map(x=>({...x,venue_name:VENUES[Number(x.venue_code)-1]||`場${x.venue_code||'--'}`}));
+  }catch{return null}
+}
 function betsOf(r){const p=r?.prediction||{};return Array.isArray(r?.bets)&&r.bets.length?r.bets:Array.isArray(p.production_picks)?p.production_picks:[]}
 function ticketOf(x){return x?.ticket||x?.combination||x?.bet||'--'}
 function stakeOf(x){return Number(x?.stake_yen??x?.amount??x?.stake??0)}
@@ -287,7 +299,7 @@ function raceDetail(r){
     html+=`<section class="detail-block decision-message"><div class="detail-label">ONE BOATの判断</div><h3>${state}</h3><p>${esc(reasonShort||r.note||'条件が整うまで公開予想には含めません。')}</p></section>`;
   }
 
-  html+=`<a class="pro-jump" data-view-mode="pro" href="${proHref}">
+  if(effectiveState!=='PRIVATE')html+=`<a class="pro-jump" data-view-mode="pro" href="${proHref}">
     <span><small>PRO MODE</small><strong>ONE BOATが判断に使った根拠を深掘り</strong></span><b>›</b>
   </a>`;
 
@@ -324,9 +336,19 @@ async function load(){
   const all=o.public_items||[];
   const liveSettled=all.filter(x=>x?.settlement).sort((a,b)=>deadlineMinute(b.deadline||b.close_time)-deadlineMinute(a.deadline||a.close_time)).slice(0,6);
   if(liveSettled.length)$('#result-list').innerHTML=liveSettled.map(resultCard).join('');
-  const items=pro?all:all.filter(x=>!x.settlement).sort((a,b)=>deadlineMinute(a.deadline||a.close_time)-deadlineMinute(b.deadline||b.close_time));
-  $('#public-count').textContent=o.public_count===null||o.public_count===undefined?'更新中':pro?`無料 ${Number(o.public_count)}/${Number(o.free_limit||30)}R`:`公開中 ${items.length}R`;
-  $('#today-list').innerHTML=items.length?items.map(publicRaceCard).join(''):(pro?'<div class="race-card"><div class="race-main"><strong>現在、公開対象なし</strong><small>対象レースが確定すると自動表示します</small></div></div>':'<div class="race-card"><div class="race-main"><strong>現在、公開中の予想はありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>');
+  let memberAll=null;
+  if(pro)memberAll=await paidTodayEnter(o.date);
+  const usingClub=Array.isArray(memberAll);
+  const sourceItems=usingClub?memberAll:all;
+  const items=pro?sourceItems:all.filter(x=>!x.settlement).sort((a,b)=>deadlineMinute(a.deadline||a.close_time)-deadlineMinute(b.deadline||b.close_time));
+  if(usingClub){
+    const title=$('#public-title-text');if(title)title.textContent='CLUB 本日の正式ENTER';
+    const lead=document.querySelector('.public-lead');if(lead)lead.textContent='無料公開枠外を含む正式ENTER全件';
+    $('#public-count').textContent=`正式ENTER ${items.length}R`;
+  }else{
+    $('#public-count').textContent=o.public_count===null||o.public_count===undefined?'更新中':pro?`無料 ${Number(o.public_count)}/${Number(o.free_limit||30)}R`:`公開中 ${items.length}R`;
+  }
+  $('#today-list').innerHTML=items.length?items.map(publicRaceCard).join(''):(usingClub?'<div class="race-card"><div class="race-main"><strong>本日の正式ENTERはまだありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>':pro?'<div class="race-card"><div class="race-main"><strong>現在、公開対象なし</strong><small>対象レースが確定すると自動表示します</small></div></div>':'<div class="race-card"><div class="race-main"><strong>現在、公開中の予想はありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>');
   document.querySelectorAll('.race-card-button').forEach(b=>b.addEventListener('click',async()=>{await openVenue(b.dataset.vcode);openRace(Number(b.dataset.rno))}));
 
   if(!AUTO_OPENED){
