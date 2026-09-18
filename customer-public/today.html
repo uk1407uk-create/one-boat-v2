@@ -745,30 +745,102 @@ html.pro-mode .sheet-loading{color:#8d8f93}
 
 
 
-/* PRO 24 venues readability — text colors only */
-html.pro-mode .venue-name{
-  color:#f4f4f4!important;
+
+
+/* PRO 24 venues — luxury high-contrast card palette (layout untouched) */
+html.pro-mode .venue-tile{
+  background:linear-gradient(180deg,#101113 0%,#151619 100%)!important;
+  border-color:#3b3d42!important;
+  box-shadow:0 5px 16px rgba(0,0,0,.28)!important;
 }
-html.pro-mode .venue-meta{
-  color:#d2d2d2!important;
+
+/* Venue name: always dark surface + bright ivory text */
+html.pro-mode .venue-tile .venue-name{
+  background:linear-gradient(180deg,#191a1d 0%,#121315 100%)!important;
+  color:#f7f4ec!important;
+  border-bottom-color:#34363a!important;
+  text-shadow:0 1px 0 rgba(0,0,0,.5);
 }
-html.pro-mode .venue-meta strong{
+
+/* Race/meta row */
+html.pro-mode .venue-tile .venue-meta{
+  background:#101113!important;
+  color:#d6d7da!important;
+}
+html.pro-mode .venue-tile .venue-meta strong{
   color:#ffffff!important;
+  border-right-color:#34363a!important;
+  text-shadow:0 1px 0 rgba(0,0,0,.45);
 }
-html.pro-mode .venue-meta em{
-  color:#c2c2c2!important;
+html.pro-mode .venue-tile .venue-meta em{
+  color:#c5c7cb!important;
 }
-html.pro-mode .venue-strip{
-  color:#ffffff!important;
+
+/* Status strip base */
+html.pro-mode .venue-tile .venue-strip{
+  color:#111214!important;
+  font-weight:950!important;
+  text-shadow:none!important;
+}
+
+/* Published prediction = champagne gold */
+html.pro-mode .venue-tile.live{
+  border-color:#8f7a4a!important;
+}
+html.pro-mode .venue-tile.live .venue-strip{
+  background:linear-gradient(180deg,#e7d7aa 0%,#c9ad67 100%)!important;
+  color:#121212!important;
+}
+
+/* Watch = warm silver/taupe */
+html.pro-mode .venue-tile.watch{
+  border-color:#6f6759!important;
+}
+html.pro-mode .venue-tile.watch .venue-strip{
+  background:linear-gradient(180deg,#c9c1b3 0%,#9f9584 100%)!important;
+  color:#111214!important;
+}
+
+/* Skip = muted rose graphite, still readable */
+html.pro-mode .venue-tile.skip{
+  border-color:#6c565a!important;
+}
+html.pro-mode .venue-tile.skip .venue-strip{
+  background:linear-gradient(180deg,#c7b1b5 0%,#98777d 100%)!important;
+  color:#111214!important;
+}
+
+/* Settled = muted platinum green */
+html.pro-mode .venue-tile.settled{
+  border-color:#5f7069!important;
+}
+html.pro-mode .venue-tile.settled .venue-strip{
+  background:linear-gradient(180deg,#b8c6c0 0%,#81978e 100%)!important;
+  color:#101112!important;
+}
+
+/* Idle/non-event: deliberately subdued but readable */
+html.pro-mode .venue-tile.idle{
+  opacity:1!important;
+  background:#0d0e10!important;
+  border-color:#2d2f33!important;
 }
 html.pro-mode .venue-tile.idle .venue-name{
-  color:#8f8f8f!important;
+  background:#111214!important;
+  color:#8c8f94!important;
+}
+html.pro-mode .venue-tile.idle .venue-strip{
+  background:linear-gradient(180deg,#46494e 0%,#33363a 100%)!important;
+  color:#d7d9dc!important;
+}
+html.pro-mode .venue-tile.idle .venue-meta{
+  background:#0d0e10!important;
 }
 html.pro-mode .venue-tile.idle .venue-meta strong{
-  color:#9d9d9d!important;
+  color:#9a9da2!important;
 }
 html.pro-mode .venue-tile.idle .venue-meta em{
-  color:#777!important;
+  color:#777b81!important;
 }
 
 </style>
