@@ -4,6 +4,7 @@ const SUPABASE_URL='https://imhzjlxbnovjvqlyawmg.supabase.co';
 const SUPABASE_KEY='sb_publishable_-VcTpMDA4uaDfKmqxYw-0Q_v2vAZe7V';
 const MEMBERSHIP_API=`${SUPABASE_URL}/functions/v1/one-boat-membership-api`;
 const VISIBILITY_API=`${SUPABASE_URL}/functions/v1/one-boat-public-visibility`;
+const HISTORY_API=`${SUPABASE_URL}/functions/v1/one-boat-obpe-history`;
 const RACE_ANALYSIS_API=`${SUPABASE_URL}/functions/v1/one-boat-race-analysis-api`;
 const LIVE_ORIGINAL_API=`${SUPABASE_URL}/functions/v1/one-boat-live-original`;
 const ACCESS_COOKIE='ob_at';
@@ -75,7 +76,67 @@ async function proxyProtectedAnalysis(request,targetBase){
   for(const c of access.cookies||[])h.append('set-cookie',c);
   return new Response(upstream.body,{status:upstream.status,headers:h});
 }
+function memberPredictionRecord(raw,accessScope){
+  if(!raw)return null;
+  const p=raw.prediction||{};
+  const decision=String(raw.decision||p.decision||'').toUpperCase();
+  const stake=Number(raw.stake_total_yen??p.stake_total_yen??0)||0;
+  const bets=(Array.isArray(raw.bets)&&raw.bets.length?raw.bets:Array.isArray(p.production_picks)?p.production_picks:[]).map(x=>({
+    ticket:x?.ticket||x?.combination||x?.bet||'',
+    stake_yen:Number(x?.stake_yen??x?.amount??x?.stake??0)||0,
+    odds:Number.isFinite(Number(x?.odds))?Number(x.odds):null,
+    selection_role:x?.selection_role||null
+  })).filter(x=>x.ticket);
+  const settlement=raw.settlement?{
+    hit:raw.settlement.hit===true,
+    payout_yen:Number(raw.settlement.payout_yen||0)||0,
+    profit_yen:Number.isFinite(Number(raw.settlement.profit_yen))?Number(raw.settlement.profit_yen):null,
+    trifecta:raw.settlement?.result?.trifecta||raw.settlement?.trifecta||''
+  }:null;
+  return{
+    race_key:raw.race_key||null,
+    race_date:raw.race_date||null,
+    venue_code:Number(raw.venue_code||0)||null,
+    race_no:Number(raw.race_no||0)||null,
+    deadline:raw.deadline||raw.close_time||null,
+    decision,
+    stake_total_yen:stake,
+    bets,
+    prediction:{
+      decision,
+      stake_total_yen:stake,
+      reason:String(p.reason||raw.reason||''),
+      skip_reason:String(p.skip_reason||''),
+      selected_theory:p.selected_theory||null,
+      current_theory:p.current_theory||null,
+      strategy:p.strategy||null,
+      support_materials:Array.isArray(p.support_materials)?p.support_materials:[],
+      opposing_materials:Array.isArray(p.opposing_materials)?p.opposing_materials:[],
+      production_picks:bets,
+      model_version:p.model_version||raw.model_version||null
+    },
+    settlement,
+    access_scope:accessScope
+  };
+}
+async function protectedPrediction(request){
+  const access=await analysisAccess(request);
+  if(!access.allowed)return access.response;
+  const u=new URL(HISTORY_API);
+  u.searchParams.set('date',access.params.date);
+  u.searchParams.set('venue',String(access.params.venue));
+  u.searchParams.set('limit','50');
+  const upstream=await fetch(u,{headers:{accept:'application/json'},cache:'no-store'});
+  if(!upstream.ok)return json({ok:false,error:'prediction_upstream_unavailable',message:'正式予想を取得できませんでした。'},502,access.cookies||[]);
+  const d=await upstream.json().catch(()=>null);
+  const rows=Array.isArray(d?.records)?d.records:[];
+  const raw=rows.find(x=>Number(x?.venue_code)===access.params.venue&&Number(x?.race_no)===access.params.race&&String(x?.race_date||'').slice(0,10)===access.params.date)||null;
+  if(!raw)return json({ok:false,error:'prediction_not_found',message:'正式予想はまだ確定していません。'},404,access.cookies||[]);
+  const record=memberPredictionRecord(raw,access.scope);
+  return json({ok:true,access_scope:access.scope,record},200,access.cookies||[]);
+}
+
 async function billing(request,action){if(!sameOrigin(request))return json({ok:false,error:'origin'},403);const s=await resolveSession(request);if(!s.ok)return json({ok:false,error:'login_required',message:'ログインが必要です。'},401,s.cookies||[]);if(s.entitlement_unavailable)return json({ok:false,error:'entitlement_unavailable',message:'会員状態を確認できないため、安全のため購入・解約操作を停止しています。'},503,s.cookies||[]);if(s.ent?.staff_access===true)return json({ok:false,error:'staff_billing_disabled',message:'運営アカウントは決済不要です。'},409,s.cookies||[]);if(!s.ent?.eligibility_confirmed)return json({ok:false,error:'age_confirmation_required',message:'20歳以上の確認と規約同意が必要です。'},403,s.cookies||[]);const body=await bodyJson(request);if(action==='checkout'&&!['day_pass','club_monthly'].includes(String(body.plan||'')))return json({ok:false,error:'invalid_plan'},400,s.cookies||[]);const r=await fetch(`${MEMBERSHIP_API}?action=${encodeURIComponent(action)}`,{method:'POST',headers:{authorization:`Bearer ${s.token}`,'content-type':'application/json',accept:'application/json'},body:JSON.stringify(action==='checkout'?{plan:String(body.plan)}:{}),cache:'no-store'});const d=await r.json().catch(()=>({}));if(!r.ok){const pending=d?.error==='billing_not_configured'||d?.error==='stripe_not_configured';const message=pending?'決済システムの最終接続中です。購入・解約はまだ確定しません。':action==='cancel'?'解約処理を完了できませんでした。時間をおいて再度お試しください。':'決済サービスを利用できません。';return json({ok:false,error:d?.error||'billing_unavailable',message},r.status,s.cookies||[])}return json(d,200,s.cookies||[])}
 async function protectedPage(request,env){const s=await resolveSession(request),baseUrl=new URL(request.url).origin;if(!s.ok)return redirect(`${baseUrl}/login?next=${encodeURIComponent('/premium.html')}`,302,s.cookies||[]);if(s.entitlement_unavailable||s.ent?.has_paid_access!==true)return redirect(`${baseUrl}/club.html?locked=1`,302,s.cookies||[]);const u=new URL(request.url);u.pathname='/premium.html';u.search='';const r=await env.ASSETS.fetch(new Request(u,request));const h=new Headers(r.headers);h.set('cache-control','private,no-store,max-age=0');h.set('x-robots-tag','noindex,nofollow');for(const c of s.cookies||[])h.append('set-cookie',c);return new Response(r.body,{status:r.status,headers:h})}
 
-export default{async fetch(request,env,ctx){const u=new URL(request.url);try{if(u.pathname==='/api/auth/signup'&&request.method==='POST')return signup(request);if(u.pathname==='/api/auth/login'&&request.method==='POST')return login(request);if(u.pathname==='/api/auth/logout'&&request.method==='POST')return logout(request);if((u.pathname==='/api/auth/session'||u.pathname==='/api/member/session')&&request.method==='GET')return session(request);if(u.pathname==='/api/member/checkout-intent'&&request.method==='POST')return billing(request,'checkout');if(u.pathname==='/api/member/billing-portal'&&request.method==='POST')return billing(request,'portal');if(u.pathname==='/api/member/cancel-subscription'&&request.method==='POST')return billing(request,'cancel');if(u.pathname==='/api/member/analysis'&&request.method==='GET')return proxyProtectedAnalysis(request,RACE_ANALYSIS_API);if(u.pathname==='/api/member/live-original'&&request.method==='GET')return proxyProtectedAnalysis(request,LIVE_ORIGINAL_API);if(u.pathname==='/premium.html')return protectedPage(request,env);return base.fetch(request,env,ctx)}catch{return json({ok:false,error:'member_service_unavailable',message:'会員サービスを一時的に利用できません。'},503)}}};
+export default{async fetch(request,env,ctx){const u=new URL(request.url);try{if(u.pathname==='/api/auth/signup'&&request.method==='POST')return signup(request);if(u.pathname==='/api/auth/login'&&request.method==='POST')return login(request);if(u.pathname==='/api/auth/logout'&&request.method==='POST')return logout(request);if((u.pathname==='/api/auth/session'||u.pathname==='/api/member/session')&&request.method==='GET')return session(request);if(u.pathname==='/api/member/checkout-intent'&&request.method==='POST')return billing(request,'checkout');if(u.pathname==='/api/member/billing-portal'&&request.method==='POST')return billing(request,'portal');if(u.pathname==='/api/member/cancel-subscription'&&request.method==='POST')return billing(request,'cancel');if(u.pathname==='/api/member/analysis'&&request.method==='GET')return proxyProtectedAnalysis(request,RACE_ANALYSIS_API);if(u.pathname==='/api/member/prediction'&&request.method==='GET')return protectedPrediction(request);if(u.pathname==='/api/member/live-original'&&request.method==='GET')return proxyProtectedAnalysis(request,LIVE_ORIGINAL_API);if(u.pathname==='/premium.html')return protectedPage(request,env);return base.fetch(request,env,ctx)}catch{return json({ok:false,error:'member_service_unavailable',message:'会員サービスを一時的に利用できません。'},503)}}};
