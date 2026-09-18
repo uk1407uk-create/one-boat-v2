@@ -403,7 +403,6 @@ function render(d){
   $('#race-deadline').textContent='—';
   $('#race-updated').textContent=updated(d.trifecta_odds?.updated_at||d.exhibition_detail?.updated_at||d.original_exhibition?.updated_at);
   const st=$('#race-state');st.textContent='分析データ';st.className='state-badge live';
-  $('#official-link').href=`/today.html?venue=${String(CODE).padStart(2,'0')}&race=${RACE}`;
   renderRacers(d);renderEngine(d.official_evaluation);renderMotorDetails(d);renderExhibition(d);renderSurface(d);renderOdds(d.trifecta_odds);
   document.body.setAttribute('aria-busy','false');
 }
@@ -435,8 +434,7 @@ async function load(){
     $('#race-deadline').textContent='—';
     $('#race-updated').textContent='—';
     const st=$('#race-state');st.textContent='取得待ち';st.className='state-badge pending';
-    $('#official-link').href=`/today.html?venue=${String(CODE).padStart(2,'0')}&race=${RACE}`;
-  }
+    }
 }
 
 async function refreshOfficialPrediction(){
