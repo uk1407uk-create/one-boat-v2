@@ -1,5 +1,4 @@
 name: ONE BOAT Domain Audit
-# manual recheck 2026-09-18 11:11 JST
 
 on:
   push:
@@ -15,18 +14,40 @@ jobs:
   audit:
     runs-on: ubuntu-latest
     steps:
-      - name: Check public DNS and Cloudflare zone
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      - name: Final production domain audit
         run: |
           set -euo pipefail
-          test -n "${CLOUDFLARE_API_TOKEN:-}"
+          UA='Mozilla/5.0 (iPhone; CPU iPhone OS 26_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Mobile/15E148 Safari/604.1'
           echo "public_ns=$(dig +short NS one-boat-club.jp | sort | tr '\n' ',' | sed 's/,$//')"
-          curl -fsS -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" -H "Content-Type: application/json" "https://api.cloudflare.com/client/v4/zones?name=one-boat-club.jp" -o /tmp/zone.json
-          ZONE_ID=$(python -c "import json; x=json.load(open('/tmp/zone.json')); rs=x.get('result') or []; print(rs[0].get('id','') if rs else '')")
-          if [ -n "$ZONE_ID" ]; then
-            curl -sS -X PUT -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" -H "Content-Type: application/json" "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/activation_check" >/tmp/activation.json || true
-            sleep 2
-            curl -fsS -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" -H "Content-Type: application/json" "https://api.cloudflare.com/client/v4/zones?name=one-boat-club.jp" -o /tmp/zone.json
-          fi
-          python -c "import json; x=json.load(open('/tmp/zone.json')); rs=x.get('result') or []; print('success=',x.get('success')); print('count=',len(rs)); z=rs[0] if rs else {}; print('status=',z.get('status')); print('paused=',z.get('paused')); print('name_servers=',','.join(z.get('name_servers') or [])); print('original_name_servers=',','.join(z.get('original_name_servers') or []))"
+          ROOT_CODE=$(curl -A "$UA" -sS -o /tmp/root.html -w '%{http_code}' https://one-boat-club.jp/)
+          REG_CODE=$(curl -A "$UA" -sS -o /tmp/register.html -w '%{http_code}' https://one-boat-club.jp/register)
+          LOGIN_CODE=$(curl -A "$UA" -sS -o /tmp/login.html -w '%{http_code}' https://one-boat-club.jp/login)
+          ADMIN_CODE=$(curl -A "$UA" -sS -o /tmp/admin.html -w '%{http_code}' https://admin.one-boat-club.jp/)
+          OLD_CUSTOMER=$(curl -A "$UA" -sS -o /dev/null -w '%{http_code}' https://one-boat-customer.uk-1407-uk.workers.dev/)
+          OLD_ADMIN=$(curl -A "$UA" -sS -o /dev/null -w '%{http_code}' https://one-boat-v2-pages.uk-1407-uk.workers.dev/)
+          curl -A "$UA" -sS -D /tmp/www.headers -o /dev/null https://www.one-boat-club.jp/
+          WWW_CODE=$(awk 'NR==1{print $2}' /tmp/www.headers)
+          WWW_LOCATION=$(awk 'tolower($1)=="location:"{print $2}' /tmp/www.headers | tr -d '\r' | tail -1)
+          test "$ROOT_CODE" = "200"
+          test "$REG_CODE" = "200"
+          test "$LOGIN_CODE" = "200"
+          test "$ADMIN_CODE" = "200"
+          test "$OLD_CUSTOMER" = "200"
+          test "$OLD_ADMIN" = "200"
+          test "$WWW_CODE" = "308"
+          test "$WWW_LOCATION" = "https://one-boat-club.jp/"
+          grep -q '本日の予想を見る' /tmp/root.html
+          grep -q '無料会員登録' /tmp/register.html
+          grep -q 'ログイン' /tmp/login.html
+          echo "root=$ROOT_CODE register=$REG_CODE login=$LOGIN_CODE admin=$ADMIN_CODE old_customer=$OLD_CUSTOMER old_admin=$OLD_ADMIN www=$WWW_CODE location=$WWW_LOCATION"
+          curl -sS -D /tmp/cors.headers -o /tmp/cors.body -X OPTIONS -H 'Origin: https://one-boat-club.jp' -H 'Access-Control-Request-Method: GET' 'https://imhzjlxbnovjvqlyawmg.supabase.co/functions/v1/one-boat-membership-api'
+          grep -qi '^access-control-allow-origin: https://one-boat-club.jp' /tmp/cors.headers
+          echo 'cors=ok'
+          HEALTH_CODE=$(curl -sS -o /tmp/health.json -w '%{http_code}' 'https://imhzjlxbnovjvqlyawmg.supabase.co/functions/v1/one-boat-membership-api/health')
+          test "$HEALTH_CODE" = "200"
+          grep -q '"site":"https://one-boat-club.jp"' /tmp/health.json
+          grep -q '"stripe_vault_configured":true' /tmp/health.json
+          echo "membership_health=$HEALTH_CODE"
+          WEBHOOK_CODE=$(curl -sS -o /tmp/webhook.txt -w '%{http_code}' -X POST -H 'Content-Type: application/json' -H 'Stripe-Signature: invalid' --data '{}' 'https://imhzjlxbnovjvqlyawmg.supabase.co/functions/v1/one-boat-stripe-webhook')
+          test "$WEBHOOK_CODE" = "400"
+          echo "webhook_invalid_signature_rejected=$WEBHOOK_CODE"
