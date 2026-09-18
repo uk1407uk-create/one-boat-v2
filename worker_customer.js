@@ -53,7 +53,8 @@ async function buildOverview(){
     venues.push({code,name:VENUES[code-1],state,next_race_no:targetNo,next_deadline:targetSc?.deadline||null,public_count:historyAvailable?publicRows.length:null});
   }
   const publicItems=historyAvailable?rows.filter(enter).sort((a,b)=>num(a.venue_code)-num(b.venue_code)||num(a.race_no)-num(b.race_no)).map(r=>publicItem(r,scheduleMap)):[];
-  return{ok:true,date,degraded:!scheduleAvailable||!historyAvailable,source:{schedule:scheduleAvailable,predictions:historyAvailable},active_count:scheduleAvailable?venues.filter(v=>v.state!=='NOEVENT'&&v.state!=='FINISHED').length:null,public_count:historyAvailable?publicItems.length:null,venues,public_items:publicItems}
+  const freeLimit=30,freeCount=historyAvailable?publicItems.length:null,freeRemaining=historyAvailable?Math.max(0,freeLimit-publicItems.length):null;
+  return{ok:true,date,degraded:!scheduleAvailable||!historyAvailable,source:{schedule:scheduleAvailable,predictions:historyAvailable},active_count:scheduleAvailable?venues.filter(v=>v.state!=='NOEVENT'&&v.state!=='FINISHED').length:null,public_count:historyAvailable?publicItems.length:null,free_limit:freeLimit,free_count:freeCount,free_remaining:freeRemaining,free_note:'正式ENTERが出たレースのみ無料公開',venues,public_items:publicItems}
 }
 async function buildVenue(code){
   code=num(code);if(code<1||code>24)throw new Error('bad_venue');
