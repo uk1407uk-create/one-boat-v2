@@ -158,8 +158,20 @@ function renderOriginalExhibition(d){
     return;
   }
   const header=rows.map(r=>`<div class="original-metric-head">${esc(r.label)}</div>`).join('');
+  const ranks=rows.map(r=>{
+    if(String(r.label||'').includes('チルト'))return new Map();
+    const xs=r.values.map((v,i)=>({lane:i+1,value:Number(v)})).filter(x=>Number.isFinite(x.value));
+    xs.sort((a,b)=>a.value-b.value||a.lane-b.lane);
+    const m=new Map();
+    if(xs[0])m.set(xs[0].lane,1);
+    if(xs[1])m.set(xs[1].lane,2);
+    return m;
+  });
   const body=[1,2,3,4,5,6].map(lane=>{
-    const values=rows.map(r=>`<div class="original-value">${fixed(r.values[lane-1],r.digits)}</div>`).join('');
+    const values=rows.map((r,idx)=>{
+      const rank=ranks[idx].get(lane);
+      return `<div class="original-value${rank===1?' original-rank-1':rank===2?' original-rank-2':''}">${fixed(r.values[lane-1],r.digits)}</div>`;
+    }).join('');
     return `<div class="original-boat-label lane-hull-${lane}"><b>${lane}</b><span>号艇</span></div>${values}`;
   }).join('');
   $('#original-exhibition').innerHTML=`<div class="original-table original-table-transposed" style="--metric-count:${rows.length}">
