@@ -22,8 +22,10 @@ let STATS=null,STATS_FETCHED_AT=0,CURRENT_VENUE=null,AUTO_OPENED=false,LOAD_TIME
 function trafficAttribution(){
   try{
     const q=new URLSearchParams(location.search);
-    const source=q.get('utm_source')||sessionStorage.getItem('ob_utm_source')||'direct';
-    const campaign=q.get('utm_campaign')||sessionStorage.getItem('ob_utm_campaign')||'none';
+    let refSource='direct';
+    try{const h=new URL(document.referrer||'https://invalid.local').hostname;if(h.includes('threads.net')||h.includes('threads.com'))refSource='threads'}catch{}
+    const source=q.get('utm_source')||sessionStorage.getItem('ob_utm_source')||refSource;
+    const campaign=q.get('utm_campaign')||sessionStorage.getItem('ob_utm_campaign')||(refSource==='threads'?'organic_link':'none');
     const content=q.get('utm_content')||sessionStorage.getItem('ob_utm_content')||'none';
     if(q.get('utm_source'))sessionStorage.setItem('ob_utm_source',source);
     if(q.get('utm_campaign'))sessionStorage.setItem('ob_utm_campaign',campaign);
