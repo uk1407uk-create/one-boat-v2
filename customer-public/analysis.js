@@ -12,6 +12,34 @@ let MY={first:null,second:null,third:null};
 let ODDS_ITEMS=[];
 let ODDS_FIRST=1;
 
+const VIEW_MODE_KEY='one_boat_view_mode';
+const yen=n=>`${Math.round(Number(n||0)).toLocaleString('ja-JP')}円`;
+function saveViewMode(mode){try{localStorage.setItem(VIEW_MODE_KEY,mode==='pro'?'pro':'easy')}catch{}}
+function stateLabel(s){return {PUBLIC:'予想公開',WATCH:'様子見',SKIP:'見送り',SETTLED:'結果確定',FINISHED:'本日終了',CLOSED:'終了',NOEVENT:'本日非開催',PENDING:'未判定'}[s]||'未判定'}
+function publicRecord(r){const d=String(r?.decision||r?.prediction?.decision||'').toUpperCase(),stake=Number(r?.stake_total_yen??r?.prediction?.stake_total_yen??0);return d==='ENTER'&&stake>0}
+function officialBets(r){const p=r?.prediction||{};return Array.isArray(r?.bets)&&r.bets.length?r.bets:Array.isArray(p.production_picks)?p.production_picks:[]}
+function officialTicket(x){return x?.ticket||x?.combination||x?.bet||'—'}
+function officialStake(x){return Number(x?.stake_yen??x?.amount??x?.stake??0)}
+function textValue(v){
+  if(typeof v==='string')return v.trim();
+  if(Array.isArray(v))return v.filter(x=>typeof x==='string').join(' / ');
+  if(v&&typeof v==='object')return String(v.name||v.label||v.theory||v.id||'').trim();
+  return '';
+}
+function materialList(v){
+  if(Array.isArray(v))return v.map(x=>typeof x==='string'?x:textValue(x)).filter(Boolean).slice(0,5);
+  if(v&&typeof v==='object')return Object.values(v).map(x=>typeof x==='string'?x:textValue(x)).filter(Boolean).slice(0,5);
+  return [];
+}
+function setupViewMode(){
+  saveViewMode('pro');
+  const easy=$('#easy-mode-link');
+  if(!easy)return;
+  const q=new URLSearchParams({venue:String(CODE).padStart(2,'0'),race:String(RACE),mode:'easy'});
+  easy.href=`/today.html?${q.toString()}`;
+  easy.addEventListener('click',()=>saveViewMode('easy'));
+}
+
 function missing(v){return v===null||v===undefined||v===''}
 function value(v,suffix=''){return missing(v)?'—':`${v}${suffix}`}
 function fixed(v,d=2,suffix=''){if(missing(v)||!Number.isFinite(Number(v)))return'—';return `${Number(v).toFixed(d)}${suffix}`}
@@ -168,6 +196,71 @@ function renderSurface(d){
 }
 
 function evalValue(v){if(missing(v))return'—';if(typeof v==='number')return Number.isInteger(v)?String(v):Number(v).toFixed(2);return esc(v)}
+
+function renderOfficialPrediction(v){
+  const box=$('#pro-official');
+  if(!box)return;
+  const r=(v?.races||[]).find(x=>Number(x.race_no)===RACE);
+  if(!r){
+    box.innerHTML='<div class="pro-official-empty"><strong>公式予想データ確認中</strong><p>詳細分析データは下で確認できます。</p></div>';
+    return;
+  }
+  const rec=r.record||{},p=rec.prediction||{},bets=officialBets(rec);
+  const stake=Number(rec.stake_total_yen??p.stake_total_yen??0);
+  const reason=String(p.reason||p.skip_reason||rec.reason||r.note||'').trim();
+  const theory=textValue(p.selected_theory||p.current_theory||p.strategy||rec.theory||'');
+  const support=materialList(p.support_materials||rec.support_materials);
+  const opposing=materialList(p.opposing_materials||rec.opposing_materials);
+  let html=`<div class="pro-official-head"><div><small>OFFICIAL PREDICTION</small><h2>ONE BOAT正式予想</h2></div><span>${esc(stateLabel(r.state))}</span></div>
+    <div class="pro-official-grid">
+      <div><span>締切</span><strong>${esc(String(r.deadline||'—').match(/\d{1,2}:\d{2}/)?.[0]||'—')}</strong></div>
+      <div><span>判定</span><strong>${esc(stateLabel(r.state))}</strong></div>
+      <div><span>投資</span><strong>${publicRecord(rec)?yen(stake):'購入なし'}</strong></div>
+    </div>`;
+  if(publicRecord(rec)){
+    html+=`<div class="pro-official-section"><b>推奨買い目</b>${bets.length?`<div class="pro-bets">${bets.map(x=>`<div><strong>${esc(officialTicket(x))}</strong><span>${yen(officialStake(x))}</span></div>`).join('')}</div>`:'<p>買い目取得待ち</p>'}</div>`;
+  }
+  if(reason)html+=`<div class="pro-official-section"><b>予想根拠</b><p>${esc(reason)}</p></div>`;
+  if(theory)html+=`<div class="pro-official-section"><b>採用理論</b><p>${esc(theory)}</p></div>`;
+  if(support.length)html+=`<div class="pro-official-section"><b>支持材料</b><ul>${support.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`;
+  if(opposing.length)html+=`<div class="pro-official-section caution"><b>不安材料</b><ul>${opposing.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`;
+  box.innerHTML=html;
+  if(r.deadline)$('#race-deadline').textContent=String(r.deadline).match(/\d{1,2}:\d{2}/)?.[0]||'—';
+}
+
+function renderMotorDetails(d){
+  const el=$('#motor-pro-panel');
+  if(!el)return;
+  const xs=(d?.racers||[]).filter(r=>r&&r.lane);
+  const officialMotor=d?.official_evaluation?.motor;
+  const has=xs.some(r=>r.motor&&(!missing(r.motor.number)||!missing(r.motor.top2_rate)||!missing(r.motor.top3_rate)||!missing(r.motor.win_rate)));
+  if(!has&&missing(officialMotor)){
+    el.innerHTML='<div class="empty-card"><strong>モーター正式値は現在未連携です</strong><p>推測値は表示しません。正式データが取得できた場合のみ表示します。</p></div>';
+    return;
+  }
+  let html='';
+  if(!missing(officialMotor))html+=`<div class="motor-official-score"><span>ONE BOAT正式モーター評価</span><strong>${evalValue(officialMotor)}</strong></div>`;
+  if(has){
+    html+=`<div class="motor-table-head"><span>艇</span><span>モーター</span><span>2連率</span><span>3連率</span></div>`;
+    html+=xs.map(r=>{
+      const m=r.motor||{};
+      const sub=[];
+      if(!missing(m.win_rate))sub.push(`勝率 ${Number(m.win_rate).toFixed(2)}`);
+      if(!missing(m.top3_rank))sub.push(`3連率順位 ${m.top3_rank}位`);
+      if(!missing(m.avg_lap_sec))sub.push(`平均ラップ ${Number(m.avg_lap_sec).toFixed(2)}秒`);
+      if(!missing(m.final_appearances))sub.push(`優出 ${m.final_appearances}`);
+      if(!missing(m.champion_count))sub.push(`優勝 ${m.champion_count}`);
+      return `<div class="motor-row">
+        <div>${laneBadge(r.lane)}</div>
+        <div><strong>${missing(m.number)?'—':`#${m.number}`}</strong><small>${esc(sub.join(' ・ ')||'詳細値待ち')}</small></div>
+        <div><strong>${pct(m.top2_rate)}</strong></div>
+        <div><strong>${pct(m.top3_rate)}</strong></div>
+      </div>`;
+    }).join('');
+  }
+  el.innerHTML=html;
+}
+
 function renderEngine(e){
   const items=[['展示',e?.exhibition],['ST',e?.st],['モーター',e?.motor],['コース',e?.course],['総合',e?.total]];
   const has=items.some(([,v])=>!missing(v));
@@ -242,7 +335,7 @@ function render(d){
   $('#race-updated').textContent=updated(d.trifecta_odds?.updated_at||d.exhibition_detail?.updated_at||d.original_exhibition?.updated_at);
   const st=$('#race-state');st.textContent='分析データ';st.className='state-badge live';
   $('#official-link').href=`/today.html?venue=${String(CODE).padStart(2,'0')}&race=${RACE}`;
-  renderRacers(d);renderEngine(d.official_evaluation);renderExhibition(d);renderSurface(d);renderOdds(d.trifecta_odds);loadMy();renderMy();
+  renderRacers(d);renderEngine(d.official_evaluation);renderMotorDetails(d);renderExhibition(d);renderSurface(d);renderOdds(d.trifecta_odds);loadMy();renderMy();
   document.body.setAttribute('aria-busy','false');
 }
 
@@ -255,10 +348,15 @@ async function load(){
   if(location.pathname+location.search!==normalized)history.replaceState(null,'',normalized);
   try{
     const u=new URL(API);u.searchParams.set('date',DATE);u.searchParams.set('venue',String(CODE));u.searchParams.set('race',String(RACE));
+    const publicPromise=DATE===jstDate()
+      ?fetch(`/api/public/venue?code=${encodeURIComponent(String(CODE).padStart(2,'0'))}`,{cache:'no-store'}).then(x=>x.ok?x.json():null).catch(()=>null)
+      :Promise.resolve(null);
     const r=await fetch(u,{cache:'no-store',headers:{accept:'application/json'}});
     let d=null;try{d=await r.json()}catch{}
     if(!r.ok||!d?.ok)throw Error(d?.error||`api_${r.status}`);
     render(d);
+    const pub=await publicPromise;
+    renderOfficialPrediction(pub);
   }catch(e){
     document.body.setAttribute('aria-busy','false');
     const m=$('#page-message');m.hidden=false;m.textContent='レース分析データを取得できませんでした。公式予想画面には影響ありません。少し時間をおいて再読み込みしてください。';
@@ -272,6 +370,7 @@ async function load(){
   }
 }
 
+setupViewMode();
 setupTabs();
 setupDisplayTabs();
 $('#clear-my').addEventListener('click',()=>{MY={first:null,second:null,third:null};try{localStorage.removeItem(myKey())}catch{}renderMy()});
