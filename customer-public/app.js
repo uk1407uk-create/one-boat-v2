@@ -124,7 +124,7 @@ function renderFreeStrip(o){
   $('#free-strip-list').innerHTML=`<div class="free-progress-card"><div class="free-progress-head"><div><small>TODAY FREE</small><strong>本日の無料予想</strong></div><span class="${liveClass}"><i></i>${liveState}</span></div><div class="free-progress-numbers"><div class="free-used"><strong>${m.count}</strong><span>/ ${m.limit}R</span></div><div class="free-remaining"><small>残り</small><strong>${m.remaining}R</strong></div></div>${complete}<p class="free-progress-note">正式ENTERのみ公開</p></div>`;
 }
 function publicRaceCard(r){
-  const settled=!!r.settlement,status=settled?(r.settlement.hit?'的中':'不的中'):'予想公開',cls=settled?(r.settlement.hit?'hit':'miss'):'locked';
+  const settled=!!r.settlement,memberEnter=!settled&&['paid','staff'].includes(String(r?.access_scope||'')),status=settled?(r.settlement.hit?'的中':'不的中'):(memberEnter?'正式ENTER':'予想公開'),cls=settled?(r.settlement.hit?'hit':'miss'):'locked';
   let sub;
   if(savedViewMode()==='pro'){
     sub=settled?`${r.settlement?.result?.trifecta||r.settlement?.trifecta||'結果反映済'} ・ ${r.settlement.hit?`払戻 ${yen(r.settlement.payout_yen)}`:'結果公開'}`:`締切 ${timeText(r.deadline||r.close_time)} ・ 投資 ${yen(r.stake_total_yen||r.prediction?.stake_total_yen)}`;
