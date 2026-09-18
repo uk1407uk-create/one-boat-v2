@@ -2,6 +2,7 @@ name: ONE BOAT Domain Audit
 
 on:
   push:
+    branches: [main]
     paths:
       - '.github/workflows/domain-audit.yml'
   workflow_dispatch:
@@ -13,23 +14,23 @@ jobs:
   audit:
     runs-on: ubuntu-latest
     steps:
-      - name: Ensure Cloudflare zone exists
+      - name: Check Cloudflare zone
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           set -euo pipefail
           test -n "${CLOUDFLARE_API_TOKEN:-}"
-          test -n "${CLOUDFLARE_ACCOUNT_ID:-}"
-          RESP=$(curl -fsS -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" -H 'Content-Type: application/json' 'https://api.cloudflare.com/client/v4/zones?name=one-boat-club.jp')
-          ZONE_ID=$(printf '%s' "$RESP" | jq -r '.result[0].id // empty')
-          if [ -z "$ZONE_ID" ]; then
-            BODY=$(jq -nc --arg account "$CLOUDFLARE_ACCOUNT_ID" '{account:{id:$account},name:"one-boat-club.jp",type:"full"}')
-            RESP=$(curl -fsS -X POST -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" -H 'Content-Type: application/json' --data "$BODY" 'https://api.cloudflare.com/client/v4/zones')
-          fi
-          echo "api_success=$(printf '%s' "$RESP" | jq -r '.success')"
-          echo "zone_status=$(printf '%s' "$RESP" | jq -r 'if (.result|type)=="array" then (.result[0].status // "missing") else (.result.status // "missing") end')"
-          echo "zone_id=$(printf '%s' "$RESP" | jq -r 'if (.result|type)=="array" then (.result[0].id // "") else (.result.id // "") end')"
-          echo "name_servers=$(printf '%s' "$RESP" | jq -r 'if (.result|type)=="array" then ((.result[0].name_servers // [])|join(",")) else ((.result.name_servers // [])|join(",")) end')"
-          ERRORS=$(printf '%s' "$RESP" | jq -c '.errors // []')
-          if [ "$ERRORS" != '[]' ]; then echo "errors=$ERRORS"; fi
+          curl -fsS -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" -H "Content-Type: application/json"             "https://api.cloudflare.com/client/v4/zones?name=one-boat-club.jp" -o /tmp/zone.json
+          python - <<'PY'
+          import json
+          x=json.load(open('/tmp/zone.json'))
+          rs=x.get('result') or []
+          print('success=',x.get('success'))
+          print('count=',len(rs))
+          if rs:
+              z=rs[0]
+              print('status=',z.get('status'))
+              print('paused=',z.get('paused'))
+              print('name_servers=',','.join(z.get('name_servers') or []))
+              print('original_name_servers=',','.join(z.get('original_name_servers') or []))
+          PY
