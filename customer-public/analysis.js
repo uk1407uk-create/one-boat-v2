@@ -8,7 +8,6 @@ const RACE=Number(params.get('race'));
 const jstDate=()=>new Date(Date.now()+32400000).toISOString().slice(0,10);
 const DATE=/^\d{4}-\d{2}-\d{2}$/.test(params.get('date')||'')?params.get('date'):jstDate();
 let DATA=null;
-let MY={first:null,second:null,third:null};
 let ODDS_ITEMS=[];
 let ODDS_FIRST=1;
 
@@ -334,21 +333,6 @@ function renderOdds(o){
   renderOddsGroup();
 }
 
-function myKey(){return DATA?`oneboat_my_${DATA.race.date}_${DATA.race.venue_code}_${DATA.race.race_no}`:''}
-function loadMy(){try{const x=JSON.parse(localStorage.getItem(myKey())||'{}');MY={first:Number(x.first)||null,second:Number(x.second)||null,third:Number(x.third)||null}}catch{MY={first:null,second:null,third:null}}}
-function saveMy(){try{localStorage.setItem(myKey(),JSON.stringify(MY))}catch{}renderMy()}
-function renderMy(){
-  document.querySelectorAll('.lane-buttons').forEach(box=>{
-    const place=box.dataset.place;
-    box.innerHTML=[1,2,3,4,5,6].map(n=>{
-      const selected=MY[place]===n,used=Object.entries(MY).some(([k,v])=>k!==place&&v===n);
-      return `<button class="lane-choice lane-choice-${n}${selected?' selected':''}" type="button" data-place="${place}" data-lane="${n}" ${used?'disabled':''}>${n}</button>`;
-    }).join('');
-  });
-  document.querySelectorAll('.lane-choice').forEach(b=>b.addEventListener('click',()=>{MY[b.dataset.place]=Number(b.dataset.lane);saveMy()}));
-  $('#my-ticket').textContent=`${MY.first||'—'} - ${MY.second||'—'} - ${MY.third||'—'}`;
-}
-
 function setupTabs(){
   document.querySelectorAll('.analysis-tab').forEach(b=>b.addEventListener('click',()=>{
     document.querySelectorAll('.analysis-tab').forEach(x=>x.classList.remove('active'));
@@ -376,7 +360,7 @@ function render(d){
   $('#race-updated').textContent=updated(d.trifecta_odds?.updated_at||d.exhibition_detail?.updated_at||d.original_exhibition?.updated_at);
   const st=$('#race-state');st.textContent='分析データ';st.className='state-badge live';
   $('#official-link').href=`/today.html?venue=${String(CODE).padStart(2,'0')}&race=${RACE}`;
-  renderRacers(d);renderEngine(d.official_evaluation);renderMotorDetails(d);renderExhibition(d);renderSurface(d);renderOdds(d.trifecta_odds);loadMy();renderMy();
+  renderRacers(d);renderEngine(d.official_evaluation);renderMotorDetails(d);renderExhibition(d);renderSurface(d);renderOdds(d.trifecta_odds);
   document.body.setAttribute('aria-busy','false');
 }
 
@@ -414,5 +398,4 @@ async function load(){
 setupViewMode();
 setupTabs();
 setupDisplayTabs();
-$('#clear-my').addEventListener('click',()=>{MY={first:null,second:null,third:null};try{localStorage.removeItem(myKey())}catch{}renderMy()});
 load();
