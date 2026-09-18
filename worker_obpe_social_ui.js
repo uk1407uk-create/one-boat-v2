@@ -158,12 +158,12 @@ async function injectAdminReadonly(response){
   html=html.replace("if(d==='SKIP'||r.locked)return'skip'","if(d==='SKIP')return'skip'");
   html=html.replace("if(final){r.locked=true;if(r.decision!=='ENTER'){r.decision='SKIP';r.stake_total_yen=0}}","if(final){r.locked=p.locked===true}");
   if(!html.includes('/admin-readonly-ui.js')){
-    const tag='<script src="/admin-readonly-ui.js?v=20260918-ro4"></script>';
+    const tag='<script src="/admin-readonly-ui.js?v=20260918-ro5"></script>';
     if(/<script src="\/obpe-ui\.js/.test(html)) html=html.replace(/<script src="\/obpe-ui\.js/,tag+'<script src="/obpe-ui.js');
     else html=html.replace('</head>',tag+'</head>');
   }
   headers.set('cache-control','no-store');
-  headers.set('x-one-boat-ui','admin-readonly-20260918-ro4');
+  headers.set('x-one-boat-ui','admin-readonly-20260918-ro5');
   headers.set('x-one-boat-read-only','1');
   return new Response(html,{status:response.status,statusText:response.statusText,headers});
 }
