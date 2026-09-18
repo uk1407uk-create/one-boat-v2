@@ -1717,3 +1717,5 @@ body.analysis-locked .race-hero{border-bottom-color:#dbe5eb}
 .support-data-head{margin:18px 11px 8px;padding-top:15px;border-top:1px solid #dce6ec}
 .analysis-locked .support-data-head{display:none!important}
 @media(max-width:360px){.decision-focus{margin-left:8px;margin-right:8px;padding:12px}.support-data-head{margin-left:8px;margin-right:8px}.decision-focus h2,.support-data-head h2{font-size:17px}}
+
+.analysis-locked .decision-focus{display:none!important}
