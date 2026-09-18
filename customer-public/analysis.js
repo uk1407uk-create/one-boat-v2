@@ -303,16 +303,23 @@ function renderMotorDetails(d){
     html+=`<div class="motor-table-head"><span>艇</span><span>モーター</span><span>2連率</span><span>3連率</span></div>`;
     html+=xs.map(r=>{
       const m=r.motor||{};
-      const meta=[];
-      if(!missing(m.win_rate))meta.push(`勝率 ${Number(m.win_rate).toFixed(2)}`);
-      if(!missing(m.avg_lap_sec))meta.push(`ラップ ${Number(m.avg_lap_sec).toFixed(2)}秒`);
-      if(!missing(m.top3_rank))meta.push(`順位 ${m.top3_rank}位`);
-      if(!missing(m.final_appearances)||!missing(m.champion_count))meta.push(`優出 ${missing(m.final_appearances)?'—':m.final_appearances} / 優勝 ${missing(m.champion_count)?'—':m.champion_count}`);
+      const win=!missing(m.win_rate)?Number(m.win_rate).toFixed(2):'—';
+      const lap=!missing(m.avg_lap_sec)?`${Number(m.avg_lap_sec).toFixed(2)}秒`:'—';
+      const rank=!missing(m.top3_rank)?`${m.top3_rank}位`:'—';
+      const finals=!missing(m.final_appearances)?String(m.final_appearances):'—';
+      const wins=!missing(m.champion_count)?String(m.champion_count):'—';
       return `<div class="motor-row">
         <div class="motor-lane">${laneBadge(r.lane)}</div>
-        <div class="motor-id"><strong>${missing(m.number)?'—':`#${m.number}`}</strong><small>${esc(meta.join(' ・ ')||'詳細値待ち')}</small></div>
+        <div class="motor-id"><strong>${missing(m.number)?'—':`#${m.number}`}</strong></div>
         <div class="motor-rate"><span>2連率</span><strong>${pct(m.top2_rate)}</strong></div>
         <div class="motor-rate"><span>3連率</span><strong>${pct(m.top3_rate)}</strong></div>
+        <div class="motor-meta" aria-label="モーター詳細">
+          <span><small>勝率</small><b>${win}</b></span>
+          <span><small>ラップ</small><b>${lap}</b></span>
+          <span><small>3連順位</small><b>${rank}</b></span>
+          <span><small>優出</small><b>${finals}</b></span>
+          <span><small>優勝</small><b>${wins}</b></span>
+        </div>
       </div>`;
     }).join('');
   }
