@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex,follow">
 <title>PRO分析｜ONE BOAT</title>
 <meta name="description" content="ONE BOAT PRO分析。正式予想に記録された判断理由を先に確認し、必要な選手・展示・オッズだけを深掘りできます。">
-<link rel="stylesheet" href="/analysis.css?v=20260919-decisionfirst1">
+<link rel="stylesheet" href="/analysis.css?v=20260919-decisionfocus1">
 </head>
 <body aria-busy="true">
 <header class="app-header">
@@ -46,6 +46,8 @@
     <div class="skeleton"></div>
   </section>
 
+  <section id="decision-focus" class="decision-focus" hidden></section>
+
   <section id="analysis-paywall" class="analysis-paywall" hidden>
     <div class="paywall-kicker">MEMBER ACCESS</div>
     <h2>正式ENTER / 無料公開枠外</h2>
@@ -55,9 +57,14 @@
     <div id="paywall-message" class="paywall-message" hidden></div>
   </section>
 
-  <nav class="analysis-tabs" id="analysis-tabs" aria-label="レース分析メニュー">
-    <button class="analysis-tab active" type="button" data-tab="basic">補助データ</button>
-    <button class="analysis-tab" type="button" data-tab="live">展示</button>
+  <section class="support-data-head">
+    <small>OPTIONAL DATA</small>
+    <h2>必要なときだけ補助データを見る</h2>
+    <p>上の判断記録が主役です。ここから下は確認したい項目だけ開いてください。</p>
+  </section>
+  <nav class="analysis-tabs" id="analysis-tabs" aria-label="補助データメニュー">
+    <button class="analysis-tab active" type="button" data-tab="basic">選手/モーター</button>
+    <button class="analysis-tab" type="button" data-tab="live">展示/ST</button>
     <button class="analysis-tab" type="button" data-tab="odds">オッズ</button>
   </nav>
 
@@ -142,6 +149,6 @@
   <a href="/club.html"><b>◎</b><span>CLUB</span></a>
 </nav>
 
-<script src="/analysis.js?v=20260919-decisionfirst2" defer></script>
+<script src="/analysis.js?v=20260919-decisionfocus1" defer></script>
 </body>
 </html>
