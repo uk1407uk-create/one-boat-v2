@@ -1001,6 +1001,61 @@ html.pro-mode .race-row.current-race .current-mark{color:#f2d584;background:rgba
   html:not(.pro-mode) .venue-grid{gap:6px}
 }
 
+
+/* PRO status-card alignment for the new Easy quota markup */
+.free-strip-title{display:none!important}
+html.pro-mode #page-mode-pro{
+  background:linear-gradient(180deg,#e3c36f,#bd9341)!important;
+  color:#0d0d0e!important;
+  border:1px solid #f0d990!important;
+  box-shadow:0 0 0 1px rgba(255,230,159,.16),0 8px 22px rgba(188,145,60,.18)!important;
+}
+html.pro-mode #page-mode-pro span{color:#0d0d0e!important;text-shadow:none!important}
+html.pro-mode #page-mode-pro small{color:#4b3a17!important}
+html.pro-mode .pro-underground-label{color:#c8a755!important}
+html.pro-mode .pro-underground-label i{background:#8e753d!important}
+html.pro-mode .today-summary{
+  padding:18px!important;
+  border:1px solid #343434!important;
+  border-left:3px solid #c8a755!important;
+  border-radius:12px!important;
+  background:#141516!important;
+}
+html.pro-mode .free-strip-list{display:block!important}
+html.pro-mode .free-progress-card{display:block}
+html.pro-mode .free-progress-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+html.pro-mode .free-progress-head>div small{
+  display:block;margin-bottom:5px;color:#c8a755;font-size:8px;font-weight:950;letter-spacing:.16em
+}
+html.pro-mode .free-progress-head>div strong{
+  display:block;color:#f4f4f1;font-size:15px;line-height:1.35;letter-spacing:-.02em
+}
+html.pro-mode .live-update{
+  display:inline-flex;align-items:center;gap:5px;padding-top:2px;color:#a4a6aa;font-size:8.5px;font-weight:850;white-space:nowrap
+}
+html.pro-mode .live-update i{width:6px;height:6px;border-radius:50%;background:#c8a755;box-shadow:0 0 0 3px rgba(200,167,85,.09)}
+html.pro-mode .live-update.updating i{background:#7d8084;box-shadow:none}
+html.pro-mode .free-progress-numbers{
+  display:grid;grid-template-columns:1fr auto;align-items:end;gap:18px;margin-top:20px
+}
+html.pro-mode .free-used{display:flex;align-items:flex-end;gap:6px}
+html.pro-mode .free-used strong{
+  color:#fff;font-size:42px;line-height:.9;letter-spacing:-.055em;font-variant-numeric:tabular-nums
+}
+html.pro-mode .free-used span{padding-bottom:3px;color:#9a9ca0;font-size:14px;font-weight:850}
+html.pro-mode .free-remaining{text-align:right}
+html.pro-mode .free-remaining small{display:block;margin-bottom:2px;color:#777a7e;font-size:8px;font-weight:850}
+html.pro-mode .free-remaining strong{color:#d7b862;font-size:20px;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+html.pro-mode .free-complete{
+  margin-top:16px;padding-top:12px;border-top:1px solid #2c2d2f;color:#e1c778;font-size:11px;font-weight:900
+}
+html.pro-mode .free-progress-note{
+  margin:13px 0 0;padding-top:10px;border-top:1px solid #292a2c;color:#8f9195;font-size:9px;font-weight:700
+}
+html.pro-mode .free-pending{padding:2px 0}
+html.pro-mode .free-pending strong{display:block;color:#f1f1ef;font-size:18px}
+html.pro-mode .free-pending small{display:block;margin-top:6px;color:#8f9195;font-size:9px}
+
 </style>
 </head>
 <body>
@@ -1041,7 +1096,7 @@ html.pro-mode .race-row.current-race .current-mark{color:#f2d584;background:rgba
 <section id="race-sheet" class="bottom-sheet race-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="race-sheet-title"><div class="sheet-handle"></div><div class="sheet-head"><button id="race-back" class="sheet-back" type="button">‹</button><div><small>RACE DETAIL</small><h2 id="race-sheet-title">レース詳細</h2></div><span id="race-sheet-state" class="sheet-state">--</span></div><div id="race-detail" class="race-detail"></div></section>
 <nav class="bottom-app-nav" aria-label="下部ナビゲーション"><a href="/"><b>⌂</b><span>ホーム</span></a><a href="/today.html" class="active"><b>▦</b><span>本日の予想</span></a><a href="#performance"><b>↗</b><span>実績</span></a><a href="/club.html"><b>◎</b><span>CLUB</span></a></nav>
 <footer><strong>ONE BOAT</strong><span>BOAT RACE ANALYTICS</span><small>© ONE BOAT</small></footer>
-<script src="/app.js?v=20260918-easy-premium1" defer></script>
+<script src="/app.js?v=20260918-pro-status2" defer></script>
 <script src="/ai-picks.js?v=20260918-ai3" defer></script>
 <script>const mb=document.getElementById('topMenuButton'),mp=document.getElementById('topMenuPanel');function closeTopMenu(){mp.classList.remove('open');mb.setAttribute('aria-expanded','false')}mb.addEventListener('click',e=>{e.stopPropagation();const open=mp.classList.toggle('open');mb.setAttribute('aria-expanded',String(open))});document.addEventListener('click',e=>{if(!mp.contains(e.target)&&!mb.contains(e.target))closeTopMenu()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTopMenu()});</script>
 </body>
