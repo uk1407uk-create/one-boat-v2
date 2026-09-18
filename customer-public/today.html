@@ -742,6 +742,65 @@ html.pro-mode .race-row.watch{border-color:#665e4f}
 html.pro-mode .race-row.settled .race-no{background:#53645d;color:#fff}
 html.pro-mode .sheet-loading{color:#8d8f93}
 
+
+/* PRO visibility hotfix — iPhone 24 venues */
+html.pro-mode .venue-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:10px!important;
+  margin:8px 0 32px!important;
+}
+html.pro-mode .venue-tile{
+  aspect-ratio:auto!important;
+  min-height:126px!important;
+  border-radius:14px!important;
+}
+html.pro-mode .venue-name{
+  height:48px!important;
+  min-height:48px!important;
+  padding:6px 4px!important;
+  font-size:20px!important;
+  line-height:1!important;
+  letter-spacing:-.025em!important;
+}
+html.pro-mode .venue-strip{
+  height:30px!important;
+  min-height:30px!important;
+  font-size:11px!important;
+  letter-spacing:.01em!important;
+}
+html.pro-mode .venue-meta{
+  height:48px!important;
+  min-height:48px!important;
+  grid-template-columns:.9fr 1.35fr!important;
+}
+html.pro-mode .venue-meta strong{
+  font-size:22px!important;
+  line-height:1!important;
+}
+html.pro-mode .venue-meta em{
+  padding:0 5px!important;
+  font-size:11px!important;
+  line-height:1.25!important;
+}
+html.pro-mode .venue-legend{
+  gap:7px!important;
+  padding-bottom:6px!important;
+}
+html.pro-mode .venue-legend span{
+  min-height:36px!important;
+  padding:0 9px!important;
+  font-size:10px!important;
+}
+@media(max-width:360px){
+  html.pro-mode .venue-grid{gap:8px!important}
+  html.pro-mode .venue-tile{min-height:116px!important}
+  html.pro-mode .venue-name{height:44px!important;min-height:44px!important;font-size:18px!important}
+  html.pro-mode .venue-strip{height:28px!important;min-height:28px!important;font-size:10px!important}
+  html.pro-mode .venue-meta{height:44px!important;min-height:44px!important}
+  html.pro-mode .venue-meta strong{font-size:20px!important}
+  html.pro-mode .venue-meta em{font-size:10px!important}
+}
+
 </style>
 </head>
 <body>
@@ -781,7 +840,7 @@ html.pro-mode .sheet-loading{color:#8d8f93}
 <section id="race-sheet" class="bottom-sheet race-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="race-sheet-title"><div class="sheet-handle"></div><div class="sheet-head"><button id="race-back" class="sheet-back" type="button">‹</button><div><small>RACE DETAIL</small><h2 id="race-sheet-title">レース詳細</h2></div><span id="race-sheet-state" class="sheet-state">--</span></div><div id="race-detail" class="race-detail"></div></section>
 <nav class="bottom-app-nav" aria-label="下部ナビゲーション"><a href="/"><b>⌂</b><span>ホーム</span></a><a href="/today.html" class="active"><b>▦</b><span>本日の予想</span></a><a href="#performance"><b>↗</b><span>実績</span></a><a href="/club.html"><b>◎</b><span>CLUB</span></a></nav>
 <footer><strong>ONE BOAT</strong><span>BOAT RACE ANALYTICS</span><small>© ONE BOAT</small></footer>
-<script src="/app.js?v=20260918-pagepro2" defer></script>
+<script src="/app.js?v=20260918-pagepro3" defer></script>
 <script>const mb=document.getElementById('topMenuButton'),mp=document.getElementById('topMenuPanel');function closeTopMenu(){mp.classList.remove('open');mb.setAttribute('aria-expanded','false')}mb.addEventListener('click',e=>{e.stopPropagation();const open=mp.classList.toggle('open');mb.setAttribute('aria-expanded',String(open))});document.addEventListener('click',e=>{if(!mp.contains(e.target)&&!mb.contains(e.target))closeTopMenu()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTopMenu()});</script>
 </body>
 </html>
