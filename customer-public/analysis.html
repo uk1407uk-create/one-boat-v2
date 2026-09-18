@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex,follow">
 <title>レース分析｜ONE BOAT</title>
 <meta name="description" content="ONE BOAT レース分析。専用APIの正式データだけを使い、選手・展示・水面・オッズを確認できます。">
-<link rel="stylesheet" href="/analysis.css?v=20260918-progold1">
+<link rel="stylesheet" href="/analysis.css?v=20260919-paywall1">
 </head>
 <body aria-busy="true">
 <header class="app-header">
@@ -42,6 +42,17 @@
 
   <section id="pro-official" class="pro-official">
     <div class="skeleton"></div>
+  </section>
+
+  <section id="analysis-paywall" class="analysis-paywall" hidden>
+    <div class="paywall-kicker">MEMBER ACCESS</div>
+    <h2>このレースの詳細は会員向けです</h2>
+    <p>予想は完成しています。買い目・資金配分・PRO分析は、1日PASSまたは月額CLUBで確認できます。</p>
+    <div class="paywall-features"><span>買い目</span><span>資金配分</span><span>展示・モーター</span><span>オッズ分析</span></div>
+    <button class="paywall-primary" type="button" data-paywall-plan="day_pass"><strong>1日PASS</strong><span>¥980 / 24時間</span></button>
+    <button class="paywall-secondary" type="button" data-paywall-plan="club_monthly"><strong>月額CLUB</strong><span>¥2,980 / 月</span></button>
+    <a class="paywall-compare" href="/club.html">料金・プランを比較する</a>
+    <div id="paywall-message" class="paywall-message" hidden></div>
   </section>
 
   <nav class="analysis-tabs" id="analysis-tabs" aria-label="レース分析メニュー">
@@ -131,6 +142,6 @@
   <a href="/club.html"><b>◎</b><span>CLUB</span></a>
 </nav>
 
-<script src="/analysis.js?v=20260918-liveoriten1" defer></script>
+<script src="/analysis.js?v=20260919-paywall1" defer></script>
 </body>
 </html>

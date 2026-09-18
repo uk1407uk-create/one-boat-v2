@@ -100,6 +100,11 @@ jobs:
           grep -q 'band-performance' customer-public/today.html
           grep -q 'LIVE RESULTS' customer-public/today.html
           grep -q 'renderBandPerformance' customer-public/app.js
+          grep -q '/api/member/analysis' worker_member.js
+          grep -q 'analysis-paywall' customer-public/analysis.html
+          grep -q "const API='/api/member/analysis'" customer-public/analysis.js
+          ! grep -q 'one-boat-race-analysis-api' customer-public/analysis.js
+          grep -q 'private-access-teaser' customer-public/app.js
           grep -q 'winning_odds' customer-public/app.js
           grep -q 'site_only_keys' worker_customer.js
           ! grep -q 'one-boat-public-visibility' customer-public/app.js

@@ -276,7 +276,7 @@ function raceDetail(r){
   </div>`;
 
   if(effectiveState==='PRIVATE'){
-    html+=`<section class="detail-block decision-message"><div class="detail-label">ONE BOATの判断</div><h3>予想完了</h3><p>本日の無料公開対象外です。</p></section>`;
+    html+=`<section class="detail-block decision-message private-access-teaser"><div class="detail-label">ONE BOATの判断</div><h3>予想完了</h3><p>本日の無料公開対象外です。買い目・資金配分・PRO分析は会員向けです。</p><a class="private-access-open" data-view-mode="pro" href="${proHref}">会員向け詳細を見る</a><div class="private-plan-options"><a href="/club.html?buy=day_pass"><strong>1日PASS</strong><span>¥980 / 24時間</span></a><a href="/club.html?buy=club_monthly"><strong>月額CLUB</strong><span>¥2,980 / 月</span></a></div><a class="private-plan-compare" href="/club.html">料金・プランを比較</a></section>`;
   }else if(publicRecord(rec)){
     html+=`<section class="detail-block easy-bets">
       <div class="detail-label">これだけ見ればOK｜推奨買い目</div>
