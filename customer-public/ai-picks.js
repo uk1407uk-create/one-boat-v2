@@ -9,8 +9,19 @@
   function metric(key){return STATS&&STATS.ai_types?STATS.ai_types[key]||null:null}
   function metricValue(m,key){return m&&Number(m.races)>0&&Number.isFinite(Number(m[key]))?pct(m[key]):'—'}
   function oddsText(v){return Number.isFinite(Number(v))?Number(v).toFixed(1)+'倍':'データなし'}
+  function finalOddsRange(v,deadline){
+    var o=Number(v);if(!Number.isFinite(o)||o<=1)return'データなし';
+    var left=null,s=String(deadline||'').trim(),d=null;
+    if(/^\d{4}-\d{2}-\d{2}/.test(s)){var x=new Date(s);if(!Number.isNaN(x.getTime()))d=x}
+    if(!d){var m=s.match(/(\d{1,2}):(\d{2})/);if(m){var hh=String(Number(m[1])).padStart(2,'0'),mm=m[2],y=new Date(raceDateForView()+'T'+hh+':'+mm+':00+09:00');if(!Number.isNaN(y.getTime()))d=y}}
+    if(d)left=Math.max(0,(d.getTime()-Date.now())/60000);
+    var lo=0.85,hi=1.20;
+    if(left!==null&&left>=12){lo=.70;hi=1.35}else if(left!==null&&left>=8){lo=.75;hi=1.30}else if(left!==null&&left>=5){lo=.80;hi=1.25}
+    var a=Math.max(1,o*lo),b=Math.max(a,o*hi);
+    return a.toFixed(1)+'〜'+b.toFixed(1)+'倍';
+  }
   function roleText(v){var x=String(v||'').toLowerCase();if(/main|本線|primary|core/.test(x))return'本線';if(/cover|押さえ|抑え|sub|secondary/.test(x))return'押さえ';return'買い目'}
-  function cards(bets){
+  function cards(bets,deadline){
     var g=groups(bets);var first=null;for(var i=0;i<TYPES.length;i++){if(g[TYPES[i].key].length){first=TYPES[i].key;break}}
     var html='';
     TYPES.forEach(function(t){
@@ -20,7 +31,7 @@
       html+='<div class="ai-card-metrics"><div><span>的中率</span><strong>'+metricValue(m,'hit_rate')+'</strong></div><div><span>回収率</span><strong>'+metricValue(m,'roi')+'</strong></div><div><span>買い目</span><strong>'+xs.length+'点</strong></div></div>';
       html+='<div class="ai-card-toggle"><span>'+(xs.length?'買い目を見る':'今回の買い目なし')+'</span><b>開く / 閉じる</b></div></summary>';
       html+='<div class="ai-card-body">';
-      if(xs.length){html+='<div class="ai-ticket-list">';xs.forEach(function(x){html+='<div class="ai-ticket"><strong>'+esc(ticketOf(x))+'</strong><span class="ai-role">'+roleText(x&&x.selection_role)+'</span><em>'+oddsText(x&&x.odds)+'</em></div>'});html+='</div>'}else{html+='<p>このオッズ帯に今回の正式買い目はありません。</p>'}
+      if(xs.length){html+='<div class="ai-ticket-list">';xs.forEach(function(x){html+='<div class="ai-ticket"><strong>'+esc(ticketOf(x))+'</strong><span class="ai-role">'+roleText(x&&x.selection_role)+'</span><em><small>最終オッズ予想</small><b>'+finalOddsRange(x&&x.odds,deadline)+'</b></em></div>'});html+='</div>'}else{html+='<p>このオッズ帯に今回の正式買い目はありません。</p>'}
       html+=(m&&Number(m.races)>0)?'<small class="ai-sample">実績集計 '+Number(m.races)+'レース</small>':'<small class="ai-sample">実績は正式データが揃った分だけ集計します。</small>';
       html+='</div></details>';
     });
@@ -45,7 +56,7 @@
     var html='<nav class="race-mode-switch" aria-label="表示モード"><span class="race-mode active">かんたん</span><a class="race-mode" data-view-mode="pro" href="'+proHref+'">PRO</a></nav>';
     html+='<section class="easy-decision '+stateClass(r.state)+'"><small>正式判定</small><strong>'+state+'</strong><p>'+esc(reasonShort||(publicRecord(rec)?'正式ENTERが確定しました。買い目・オッズ・締切までの時間を確認してください。':r.note||'必要な正式データを確認しています。'))+'</p></section>';
     if(publicRecord(rec)){
-      html+='<section class="official-ai-section"><div class="detail-label">AI予想｜正式買い目</div><div class="official-order-head"><strong>買い目</strong><span>'+bets.length+'点</span></div><div class="ai-pick-stack">'+cards(bets)+'</div></section>';
+      html+='<section class="official-ai-section"><div class="detail-label">AI予想｜正式買い目</div><div class="official-order-head"><strong>買い目</strong><span>'+bets.length+'点</span></div><div class="ai-pick-stack">'+cards(bets,r.deadline)+'</div><p class="odds-range-note">※最終オッズ予想は、予想確定時の現在オッズと締切までの残り時間から算出した参考レンジです。確定オッズではなく、投票状況により範囲外となる場合があります。表示用の参考値で、ENTER判定・買い目・公式実績を後から変更するものではありません。</p></section>';
       html+='<section class="purchase-glance"><div><span>正式買い目</span><strong>'+bets.length+'点</strong></div><div class="deadline-cell"><span>締切まで</span><strong>'+left+'</strong><small>締切 '+timeText(r.deadline)+'</small></div></section>';
       if(reason)html+='<section class="detail-block easy-reason"><div class="detail-label">判断理由</div><p>'+esc(reasonShort)+'</p></section>';
     }else{
