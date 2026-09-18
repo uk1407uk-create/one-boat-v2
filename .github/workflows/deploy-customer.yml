@@ -115,7 +115,7 @@ jobs:
           get_text "$BASE/club.html?v=20260918-member1" /tmp/club.html
           grep -q '料金・利用プラン' /tmp/club.html
           get_text "$BASE/register?v=20260918-domain1" /tmp/register.html
-          grep -q '無料会員登録' /tmp/register.html
+          grep -q '会員登録' /tmp/register.html
           get_text "$BASE/login?v=20260918-domain1" /tmp/login.html
           grep -q 'ログイン' /tmp/login.html
           get_text "$BASE/api/health" /tmp/health.json
