@@ -46,3 +46,11 @@ html.pro-mode .ai-card-body{border-top-color:#2b2c2f}html.pro-mode .ai-ticket{ba
 html.pro-mode .odds-pending-bets{background:#111214;border-color:#505257}html.pro-mode .odds-pending-bets>strong{color:#eee}html.pro-mode .odds-pending-bets>p{color:#929499}
 html.pro-mode .purchase-glance>div,html.pro-mode .purchase-glance .deadline-cell{background:#151618;border-color:#3a3c40}html.pro-mode .purchase-glance span{color:#8f9195}html.pro-mode .purchase-glance strong,html.pro-mode .purchase-glance .deadline-cell strong{color:#fff}html.pro-mode .purchase-glance small{color:#85878b}
 @media(max-width:380px){.ai-card-title strong{font-size:18px}.ai-card-title p{font-size:9.5px}.ai-range{font-size:7px;padding:4px 6px}.ai-card-metrics{gap:4px}.ai-card-metrics div{padding:7px 2px}.ai-card-metrics span{font-size:6.5px}.ai-card-metrics strong{font-size:11px}.ai-ticket strong{font-size:17px}.purchase-glance strong{font-size:20px}}
+
+.ai-ticket em{display:flex;flex-direction:column;align-items:flex-end;gap:1px;font-style:normal}
+.ai-ticket em small{font-size:7px;font-weight:900;letter-spacing:.03em;color:#7890a0}
+.ai-ticket em b{font-size:11px;color:#0c75b6;white-space:nowrap}
+.odds-range-note{margin:8px 2px 0!important;padding:8px 9px;border-radius:8px;background:#f4f8fb;color:#667d8e!important;font-size:9px!important;line-height:1.55!important}
+html.pro-mode .ai-ticket em small{color:#8f9195}
+html.pro-mode .ai-ticket em b{color:#e6e6e4}
+html.pro-mode .odds-range-note{background:#17181a;color:#92949a!important}
