@@ -17,7 +17,7 @@ const $=s=>document.querySelector(s);
 const yen=n=>`${Math.round(Number(n||0)).toLocaleString('ja-JP')}円`;
 const pct=n=>Number.isFinite(Number(n))?`${Number(n).toFixed(1)}%`:'--';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let STATS=null,STATS_FETCHED_AT=0,CURRENT_VENUE=null,AUTO_OPENED=false,LOAD_TIMER=null,LAST_OVERVIEW=null,REFRESH_BURST_LEFT=2,STATS_LOADING=null,SITE_ONLY_KEYS=new Set(),ACTIVE_RACE_NO=null,VENUE_SHEET_TIMER=null,VENUE_SHEET_LOADING=false,CLUB_LIST_OPEN=false;
+let STATS=null,STATS_FETCHED_AT=0,CURRENT_VENUE=null,AUTO_OPENED=false,LOAD_TIMER=null,LAST_OVERVIEW=null,REFRESH_BURST_LEFT=2,STATS_LOADING=null,SITE_ONLY_KEYS=new Set(),ACTIVE_RACE_NO=null,VENUE_SHEET_TIMER=null,VENUE_SHEET_LOADING=false,CLUB_LIST_OPEN=false,RESULT_LIST_OPEN=false;
 function trafficAttribution(){
   try{
     const q=new URLSearchParams(location.search);
@@ -446,6 +446,18 @@ function raceDetail(r){
   return html;
 }
 
+function updateResultToggle(total=0,hits=null){
+  const b=$('#result-toggle'),list=$('#result-list'),note=$('.transparency');
+  if(!b)return;
+  const n=Math.max(0,Number(total)||0),h=Number.isFinite(Number(hits))?Number(hits):null;
+  b.dataset.total=String(n);
+  b.dataset.hits=h===null?'':String(h);
+  b.setAttribute('aria-expanded',String(RESULT_LIST_OPEN));
+  const summary=n?('本日 '+n+'R'+(h===null?'':(' / '+h+'的中'))):'結果確定後に表示';
+  b.innerHTML='<span><small>LIVE RESULTS</small><strong>'+(RESULT_LIST_OPEN?'結果を閉じる':'最新結果を見る')+'</strong><em>'+summary+'</em></span><i>'+(RESULT_LIST_OPEN?'▲':'▼')+'</i>';
+  if(list)list.hidden=!RESULT_LIST_OPEN;
+  if(note)note.hidden=!RESULT_LIST_OPEN;
+}
 async function load(){
   let o;
   try{
@@ -471,8 +483,9 @@ async function load(){
   renderCustomerOverview(o);
   const pro=savedViewMode()==='pro';
   const all=o.public_items||[];
-  const liveSettled=all.filter(x=>x?.settlement).sort((a,b)=>deadlineMinute(b.deadline||b.close_time)-deadlineMinute(a.deadline||a.close_time)).slice(0,6);
+  const allSettled=all.filter(x=>x?.settlement),liveSettled=allSettled.slice().sort((a,b)=>deadlineMinute(b.deadline||b.close_time)-deadlineMinute(a.deadline||a.close_time)).slice(0,6);
   if(liveSettled.length)$('#result-list').innerHTML=liveSettled.map(resultCard).join('');
+  updateResultToggle(allSettled.length,allSettled.filter(x=>x?.settlement?.hit===true).length);
   let memberAll=null;
   if(pro)memberAll=await paidTodayEnter(o.date);
   const usingClub=Array.isArray(memberAll);
@@ -524,6 +537,7 @@ async function loadStats({force=false}={}){
       STATS=next;STATS_FETCHED_AT=Date.now();
       renderMetrics(document.querySelector('.period.active')?.dataset.period||'today');
       $('#result-list').innerHTML=(next.latest||[]).slice(0,6).map(resultCard).join('')||'<div class="race-card"><div class="race-main"><strong>公開結果はまだありません</strong><small>結果確定後に表示します。</small></div></div>';
+      updateResultToggle(next?.today?.races||0,next?.today?.hits);
       return next;
     }catch{
       if(!STATS){
@@ -549,6 +563,12 @@ function setupLazyStats(){
 document.querySelectorAll('.period').forEach(b=>b.addEventListener('click',async()=>{document.querySelectorAll('.period').forEach(x=>x.classList.remove('active'));b.classList.add('active');if(!STATS)await loadStats();renderMetrics(b.dataset.period);renderBandPerformance(b.dataset.period)}));
 $('#venue-close').addEventListener('click',closeAll);$('#race-back').addEventListener('click',showVenueSheet);$('#sheet-backdrop').addEventListener('click',closeAll);document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAll()});
 if(NOTE_URL){const b=$('#note-btn');if(b){b.classList.remove('disabled');b.textContent='ONE BOAT CLUBへ';b.addEventListener('click',()=>location.href=NOTE_URL)}}
+const resultToggle=$('#result-toggle');
+if(resultToggle)resultToggle.addEventListener('click',()=>{
+  RESULT_LIST_OPEN=!RESULT_LIST_OPEN;
+  const total=Number(resultToggle.dataset.total||0),hitsRaw=resultToggle.dataset.hits,hits=hitsRaw===''?null:Number(hitsRaw);
+  updateResultToggle(total,hits);
+});
 const clubEnterToggle=$('#club-enter-toggle');
 if(clubEnterToggle)clubEnterToggle.addEventListener('click',()=>{
   CLUB_LIST_OPEN=!CLUB_LIST_OPEN;
