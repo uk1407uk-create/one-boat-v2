@@ -217,15 +217,29 @@ function clubPortfolioModel(raw){
 }
 function renderClubPortfolioPlan(rows,{memberActive=false}={}){
   const root=$('#club-portfolio-beta');if(!root)return;
-  const live=(Array.isArray(rows)?rows:[]).filter(x=>publicRecord(x)&&!x?.settlement);
-  if(!live.length){root.hidden=true;root.innerHTML='';return}
+  const allRows=Array.isArray(rows)?rows:[];
+  const live=allRows.filter(x=>publicRecord(x)&&!x?.settlement);
+  const settled=allRows.filter(x=>publicRecord(x)&&x?.settlement);
+  if(!live.length&&!settled.length){root.hidden=true;root.innerHTML='';return}
   const models=live.map(clubPortfolioModel);
   const counts={FOCUS:0,BOX:0,NORMAL:0,PASS:0};models.forEach(x=>counts[x.mode]=(counts[x.mode]||0)+1);
   const base=models.reduce((a,x)=>a+Number(x.baseStake||0),0),extra=models.reduce((a,x)=>a+Number(x.extraStake||0),0);
   const focusRows=live.map((r,i)=>({r,m:models[i]})).filter(x=>x.m.mode==='FOCUS');
+  const settledFocus=settled.map(r=>({r,m:clubPortfolioModel(r)})).filter(x=>x.m.mode==='FOCUS');
+  let shadowPayout=0,shadowHits=0;
+  settledFocus.forEach(({r,m})=>{
+    const win=String(r?.settlement?.result?.trifecta||r?.settlement?.trifecta||'');
+    const wb=betsOf(r).find(x=>String(ticketOf(x))===win);
+    const isBoost=m.tickets.some(x=>String(x.ticket)===win);
+    if(isBoost&&wb&&stakeOf(wb)>0&&Number(r?.settlement?.payout_yen)>0){
+      shadowHits++;
+      shadowPayout+=Number(r.settlement.payout_yen)*(2500/stakeOf(wb));
+    }
+  });
+  const shadowStake=settledFocus.length*5000,shadowRoi=shadowStake>0?100*shadowPayout/shadowStake:null;
   const scope=memberActive?'CLUB正式ENTER全件':'公開中予想';
   root.hidden=false;
-  root.innerHTML=`<div class="portfolio-beta-head"><div><small>CLUB PORTFOLIO β</small><strong>本日の資金プラン</strong></div><span>β運用中</span></div><p>${esc(scope)}のうち、現在購入可能な正式ENTERを資金モード別に自動整理しています。</p><div class="portfolio-beta-modes"><div class="focus"><span>FOCUS</span><strong>${counts.FOCUS}R</strong></div><div class="box"><span>BOX</span><strong>${counts.BOX}R</strong></div><div><span>NORMAL</span><strong>${counts.NORMAL}R</strong></div><div><span>NO BOOST</span><strong>${counts.PASS}R</strong></div></div><div class="portfolio-beta-money"><div><span>正式投資</span><strong>${yen(base)}</strong></div><b>＋</b><div><span>BOOST候補</span><strong>${yen(extra)}</strong></div><em>=</em><div><span>参考総投資</span><strong>${yen(base+extra)}</strong></div></div>${focusRows.length?`<div class="portfolio-focus-list"><small>FOCUS β</small>${focusRows.slice(0,4).map(x=>`<span><b>${esc(x.r.venue_name||'')} ${Number(x.r.race_no)}R</b><em>+5,000円 / 上位2点</em></span>`).join('')}${focusRows.length>4?`<i>ほか ${focusRows.length-4}R</i>`:''}</div>`:''}<small class="portfolio-beta-note">β検証中。正式予想・通常の買い目は変更せず、追加投資レイヤーだけを検証しています。</small>`;
+  root.innerHTML=`<div class="portfolio-beta-head"><div><small>CLUB PORTFOLIO β</small><strong>本日の資金プラン</strong></div><span>β運用中</span></div><p>${esc(scope)}を資金モード別に自動整理。正式予想はそのまま、追加投資だけ別レイヤーで検証しています。</p><div class="portfolio-beta-modes"><div class="focus"><span>FOCUS</span><strong>${counts.FOCUS}R</strong></div><div class="box"><span>BOX</span><strong>${counts.BOX}R</strong></div><div><span>NORMAL</span><strong>${counts.NORMAL}R</strong></div><div><span>NO BOOST</span><strong>${counts.PASS}R</strong></div></div><div class="portfolio-beta-money"><div><span>現在の正式投資</span><strong>${yen(base)}</strong></div><b>＋</b><div><span>BOOST候補</span><strong>${yen(extra)}</strong></div><em>=</em><div><span>参考総投資</span><strong>${yen(base+extra)}</strong></div></div>${focusRows.length?`<div class="portfolio-focus-list"><small>FOCUS β｜購入可能</small>${focusRows.slice(0,4).map(x=>`<span><b>${esc(x.r.venue_name||'')} ${Number(x.r.race_no)}R</b><em>+5,000円 / 上位2点</em></span>`).join('')}${focusRows.length>4?`<i>ほか ${focusRows.length-4}R</i>`:''}</div>`:''}${settledFocus.length?`<div class="portfolio-shadow-result"><div><small>SHADOW RESULT</small><strong>本日β検証</strong></div><span>${settledFocus.length}R / ${shadowHits}的中</span><span>追加投資 ${yen(shadowStake)} → 参考払戻 ${yen(Math.round(shadowPayout))}</span><b>${shadowRoi===null?'--':shadowRoi.toFixed(1)+'%'}</b></div>`:''}<small class="portfolio-beta-note">β検証中。BOOST結果は正式実績と分けて表示し、本番成績へ混ぜません。</small>`;
 }
 function effectiveRaceState(r){
   const d=String(r?.record?.decision||r?.record?.prediction?.decision||'').toUpperCase();
@@ -712,7 +726,7 @@ async function load(){
     $('#public-count').textContent=o.public_count===null||o.public_count===undefined?'更新中':pro?`無料 ${Number(o.public_count)}/${Number(o.free_limit||30)}R`:`公開中 ${items.length}R`;
   }
   $('#today-list').innerHTML=memberSyncBlocked?'<div class="race-card"><div class="race-main"><strong>CLUB正式判定を再取得中</strong><small>取得完了まで「判定中」へ戻さず、正式データを再確認します。</small></div></div>':items.length?items.map(x=>publicRaceCard(x,{memberActive:usingClub})).join(''):(usingClub&&!pro?'<div class="race-card"><div class="race-main"><strong>現在、購入可能な正式ENTERはありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>':usingClub?'<div class="race-card"><div class="race-main"><strong>本日の正式ENTERはまだありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>':pro?'<div class="race-card"><div class="race-main"><strong>現在、公開対象なし</strong><small>対象レースが確定すると自動表示します</small></div></div>':'<div class="race-card"><div class="race-main"><strong>現在、公開中の予想はありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>');
-  renderClubPortfolioPlan(items,{memberActive:usingClub});
+  renderClubPortfolioPlan(usingClub?MEMBER_TODAY_ENTER:all,{memberActive:usingClub});
   document.querySelectorAll('.race-card-button').forEach(b=>b.addEventListener('click',async()=>{
     if(b.dataset.access==='club'&&!usingClub){location.href='/club.html#club-waitlist';return}
     await openVenue(b.dataset.vcode);openRace(Number(b.dataset.rno))
