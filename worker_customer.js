@@ -126,21 +126,36 @@ function aiBandKey(odds){const o=Number(odds);if(!Number.isFinite(o)||o<1)return
 function normalizeTicket(v){return String(v||'').replace(/[‐‑‒–—―ー−]/g,'-').replace(/\s+/g,'').trim()}
 function aiMetrics(rows){
   const out={
-    stable:{name:'安定型AI',odds_min:1,odds_max:20,races:0,hits:0,stake_yen:0,payout_yen:0},
-    mid:{name:'中配当型AI',odds_min:20.1,odds_max:79.9,races:0,hits:0,stake_yen:0,payout_yen:0},
-    high:{name:'高配当型AI',odds_min:80,odds_max:null,races:0,hits:0,stake_yen:0,payout_yen:0}
+    stable:{name:'安定型AI',odds_min:1,odds_max:20,races:0,hits:0,stake_yen:0,payout_yen:0,hit_odds_total:0},
+    mid:{name:'中配当型AI',odds_min:20.1,odds_max:79.9,races:0,hits:0,stake_yen:0,payout_yen:0,hit_odds_total:0},
+    high:{name:'高配当型AI',odds_min:80,odds_max:null,races:0,hits:0,stake_yen:0,payout_yen:0,hit_odds_total:0},
+    box:{name:'外枠BOX',range_label:'3艇BOX・6点',strategy:true,races:0,hits:0,stake_yen:0,payout_yen:0,hit_odds_total:0}
   };
   for(const r of rows){
     if(!enter(r)||!r?.settlement)continue;
     const p=r?.prediction||{};
     const bets=Array.isArray(r?.bets)&&r.bets.length?r.bets:Array.isArray(p?.production_picks)?p.production_picks:[];
+    const win=normalizeTicket(r?.settlement?.result?.trifecta||r?.settlement?.trifecta||'');
+    const winningBet=win?bets.find(b=>normalizeTicket(b?.ticket||b?.combination||b?.bet)===win):null;
+    const winningOdds=Number(winningBet?.odds);
+    const strategyMode=String(p?.strategy_mode||r?.strategy_mode||'');
+    if(strategyMode==='外枠BOX'){
+      const m=out.box;
+      m.races++;
+      m.stake_yen+=num(r?.stake_total_yen||p?.stake_total_yen)||bets.reduce((s,b)=>s+num(b?.stake_yen??b?.amount??b?.stake),0);
+      if(r?.settlement?.hit===true){
+        m.hits++;
+        m.payout_yen+=num(r?.settlement?.payout_yen);
+        if(Number.isFinite(winningOdds)&&winningOdds>0)m.hit_odds_total+=winningOdds
+      }
+      continue
+    }
     const grouped={stable:[],mid:[],high:[]};
     for(const b of bets){
       const key=aiBandKey(b?.odds);
       if(!key)continue;
       grouped[key].push(b)
     }
-    const win=normalizeTicket(r?.settlement?.result?.trifecta||r?.settlement?.trifecta||'');
     for(const key of ['stable','mid','high']){
       const xs=grouped[key];
       if(!xs.length)continue;
@@ -148,14 +163,21 @@ function aiMetrics(rows){
       m.races++;
       m.stake_yen+=xs.reduce((s,b)=>s+num(b?.stake_yen??b?.amount??b?.stake),0);
       const hit=!!win&&xs.some(b=>normalizeTicket(b?.ticket||b?.combination||b?.bet)===win);
-      if(hit){m.hits++;m.payout_yen+=num(r?.settlement?.payout_yen)}
+      if(hit){
+        m.hits++;
+        m.payout_yen+=num(r?.settlement?.payout_yen);
+        if(Number.isFinite(winningOdds)&&winningOdds>0)m.hit_odds_total+=winningOdds
+      }
     }
   }
-  for(const key of ['stable','mid','high']){
+  for(const key of ['stable','mid','high','box']){
     const m=out[key];
     m.hit_rate=m.races?m.hits/m.races*100:0;
     m.roi=m.stake_yen?m.payout_yen/m.stake_yen*100:0;
-    m.profit_yen=m.payout_yen-m.stake_yen
+    m.profit_yen=m.payout_yen-m.stake_yen;
+    m.avg_hit_odds=m.hits&&m.hit_odds_total?m.hit_odds_total/m.hits:null;
+    m.sample_status=m.races<20?'参考値':'集計値';
+    delete m.hit_odds_total
   }
   return out
 }
