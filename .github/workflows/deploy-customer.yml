@@ -113,6 +113,12 @@ jobs:
           grep -q "return'押さえ'" customer-public/analysis.js
           grep -q 'pro-picks-accordion' customer-public/analysis.css
           grep -q 'さらに詳しく見る' customer-public/analysis.html
+          grep -q 'plainDecisionReason' customer-public/analysis.js
+          grep -q '1マークを先に回って逃げる展開' customer-public/analysis.js
+          grep -q '主な判断材料' customer-public/analysis.js
+          grep -q 'technical-record' customer-public/analysis.css
+          grep -q 'PRO visual system: black / charcoal / gold only' customer-public/today.html
+          grep -q 'PRO UI: black / charcoal / gold, no blue accents' customer-public/analysis.css
           grep -q 'winning_odds' customer-public/app.js
           grep -q 'site_only_keys' worker_customer.js
           ! grep -q 'one-boat-public-visibility' customer-public/app.js
