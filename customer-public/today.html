@@ -1133,6 +1133,16 @@ html.pro-mode .club-button{
 .band-performance-head>div strong{display:block;margin-top:3px;font-size:15px;letter-spacing:-.02em;color:#0b355b}
 .band-performance-head>small{max-width:150px;text-align:right;font-size:7.5px;line-height:1.45;color:#8798a5}
 .band-list{display:grid;gap:8px}
+.result-toggle{width:100%;margin:10px 0 4px;padding:16px 18px;border:1px solid #b8d9e8;border-radius:16px;background:#fff;display:flex;align-items:center;justify-content:space-between;text-align:left;box-shadow:0 5px 16px rgba(18,92,132,.05)}
+.result-toggle span{display:flex;flex-direction:column;gap:3px}
+.result-toggle small{font-size:8px;font-weight:900;letter-spacing:.18em;color:#4b96ba}
+.result-toggle strong{font-size:16px;color:#123a5b}
+.result-toggle em{font-style:normal;font-size:10px;color:#8092a0}
+.result-toggle>i{font-style:normal;color:#2389bd;font-size:13px}
+.result-list[hidden],.transparency[hidden]{display:none!important}
+html.pro-mode .result-toggle{background:#0b171f;border-color:#294e61}
+html.pro-mode .result-toggle strong{color:#e4f2f9}
+html.pro-mode .result-toggle em{color:#7892a1}
 .club-enter-toggle{width:100%;margin:10px 0 14px;padding:17px 18px;border:1px solid #9fd5ec;border-radius:16px;background:linear-gradient(135deg,#f8fdff 0%,#fff 72%);box-shadow:0 6px 18px rgba(24,110,154,.07);display:flex;align-items:center;justify-content:space-between;text-align:left;color:#123a5b}
 .club-enter-toggle[hidden]{display:none!important}
 .club-enter-toggle span{display:flex;flex-direction:column;gap:4px;min-width:0}
@@ -1573,7 +1583,7 @@ html.pro-mode .current-mark{background:#d8b75c!important;color:#111214!important
     <button id="club-enter-toggle" class="club-enter-toggle" type="button" aria-expanded="false" hidden></button>
     <div id="today-list" class="race-list"><div class="skeleton"></div><div class="skeleton"></div></div>
   </section>
-  <section class="page-section live-results-section" id="results"><div class="section-title-row"><div><small>LIVE RESULTS</small><h2>無料公開最新結果</h2></div><span class="auto-label">自動更新</span></div><div id="result-list" class="result-list"><div class="skeleton"></div></div><p class="transparency">的中だけを選ばず、無料公開したレースを結果順にそのまま表示します。</p></section>
+  <section class="page-section live-results-section" id="results"><div class="section-title-row"><div><small>LIVE RESULTS</small><h2>無料公開最新結果</h2></div><span class="auto-label">自動更新</span></div><button id="result-toggle" class="result-toggle" type="button" aria-expanded="false"><span><small>LIVE RESULTS</small><strong>最新結果を見る</strong><em>結果を確認中</em></span><i>▼</i></button><div id="result-list" class="result-list" hidden><div class="skeleton"></div></div><p class="transparency" hidden>的中だけを選ばず、無料公開したレースを結果順にそのまま表示します。</p></section>
   <section class="page-section performance-section" id="performance"><div class="section-title-row"><div><small>FREE PUBLIC PERFORMANCE</small><h2>無料公開実績</h2></div><span class="auto-label">自動集計</span></div><p class="lead">無料公開した正式ENTERのみ集計。非公開・見送り・様子見・投資0円は含めません。</p><div class="period-tabs" role="tablist"><button class="period active" data-period="today">今日</button><button class="period" data-period="days7">7日</button><button class="period" data-period="days30">30日</button><button class="period" data-period="all">累計</button></div><div class="stats-table"><div><span>回収率</span><strong id="m-roi">--</strong></div><div><span>的中率</span><strong id="m-hit">--</strong></div><div><span>収支</span><strong id="m-profit">--</strong><small id="m-races">集計中</small></div></div><div class="band-performance"><div class="band-performance-head"><div><small>PERFORMANCE BY ODDS</small><strong>予想タイプ別パフォーマンス</strong></div><small>安定・中配当・高配当＋BOX型AIを独立集計</small></div><div id="band-performance" class="band-list"><div class="skeleton"></div></div><aside id="box-validation-reference" class="box-validation-reference" hidden></aside></div></section>
   <section class="club-panel" id="club"><div class="club-panel-inner"><span>ONE BOAT CLUB</span><h2>無料は厳選。CLUBは正式判断を全部。</h2><p>無料公開枠外を含む正式ENTER全件、買い目・資金配分、判断根拠を深掘りするPRO分析を確認できる有料版です。現在は先行登録のみ受け付けています。</p><a class="club-button" href="/club.html#club-waitlist">CLUBの内容を見る</a></div></section>
 </main>
@@ -1594,7 +1604,7 @@ html.pro-mode .current-mark{background:#d8b75c!important;color:#111214!important
 <section id="race-sheet" class="bottom-sheet race-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="race-sheet-title"><div class="sheet-handle"></div><div class="sheet-head"><button id="race-back" class="sheet-back" type="button">‹</button><div><small>RACE DETAIL</small><h2 id="race-sheet-title">レース詳細</h2></div><span id="race-sheet-state" class="sheet-state">--</span></div><div id="race-detail" class="race-detail"></div></section>
 <nav class="bottom-app-nav" aria-label="下部ナビゲーション"><a href="/"><b>⌂</b><span>ホーム</span></a><a href="/today.html" class="active"><b>▦</b><span>本日の予想</span></a><a href="#results"><b><svg class="bottom-nav-chart-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V14M9 19V10M14 19V12M19 19V6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 11.5 9 8.5 13 10.2 20 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></b><span>実績</span></a><a href="/club.html"><b>◎</b><span>CLUB</span></a></nav>
 <footer><strong>ONE BOAT</strong><span>BOAT RACE ANALYTICS</span><small>© ONE BOAT</small></footer>
-<script src="/app.js?v=20260919-clubcollapse2" defer></script>
+<script src="/app.js?v=20260919-resultcollapse1" defer></script>
 <script src="/ai-picks.js?v=20260918-ai3" defer></script>
 <script>const mb=document.getElementById('topMenuButton'),mp=document.getElementById('topMenuPanel');function closeTopMenu(){mp.classList.remove('open');mb.setAttribute('aria-expanded','false')}mb.addEventListener('click',e=>{e.stopPropagation();const open=mp.classList.toggle('open');mb.setAttribute('aria-expanded',String(open))});document.addEventListener('click',e=>{if(!mp.contains(e.target)&&!mb.contains(e.target))closeTopMenu()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTopMenu()});</script>
 </body>
