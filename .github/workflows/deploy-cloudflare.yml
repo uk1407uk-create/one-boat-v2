@@ -29,13 +29,22 @@ jobs:
       - name: Validate early final decision cron
         run: |
           set -euo pipefail
-          grep -q "left>=0&&left<=20" worker_obpe_social.js
-          grep -q "_early_ready','1'" worker_obpe_social.js
-          grep -q "early_final_window_minutes:20" worker_obpe_social.js
-          grep -q "必要データがそろい次第ENTER/見送りを確定" worker_obpe_social.js
-          grep -q "v==='ENTER'||v==='SKIP'" worker_obpe_social.js
-          grep -q "markCronLocked(origin,raceCode,p?.decision)" worker_obpe_social.js
-          grep -q 'WATCHは固定せず毎分再判定' worker_obpe_social.js
+
+          require_fixed() {
+            local needle="$1"
+            if ! grep -Fq -- "$needle" worker_obpe_social.js; then
+              echo "Missing required early-final invariant: $needle"
+              exit 1
+            fi
+          }
+
+          require_fixed "left>=0&&left<=20"
+          require_fixed "_early_ready','1'"
+          require_fixed "early_final_window_minutes:20"
+          require_fixed "必要データがそろい次第ENTER/見送りを確定"
+          require_fixed "v==='ENTER'||v==='SKIP'"
+          require_fixed "markCronLocked(origin,raceCode,p?.decision)"
+          require_fixed "WATCHは固定せず毎分再判定"
 
       - name: Deploy Worker
         env:
