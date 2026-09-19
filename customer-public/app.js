@@ -203,12 +203,12 @@ function resultCard(raw){
   const alloc=hit&&Number.isFinite(Number(x.winning_stake_yen))?yen(x.winning_stake_yen):'—';
   return `<article class="result-card live-result-card"><div class="live-result-head"><strong>${esc(name)} ${Number(x.race_no)}R</strong><span class="result-status ${hit?'hit':'miss'}">${hit?'的中':'不的中'}</span></div><div class="live-result-outcome"><span>3連単</span><strong>${esc(x.trifecta||'—')}</strong>${odds?`<em>${esc(odds)}</em>`:''}</div><div class="result-money-grid">${hit?`<div><span>的中買い目の配分</span><strong>${alloc}</strong></div>`:''}<div><span>レース総投資</span><strong>${yen(x.stake_yen)}</strong></div><div><span>払戻</span><strong>${yen(x.payout_yen)}</strong></div><div><span>収支</span><strong class="${profit>=0?'positive':'negative'}">${profit>0?'+':''}${yen(profit)}</strong></div></div></article>`;
 }
-function bandRangeText(m){return m?.odds_max===null?`${Number(m?.odds_min||80).toFixed(1)}倍〜`:`${Number(m?.odds_min||0).toFixed(1)}〜${Number(m?.odds_max||0).toFixed(1)}倍`}
+function bandRangeText(m){if(m?.range_label)return String(m.range_label);return m?.odds_max===null?`${Number(m?.odds_min||80).toFixed(1)}倍〜`:`${Number(m?.odds_min||0).toFixed(1)}〜${Number(m?.odds_max||0).toFixed(1)}倍`}
 function renderBandPerformance(key='today'){
   const root=STATS?.ai_types||{},types=root?.[key]?.stable?root[key]:root;
   const box=$('#band-performance');if(!box)return;
-  const order=['stable','mid','high'];
-  if(!types?.stable){box.innerHTML='<div class="race-card"><div class="race-main"><strong>集計中</strong><small>配当帯別データを更新しています。</small></div></div>';return}
+  const order=['stable','mid','high','box'];
+  if(!types?.stable){box.innerHTML='<div class="race-card"><div class="race-main"><strong>集計中</strong><small>予想タイプ別データを更新しています。</small></div></div>';return}
   box.innerHTML=order.map(k=>{const m=types[k]||{},sample=m.sample_status||((Number(m.races)||0)<20?'参考値':'集計値'),avg=Number.isFinite(Number(m.avg_hit_odds))?`平均的中オッズ ${oddsText(m.avg_hit_odds)}`:'平均的中オッズ —';return `<article class="band-card"><div class="band-name"><strong>${esc(m.name||k)}</strong><span>${bandRangeText(m)}</span><em>${esc(sample)}</em></div><div class="band-metrics"><div><span>対象</span><strong>${Number(m.races||0)}R</strong></div><div><span>的中率</span><strong>${pct(m.hit_rate)}</strong></div><div><span>回収率</span><strong>${pct(m.roi)}</strong></div><small class="band-average">${avg}</small></div></article>`}).join('');
 }
 
