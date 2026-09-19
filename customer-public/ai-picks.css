@@ -4,7 +4,7 @@
 .official-order-head span{font-size:12px;font-weight:950;color:#0877d7;background:#edf8ff;border:1px solid #c9e8f8;border-radius:999px;padding:6px 9px}
 .ai-pick-stack{display:grid;gap:9px}
 .ai-pick-card{overflow:hidden;background:#fff;border:1.5px solid #cfe2ee;border-radius:16px;box-shadow:0 6px 18px rgba(8,67,109,.07)}
-.ai-pick-card.ai-stable{border-color:#9bd8ef}.ai-pick-card.ai-mid{border-color:#75bfea}.ai-pick-card.ai-high{border-color:#5a9bd5}
+.ai-pick-card.ai-stable{border-color:#9bd8ef}.ai-pick-card.ai-mid{border-color:#75bfea}.ai-pick-card.ai-high{border-color:#5a9bd5}.ai-pick-card.ai-box{border-color:#4e86d8;background:linear-gradient(180deg,#fff 0%,#f7fbff 100%)}.ai-pick-card.ai-box .ai-range{color:#315fa8;background:#eef5ff;border-color:#c7dcfa}.ai-pick-card.ai-box .ai-card-title small{color:#397dca}
 .ai-pick-card summary{list-style:none;cursor:pointer;padding:13px 13px 10px;-webkit-tap-highlight-color:transparent}
 .ai-pick-card summary::-webkit-details-marker{display:none}
 .ai-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
@@ -54,3 +54,5 @@ html.pro-mode .purchase-glance>div,html.pro-mode .purchase-glance .deadline-cell
 html.pro-mode .ai-ticket em small{color:#8f9195}
 html.pro-mode .ai-ticket em b{color:#e6e6e4}
 html.pro-mode .odds-range-note{background:#17181a;color:#92949a!important}
+
+html.pro-mode .ai-pick-card.ai-box{background:#15181d;border-color:#5276aa}html.pro-mode .ai-pick-card.ai-box .ai-range{background:#1b2738;border-color:#38577e;color:#e3edff}
