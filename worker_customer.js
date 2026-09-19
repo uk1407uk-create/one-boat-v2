@@ -60,6 +60,11 @@ async function buildOverview(){
     venues.push({code,name:VENUES[code-1],state,next_race_no:targetNo,next_deadline:targetSc?.deadline||null,grade:targetSc?.grade||rs[0]?.grade||null,women:targetSc?.women===true||rs.some(x=>x.women===true),public_count:historyAvailable?publicRows.length:null});
   }
   const publicItems=historyAvailable?rows.filter(enter).sort((a,b)=>num(a.venue_code)-num(b.venue_code)||num(a.race_no)-num(b.race_no)).map(r=>publicItem(r,scheduleMap)):[];
+  const buyableItems=historyAvailable&&visibility?.available===true?rows
+    .filter(r=>enter(r)||decision(r)==='PRIVATE_ENTER'||r?.__private_enter===true)
+    .map(r=>publicItem(r,scheduleMap))
+    .filter(r=>{const m=hmMin(r?.deadline);return m===null||m>now})
+    .sort((a,b)=>(hmMin(a.deadline)??9999)-(hmMin(b.deadline)??9999)||num(a.venue_code)-num(b.venue_code)||num(a.race_no)-num(b.race_no)):publicItems.filter(r=>{const m=hmMin(r?.deadline);return m===null||m>now});
   const latestByRace=new Map();
   for(const r of rows){const k=String(r?.race_key||`${num(r.venue_code)}-${num(r.race_no)}`);if(k)latestByRace.set(k,r)}
   const decidedRows=[...latestByRace.values()];
@@ -85,7 +90,7 @@ async function buildOverview(){
     nextDecision=candidates[0]||null;
   }
   const freeLimit=30,freeCount=visibility?.available&&Number.isFinite(Number(visibility.count))?Math.max(0,Math.min(freeLimit,Number(visibility.count))):null,freeRemaining=freeCount===null?null:Math.max(0,freeLimit-freeCount);
-  return{ok:true,date,degraded:!scheduleAvailable||!historyAvailable||!visibility?.available,source:{schedule:scheduleAvailable,predictions:historyAvailable,visibility:visibility?.available===true},active_count:scheduleAvailable?venues.filter(v=>v.state!=='NOEVENT'&&v.state!=='FINISHED').length:null,public_count:historyAvailable?publicItems.length:null,decision_summary:decisionSummary,next_decision:nextDecision,free_limit:freeLimit,free_count:freeCount,free_remaining:freeRemaining,free_note:'正式ENTERが出たレースのみ無料公開',site_only_keys:Array.isArray(visibility?.site_only_keys)?visibility.site_only_keys:[],venues,public_items:publicItems}
+  return{ok:true,date,degraded:!scheduleAvailable||!historyAvailable||!visibility?.available,source:{schedule:scheduleAvailable,predictions:historyAvailable,visibility:visibility?.available===true},active_count:scheduleAvailable?venues.filter(v=>v.state!=='NOEVENT'&&v.state!=='FINISHED').length:null,public_count:historyAvailable?publicItems.length:null,decision_summary:decisionSummary,next_decision:nextDecision,free_limit:freeLimit,free_count:freeCount,free_remaining:freeRemaining,free_note:'正式ENTERが出たレースのみ無料公開',site_only_keys:Array.isArray(visibility?.site_only_keys)?visibility.site_only_keys:[],venues,public_items:publicItems,buyable_items:buyableItems}
 }
 async function buildVenue(code){
   code=num(code);if(code<1||code>24)throw new Error('bad_venue');
