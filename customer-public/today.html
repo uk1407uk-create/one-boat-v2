@@ -1205,6 +1205,20 @@ html.pro-mode .private-plan-options span,html.pro-mode .private-plan-compare{col
 
 
 /* 2026-09-19 iPhone readability pass */
+.no-buy-message{border-color:#e2a7ad;background:linear-gradient(135deg,#fff6f7,#fff)}
+.no-buy-badge{display:inline-flex;margin-top:8px;padding:7px 10px;border-radius:999px;background:#fff0f1;color:#b44c58;font-size:11px;font-weight:950;border:1px solid #f0c7cc}
+.reference-prediction{border:1.5px dashed #b9cddd;background:#f8fbfd}
+.reference-warning{margin:6px 0 10px;color:#697f90;font-size:11px;line-height:1.6;font-weight:750}
+.reference-pick-list{display:grid;gap:6px}
+.reference-pick-list>div{display:grid;grid-template-columns:26px 1fr auto;align-items:center;gap:8px;min-height:42px;padding:7px 9px;border-radius:9px;background:#fff;border:1px solid #dde9f0}
+.reference-pick-list span{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#edf5fa;color:#547389;font-size:10px;font-weight:900}
+.reference-pick-list strong{font-size:16px;color:#173f5d;letter-spacing:.02em}
+.reference-pick-list em{font-style:normal;font-size:10px;color:#7890a1;font-weight:850}
+html.pro-mode .reference-prediction{background:#07131f;border-color:#2a5874}
+html.pro-mode .reference-pick-list>div{background:#091824;border-color:#173a50}
+html.pro-mode .reference-pick-list strong{color:#d9f4ff}
+html.pro-mode .reference-warning{color:#86a5b9}
+
 .top-menu-button{width:44px;height:44px}
 .top-club{min-height:40px}
 .bottom-app-nav a{font-size:10px}
@@ -1312,7 +1326,7 @@ html.pro-mode .venue-meta em.deadline-hot,html.pro-mode .race-time.deadline-hot{
 <section id="race-sheet" class="bottom-sheet race-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="race-sheet-title"><div class="sheet-handle"></div><div class="sheet-head"><button id="race-back" class="sheet-back" type="button">‹</button><div><small>RACE DETAIL</small><h2 id="race-sheet-title">レース詳細</h2></div><span id="race-sheet-state" class="sheet-state">--</span></div><div id="race-detail" class="race-detail"></div></section>
 <nav class="bottom-app-nav" aria-label="下部ナビゲーション"><a href="/"><b>⌂</b><span>ホーム</span></a><a href="/today.html" class="active"><b>▦</b><span>本日の予想</span></a><a href="#results"><b><svg class="bottom-nav-chart-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V14M9 19V10M14 19V12M19 19V6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 11.5 9 8.5 13 10.2 20 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></b><span>実績</span></a><a href="/club.html"><b>◎</b><span>CLUB</span></a></nav>
 <footer><strong>ONE BOAT</strong><span>BOAT RACE ANALYTICS</span><small>© ONE BOAT</small></footer>
-<script src="/app.js?v=20260919-clarity1" defer></script>
+<script src="/app.js?v=20260919-reference2" defer></script>
 <script src="/ai-picks.js?v=20260918-ai3" defer></script>
 <script>const mb=document.getElementById('topMenuButton'),mp=document.getElementById('topMenuPanel');function closeTopMenu(){mp.classList.remove('open');mb.setAttribute('aria-expanded','false')}mb.addEventListener('click',e=>{e.stopPropagation();const open=mp.classList.toggle('open');mb.setAttribute('aria-expanded',String(open))});document.addEventListener('click',e=>{if(!mp.contains(e.target)&&!mb.contains(e.target))closeTopMenu()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTopMenu()});</script>
 </body>
