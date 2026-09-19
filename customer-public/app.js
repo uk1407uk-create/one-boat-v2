@@ -75,7 +75,7 @@ function stateLabel(s){return {ENTER:'正式ENTER',PUBLIC:'無料公開',WATCH:'
 function stateClass(s){return {ENTER:'live',PUBLIC:'live',WATCH:'watch',SKIP:'skip',PRIVATE:'idle',SETTLED:'settled',FINISHED:'idle',CLOSED:'idle',NOEVENT:'idle',PENDING:'pending',UPDATING:'pending'}[s]||'pending'}
 function timeText(v){const m=String(v||'').match(/(\d{1,2}:\d{2})/);return m?m[1]:'--:--'}
 function deadlineMinute(v){const m=String(v||'').match(/(\d{1,2}):(\d{2})/);return m?Number(m[1])*60+Number(m[2]):9999}
-function finalDecisionTime(v){const m=deadlineMinute(v);if(m===9999)return'--:--';const x=(m-5+1440)%1440;return String(Math.floor(x/60)).padStart(2,'0')+':'+String(x%60).padStart(2,'0')}
+function finalDecisionTime(v){const m=deadlineMinute(v);if(m===9999)return'--:--';const x=(m-1+1440)%1440;return String(Math.floor(x/60)).padStart(2,'0')+':'+String(x%60).padStart(2,'0')}
 function skipReasonTag(v){
   const s=String(v||'');
   if(!s)return'条件未達';
@@ -436,8 +436,8 @@ function proRaceUrl(r){
 }
 function normalizeLegacyCutoffText(v){
   return String(v||'')
-    .replace(/締切\s*1\s*分前/g,'締切5分前')
-    .replace(/1\s*分前までに/g,'5分前までに');
+    .replace(/締切\s*5\s*分前/g,'締切1分前')
+    .replace(/5\s*分前までに/g,'1分前までに');
 }
 function shortOfficialReason(v,max=118){
   const x=normalizeLegacyCutoffText(v).replace(/\s+/g,' ').trim();
@@ -482,7 +482,7 @@ function raceDetail(r){
     <div><span>投資</span><strong>${effectiveState==='PRIVATE'?'非公開':publicRecord(rec)?yen(stake):'購入なし'}</strong></div>
   </div>`;
   if(effectiveState==='WATCH'||effectiveState==='PENDING'){
-    html+=`<div class="final-decision-note"><strong>最終判断</strong><span>必要データがそろい次第すぐ確定。遅くとも締切5分前までに最終判断します。</span></div>`;
+    html+=`<div class="final-decision-note"><strong>最終判断</strong><span>必要データがそろい次第すぐ確定。遅くとも締切1分前までに最終判断します。</span></div>`;
   }
 
   if(publicRecord(rec)&&strategyMode==='BOX'){
