@@ -1132,6 +1132,17 @@ html.pro-mode .club-button{
 .band-performance-head>div strong{display:block;margin-top:3px;font-size:15px;letter-spacing:-.02em;color:#0b355b}
 .band-performance-head>small{max-width:150px;text-align:right;font-size:7.5px;line-height:1.45;color:#8798a5}
 .band-list{display:grid;gap:8px}
+.club-enter-toggle{width:100%;margin:10px 0 14px;padding:17px 18px;border:1px solid #9fd5ec;border-radius:16px;background:linear-gradient(135deg,#f8fdff 0%,#fff 72%);box-shadow:0 6px 18px rgba(24,110,154,.07);display:flex;align-items:center;justify-content:space-between;text-align:left;color:#123a5b}
+.club-enter-toggle[hidden]{display:none!important}
+.club-enter-toggle span{display:flex;flex-direction:column;gap:4px;min-width:0}
+.club-enter-toggle small{font-size:8px;font-weight:900;letter-spacing:.18em;color:#4a96ba}
+.club-enter-toggle strong{font-size:16px;line-height:1.3;color:#123a5b}
+.club-enter-toggle strong b{color:#1684bd;font-size:14px;margin-left:4px}
+.club-enter-toggle em{font-style:normal;font-size:10px;color:#8193a2}
+.club-enter-toggle>i{font-style:normal;font-size:13px;color:#278ec4;margin-left:12px}
+html.pro-mode .club-enter-toggle{background:#0b171f;border-color:#2a5368;color:#d9edf7}
+html.pro-mode .club-enter-toggle strong{color:#e5f4fb}
+html.pro-mode .club-enter-toggle em{color:#7893a2}
 .box-validation-reference{margin-top:16px;padding:18px;border:1px solid #b8ddec;border-radius:16px;background:linear-gradient(135deg,#f6fcff 0%,#fff 72%);box-shadow:0 6px 18px rgba(18,104,147,.06)}
 .box-validation-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .box-validation-head span{font-size:9px;font-weight:900;letter-spacing:.18em;color:#4991b8}
@@ -1558,6 +1569,7 @@ html.pro-mode .current-mark{background:#d8b75c!important;color:#111214!important
     <button id="venue-toggle" class="venue-toggle" type="button" aria-expanded="false">全24場を見る</button>
     <div class="section-title-row public-title"><div><small>ONE BOAT SELECT</small><h2 id="public-title-text">本日の公開予想</h2></div><span id="public-count" class="count-label">--</span></div>
     <p class="lead public-lead">正式ENTERのみ公開</p>
+    <button id="club-enter-toggle" class="club-enter-toggle" type="button" aria-expanded="false" hidden></button>
     <div id="today-list" class="race-list"><div class="skeleton"></div><div class="skeleton"></div></div>
   </section>
   <section class="page-section live-results-section" id="results"><div class="section-title-row"><div><small>LIVE RESULTS</small><h2>無料公開最新結果</h2></div><span class="auto-label">自動更新</span></div><div id="result-list" class="result-list"><div class="skeleton"></div></div><p class="transparency">的中だけを選ばず、無料公開したレースを結果順にそのまま表示します。</p></section>
@@ -1581,7 +1593,7 @@ html.pro-mode .current-mark{background:#d8b75c!important;color:#111214!important
 <section id="race-sheet" class="bottom-sheet race-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="race-sheet-title"><div class="sheet-handle"></div><div class="sheet-head"><button id="race-back" class="sheet-back" type="button">‹</button><div><small>RACE DETAIL</small><h2 id="race-sheet-title">レース詳細</h2></div><span id="race-sheet-state" class="sheet-state">--</span></div><div id="race-detail" class="race-detail"></div></section>
 <nav class="bottom-app-nav" aria-label="下部ナビゲーション"><a href="/"><b>⌂</b><span>ホーム</span></a><a href="/today.html" class="active"><b>▦</b><span>本日の予想</span></a><a href="#results"><b><svg class="bottom-nav-chart-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V14M9 19V10M14 19V12M19 19V6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 11.5 9 8.5 13 10.2 20 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></b><span>実績</span></a><a href="/club.html"><b>◎</b><span>CLUB</span></a></nav>
 <footer><strong>ONE BOAT</strong><span>BOAT RACE ANALYTICS</span><small>© ONE BOAT</small></footer>
-<script src="/app.js?v=20260919-live-sheet-sync1" defer></script>
+<script src="/app.js?v=20260919-clubcollapse1" defer></script>
 <script src="/ai-picks.js?v=20260918-ai3" defer></script>
 <script>const mb=document.getElementById('topMenuButton'),mp=document.getElementById('topMenuPanel');function closeTopMenu(){mp.classList.remove('open');mb.setAttribute('aria-expanded','false')}mb.addEventListener('click',e=>{e.stopPropagation();const open=mp.classList.toggle('open');mb.setAttribute('aria-expanded',String(open))});document.addEventListener('click',e=>{if(!mp.contains(e.target)&&!mb.contains(e.target))closeTopMenu()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTopMenu()});</script>
 </body>
