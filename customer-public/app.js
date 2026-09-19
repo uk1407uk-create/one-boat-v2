@@ -177,7 +177,7 @@ function renderFreeStrip(o){
   $('#free-strip-list').innerHTML=`<div class="free-progress-card"><div class="free-progress-head"><div><small>TODAY FREE</small><strong>本日の無料予想</strong></div><span class="${liveClass}"><i></i>${liveState}</span></div><div class="free-progress-numbers"><div class="free-used"><strong>${m.count}</strong><span>/ ${m.limit}R</span></div><div class="free-remaining"><small>残り</small><strong>${m.remaining}R</strong></div></div>${complete}<p class="free-progress-note">正式ENTERのみ公開</p></div>`;
 }
 function publicRaceCard(r){
-  const settled=!!r.settlement,memberEnter=!settled&&['paid','staff'].includes(String(r?.access_scope||'')),strategyMode=String(r?.prediction?.strategy_mode||''),siteOnly=String(r?.visibility_code||'')==='SNS_PRIVATE'||String(r?.customer_visibility_label||'')==='サイト限定',status=settled?(r.settlement.hit?'的中':'不的中'):(siteOnly?'サイト限定':strategyMode==='外枠BOX'?'外枠BOX':memberEnter?'正式ENTER':'無料公開'),cls=settled?(r.settlement.hit?'hit':'miss'):'locked';
+  const settled=!!r.settlement,memberEnter=!settled&&['paid','staff'].includes(String(r?.access_scope||'')),strategyMode=String(r?.prediction?.strategy_mode||''),siteOnly=String(r?.visibility_code||'')==='SNS_PRIVATE'||String(r?.customer_visibility_label||'')==='サイト限定',status=settled?(r.settlement.hit?'的中':'不的中'):(siteOnly?'サイト限定':strategyMode==='BOX'?'BOX型':memberEnter?'正式ENTER':'無料公開'),cls=settled?(r.settlement.hit?'hit':'miss'):'locked';
   let sub;
   if(savedViewMode()==='pro'){
     sub=settled?`${r.settlement?.result?.trifecta||r.settlement?.trifecta||'結果反映済'} ・ ${r.settlement.hit?`払戻 ${yen(r.settlement.payout_yen)}`:'結果公開'}`:`締切 ${timeText(r.deadline||r.close_time)} ・ 投資 ${yen(r.stake_total_yen||r.prediction?.stake_total_yen)}`;
@@ -339,7 +339,7 @@ function raceDetail(r){
   </nav>
   <section class="easy-decision ${stateClass(effectiveState)}">
     <small>ひと目で確認</small>
-    <strong>${state}${siteOnly?`<em class="site-only-badge">サイト限定</em>`:''}${strategyMode?`<em class="strategy-mode-badge ${strategyMode==='外枠BOX'?'box':''}">${esc(strategyMode)}</em>`:''}</strong>
+    <strong>${state}${siteOnly?`<em class="site-only-badge">サイト限定</em>`:''}${strategyMode?`<em class="strategy-mode-badge ${strategyMode==='BOX'?'box':''}">${esc(strategyMode==='BOX'?'BOX型':strategyMode)}</em>`:''}</strong>
     <p>${esc(effectiveState==='PRIVATE'?'本日の無料公開対象外':reasonShort||(publicRecord(rec)?'正式予想が公開されています。買い目と金額を確認してください。':r.note||'正式判定を表示しています。'))}</p>
   </section>
   <div class="detail-summary">
@@ -351,9 +351,10 @@ function raceDetail(r){
     html+=`<div class="final-decision-note"><strong>最終判断</strong><span>締切1分前までに確定。ENTERしなければ見送りです。</span></div>`;
   }
 
-  if(publicRecord(rec)&&strategyMode==='外枠BOX'){
-    const lanes=Array.isArray(p.box_lanes)&&p.box_lanes.length===3?p.box_lanes.join('・'):'3艇';
-    html+=`<div class="box-mode-note"><strong>外枠BOX</strong><span>${esc(lanes)}号艇の3艇BOX｜6点で勝負</span></div>`;
+  if(publicRecord(rec)&&strategyMode==='BOX'){
+    const b1=Array.isArray(p.box1_lanes)&&p.box1_lanes.length===3?p.box1_lanes.join('・'):'3艇';
+    const b2=Array.isArray(p.box2_lanes)&&p.box2_lanes.length===3?p.box2_lanes.join('・'):'3艇';
+    html+=`<div class="box-mode-note"><strong>BOX型</strong><span>${esc(b1)} BOX ＋ ${esc(b2)} BOX｜12点・総投資5,000円</span></div>`;
   }
 
   if(effectiveState==='PRIVATE'){
