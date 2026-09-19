@@ -164,6 +164,9 @@ async function syncMemberStatus({force=false}={}){
   return sess;
 }
 function publicRecord(r){const d=String(r?.decision||r?.prediction?.decision||'').toUpperCase(),stake=Number(r?.stake_total_yen??r?.prediction?.stake_total_yen??0);return d==='ENTER'&&stake>0}
+function personaPortfolioOf(r){return r?.persona_portfolio||r?.prediction?.persona_portfolio||null}
+function personaActiveCount(r){const p=personaPortfolioOf(r);if(!p?.applied)return 0;return ['stable','balanced','high','box'].filter(k=>p?.[k]?.status==='BUY'&&Array.isArray(p?.[k]?.picks)&&p[k].picks.length).length}
+function customerPredictionRecord(r){const p=personaPortfolioOf(r);return p?.applied?p?.has_any_pick===true:publicRecord(r)}
 async function paidTodayEnter(date){
   try{
     const sr=await fetch('/api/member/session',{credentials:'same-origin',cache:'no-store'});
@@ -264,6 +267,7 @@ function clubPortfolioModel(raw){
 function renderClubPortfolioPlan(rows,{memberActive=false}={}){
   const root=$('#club-portfolio-beta');if(!root)return;
   const allRows=Array.isArray(rows)?rows:[];
+  if(allRows.some(x=>personaPortfolioOf(x)?.applied===true)){root.hidden=true;root.innerHTML='';return}
   const live=allRows.filter(x=>publicRecord(x)&&!x?.settlement);
   const settled=allRows.filter(x=>publicRecord(x)&&x?.settlement);
   if(!live.length&&!settled.length){root.hidden=true;root.innerHTML='';return}
@@ -396,10 +400,11 @@ function publicRaceCard(r,{memberActive=false}={}){
     const dl=r.deadline||r.close_time,left=deadlineLeftText(dl);
     sub=`${left?left+' ・ ':''}締切 ${timeText(dl)} ・ CLUB登録で買い目を確認`;
   }else if(savedViewMode()==='pro'){
-    sub=`締切 ${timeText(r.deadline||r.close_time)} ・ 投資 ${yen(r.stake_total_yen||r.prediction?.stake_total_yen)}`;
+    const pc=personaActiveCount(r);
+    sub=pc?`締切 ${timeText(r.deadline||r.close_time)} ・ ${pc}/4タイプが購入`:`締切 ${timeText(r.deadline||r.close_time)} ・ 投資 ${yen(r.stake_total_yen||r.prediction?.stake_total_yen)}`;
   }else{
-    const dl=r.deadline||r.close_time,left=deadlineLeftText(dl);
-    sub=`${left?left+' ・ ':''}締切 ${timeText(dl)} ・ 買い目 ${betsOf(r).length}点`;
+    const dl=r.deadline||r.close_time,left=deadlineLeftText(dl),pc=personaActiveCount(r);
+    sub=pc?`${left?left+' ・ ':''}締切 ${timeText(dl)} ・ ${pc}/4タイプが購入`:`${left?left+' ・ ':''}締切 ${timeText(dl)} ・ 買い目 ${betsOf(r).length}点`;
   }
   const badge=settled?(r.settlement.hit?'的中':'不的中'):access.label;
   const pm=(isCommandAdmin()&&!settled&&!gated&&publicRecord(r))?clubPortfolioModel(r):null;
@@ -604,7 +609,7 @@ function openRace(rno){
   const r=(CURRENT_VENUE?.races||[]).find(x=>Number(x.race_no)===Number(rno));
   if(!r)return;
   const rk=raceKeyForView(rno);
-  if(rk&&publicRecord(r.record||{})){
+  if(rk&&customerPredictionRecord(r.record||{})){
     trackLite('prediction_open',rk);
     if(SITE_ONLY_KEYS.has(rk))trackLite('site_only_open',rk);
   }
