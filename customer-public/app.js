@@ -75,7 +75,7 @@ function syncPerformanceScope(){
   const eyebrow=$('#performance-eyebrow'),title=$('#performance-title'),lead=$('#performance-lead');
   if(eyebrow)eyebrow.textContent=club?'CLUB PERFORMANCE':'FREE PUBLIC PERFORMANCE';
   if(title)title.textContent=club?'CLUB正式ENTER実績':'無料公開実績';
-  if(lead)lead.textContent=club?'無料公開枠外を含む正式ENTER全件を集計。見送り・様子見・投資0円は含めません。':'無料公開した正式ENTERのみ集計。非公開・見送り・様子見・投資0円は含めません。';
+  if(lead)lead.textContent=club?'無料公開を含む正式ENTER全件の実績です。公開範囲が広いため、無料公開より回収率・的中率が高くなることを保証する集計ではありません。':'無料公開した正式ENTERのみ集計。CLUB正式ENTER全件の一部なので、期間によって全件実績との差が出ます。';
 }
 function renderMetrics(key='today'){
   syncPerformanceScope();
