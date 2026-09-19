@@ -1132,6 +1132,23 @@ html.pro-mode .club-button{
 .band-performance-head>div strong{display:block;margin-top:3px;font-size:15px;letter-spacing:-.02em;color:#0b355b}
 .band-performance-head>small{max-width:150px;text-align:right;font-size:7.5px;line-height:1.45;color:#8798a5}
 .band-list{display:grid;gap:8px}
+.box-validation-reference{margin-top:16px;padding:18px;border:1px solid #b8ddec;border-radius:16px;background:linear-gradient(135deg,#f6fcff 0%,#fff 72%);box-shadow:0 6px 18px rgba(18,104,147,.06)}
+.box-validation-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.box-validation-head span{font-size:9px;font-weight:900;letter-spacing:.18em;color:#4991b8}
+.box-validation-head em{font-style:normal;font-size:9px;font-weight:900;padding:4px 7px;border-radius:999px;background:#eaf6fb;color:#26779e}
+.box-validation-reference>strong{display:block;font-size:17px;color:#123a5b;margin-bottom:6px}
+.box-validation-reference>p{font-size:11px;line-height:1.7;color:#71879a;margin:0 0 13px}
+.box-validation-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:12px}
+.box-validation-metrics div{padding:9px 5px;border-radius:10px;background:#fff;border:1px solid #e4eef3;text-align:center}
+.box-validation-metrics small{display:block;font-size:8px;color:#8a9aaa;margin-bottom:3px}
+.box-validation-metrics b{font-size:14px;color:#143e60}
+.box-validation-money{display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e2edf2;padding-top:10px;margin-bottom:7px}
+.box-validation-money span{font-size:10px;color:#70889a}
+.box-validation-money strong{font-size:15px}
+.box-validation-reference>small{display:block;font-size:9px;color:#8a9aaa}
+html.pro-mode .box-validation-reference{background:#0a151d;border-color:#244858}
+html.pro-mode .box-validation-reference>strong,html.pro-mode .box-validation-metrics b{color:#d9edf7}
+html.pro-mode .box-validation-metrics div{background:#0d1c25;border-color:#203a49}
 .band-card{display:grid;grid-template-columns:minmax(92px,.85fr) 1.7fr;align-items:center;gap:10px;padding:11px 12px;border:1px solid #e1e7ec;border-radius:11px;background:#fafcfd}
 .band-name strong{display:block;font-size:12.5px;color:#123c60}
 .band-name span{display:block;margin-top:3px;font-size:8px;font-weight:800;color:#8092a0}
@@ -1544,7 +1561,7 @@ html.pro-mode .current-mark{background:#d8b75c!important;color:#111214!important
     <div id="today-list" class="race-list"><div class="skeleton"></div><div class="skeleton"></div></div>
   </section>
   <section class="page-section live-results-section" id="results"><div class="section-title-row"><div><small>LIVE RESULTS</small><h2>無料公開最新結果</h2></div><span class="auto-label">自動更新</span></div><div id="result-list" class="result-list"><div class="skeleton"></div></div><p class="transparency">的中だけを選ばず、無料公開したレースを結果順にそのまま表示します。</p></section>
-  <section class="page-section performance-section" id="performance"><div class="section-title-row"><div><small>FREE PUBLIC PERFORMANCE</small><h2>無料公開実績</h2></div><span class="auto-label">自動集計</span></div><p class="lead">無料公開した正式ENTERのみ集計。非公開・見送り・様子見・投資0円は含めません。</p><div class="period-tabs" role="tablist"><button class="period active" data-period="today">今日</button><button class="period" data-period="days7">7日</button><button class="period" data-period="days30">30日</button><button class="period" data-period="all">累計</button></div><div class="stats-table"><div><span>回収率</span><strong id="m-roi">--</strong></div><div><span>的中率</span><strong id="m-hit">--</strong></div><div><span>収支</span><strong id="m-profit">--</strong><small id="m-races">集計中</small></div></div><div class="band-performance"><div class="band-performance-head"><div><small>PERFORMANCE BY ODDS</small><strong>予想タイプ別パフォーマンス</strong></div><small>安定・中配当・高配当＋BOX型を独立集計</small></div><div id="band-performance" class="band-list"><div class="skeleton"></div></div></div></section>
+  <section class="page-section performance-section" id="performance"><div class="section-title-row"><div><small>FREE PUBLIC PERFORMANCE</small><h2>無料公開実績</h2></div><span class="auto-label">自動集計</span></div><p class="lead">無料公開した正式ENTERのみ集計。非公開・見送り・様子見・投資0円は含めません。</p><div class="period-tabs" role="tablist"><button class="period active" data-period="today">今日</button><button class="period" data-period="days7">7日</button><button class="period" data-period="days30">30日</button><button class="period" data-period="all">累計</button></div><div class="stats-table"><div><span>回収率</span><strong id="m-roi">--</strong></div><div><span>的中率</span><strong id="m-hit">--</strong></div><div><span>収支</span><strong id="m-profit">--</strong><small id="m-races">集計中</small></div></div><div class="band-performance"><div class="band-performance-head"><div><small>PERFORMANCE BY ODDS</small><strong>予想タイプ別パフォーマンス</strong></div><small>安定・中配当・高配当＋BOX型AIを独立集計</small></div><div id="band-performance" class="band-list"><div class="skeleton"></div></div><aside id="box-validation-reference" class="box-validation-reference" hidden></aside></div></section>
   <section class="club-panel" id="club"><div class="club-panel-inner"><span>ONE BOAT CLUB</span><h2>無料は厳選。CLUBは正式判断を全部。</h2><p>無料公開枠外を含む正式ENTER全件、買い目・資金配分、判断根拠を深掘りするPRO分析を確認できる有料版です。現在は先行登録のみ受け付けています。</p><a class="club-button" href="/club.html#club-waitlist">CLUBの内容を見る</a></div></section>
 </main>
 <section id="customer-first-guide" class="customer-first-guide" hidden role="dialog" aria-modal="true" aria-labelledby="customer-guide-title">
@@ -1564,7 +1581,7 @@ html.pro-mode .current-mark{background:#d8b75c!important;color:#111214!important
 <section id="race-sheet" class="bottom-sheet race-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="race-sheet-title"><div class="sheet-handle"></div><div class="sheet-head"><button id="race-back" class="sheet-back" type="button">‹</button><div><small>RACE DETAIL</small><h2 id="race-sheet-title">レース詳細</h2></div><span id="race-sheet-state" class="sheet-state">--</span></div><div id="race-detail" class="race-detail"></div></section>
 <nav class="bottom-app-nav" aria-label="下部ナビゲーション"><a href="/"><b>⌂</b><span>ホーム</span></a><a href="/today.html" class="active"><b>▦</b><span>本日の予想</span></a><a href="#results"><b><svg class="bottom-nav-chart-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V14M9 19V10M14 19V12M19 19V6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 11.5 9 8.5 13 10.2 20 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></b><span>実績</span></a><a href="/club.html"><b>◎</b><span>CLUB</span></a></nav>
 <footer><strong>ONE BOAT</strong><span>BOAT RACE ANALYTICS</span><small>© ONE BOAT</small></footer>
-<script src="/app.js?v=20260919-watchbox1" defer></script>
+<script src="/app.js?v=20260919-boxai2" defer></script>
 <script src="/ai-picks.js?v=20260918-ai3" defer></script>
 <script>const mb=document.getElementById('topMenuButton'),mp=document.getElementById('topMenuPanel');function closeTopMenu(){mp.classList.remove('open');mb.setAttribute('aria-expanded','false')}mb.addEventListener('click',e=>{e.stopPropagation();const open=mp.classList.toggle('open');mb.setAttribute('aria-expanded',String(open))});document.addEventListener('click',e=>{if(!mp.contains(e.target)&&!mb.contains(e.target))closeTopMenu()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTopMenu()});</script>
 </body>
