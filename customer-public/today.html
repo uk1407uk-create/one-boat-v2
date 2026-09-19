@@ -2370,7 +2370,7 @@ html.pro-mode .status-command .member-status-badge{background:linear-gradient(13
   .member-status-badge{padding:0 7px;font-size:8px}
 }
 
-/* Four analyst performance */
+/* Analysis type performance */
 .analyst-performance-list{gap:9px}
 .analyst-performance-card{position:relative;padding:12px;border:1px solid #d8e6ee;border-radius:13px;background:#fff;box-shadow:0 4px 12px rgba(16,76,112,.055);overflow:hidden}
 .analyst-performance-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#3697c9}
@@ -2378,7 +2378,7 @@ html.pro-mode .status-command .member-status-badge{background:linear-gradient(13
 .analyst-performance-card.analyst-mid:before{background:#238ed3}
 .analyst-performance-card.analyst-high:before{background:#536bc1}
 .analyst-performance-card.analyst-box:before{background:#173f73}
-.analyst-performance-head{display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:9px;align-items:center}
+.analyst-performance-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;align-items:center}
 .analyst-performance-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:950;background:#eef8fd;border:1px solid #b9dceb;color:#176c9e}
 .analyst-stable .analyst-performance-avatar{background:#ecfaf7;border-color:#b9e3db;color:#197a70}
 .analyst-high .analyst-performance-avatar{background:#f1f3fd;border-color:#c3cae9;color:#485daf}
@@ -2475,7 +2475,7 @@ html.pro-mode .analyst-performance-money span,html.pro-mode .analyst-performance
     <p class="lead" id="performance-lead">無料公開した正式ENTERのみ集計。非公開・見送り・様子見・投資0円は含めません。</p>
     <div class="period-tabs" role="tablist"><button class="period active" data-period="today">今日</button><button class="period" data-period="days7">7日</button><button class="period" data-period="days30">30日</button><button class="period" data-period="all">累計</button></div>
     <div class="stats-table"><div><span>回収率</span><strong id="m-roi">--</strong></div><div><span>的中率</span><strong id="m-hit">--</strong></div><div><span>収支</span><strong id="m-profit">--</strong><small id="m-races">集計中</small></div></div><div class="stats-subgrid" aria-label="実績内訳"><div><span>対象R</span><strong id="m-race-count">--</strong></div><div><span>的中数</span><strong id="m-hit-count">--</strong></div><div><span>投資</span><strong id="m-stake">--</strong></div><div><span>払戻</span><strong id="m-payout">--</strong></div></div>
-    <div class="band-performance"><div class="band-performance-head"><div><small>4 ANALYST PERFORMANCE</small><strong>4人の予想家パフォーマンス</strong></div><small>それぞれが実際に買ったレースだけを個別集計</small></div><div id="band-performance" class="band-list analyst-performance-list"><div class="skeleton"></div></div><aside id="box-validation-reference" class="box-validation-reference" hidden></aside></div>
+    <div class="band-performance"><div class="band-performance-head"><div><small>ANALYSIS PERFORMANCE</small><strong>分析タイプ別パフォーマンス</strong></div><small>各タイプが実際に買ったレースだけを個別集計</small></div><div id="band-performance" class="band-list analyst-performance-list"><div class="skeleton"></div></div><aside id="box-validation-reference" class="box-validation-reference" hidden></aside></div>
     <div class="live-results-section embedded-results" id="results"><div class="section-title-row"><div><small>LIVE RESULTS</small><h2>無料公開最新結果</h2></div><span class="auto-label">自動更新</span></div><button id="result-toggle" class="result-toggle" type="button" aria-expanded="false"><span><small>LIVE RESULTS</small><strong>最新結果を見る</strong><em>結果を確認中</em></span><i>▼</i></button><div id="result-list" class="result-list" hidden><div class="skeleton"></div></div><p class="transparency" hidden>的中だけを選ばず、無料公開したレースを結果順にそのまま表示します。</p></div>
   </section>
   <section class="club-panel" id="club"><div class="club-panel-inner"><span>ONE BOAT CLUB</span><h2>無料は一部公開。CLUBは正式判断を全部。</h2><p>無料公開を含む正式ENTER全件、買い目・資金配分、判断根拠を深掘りするPRO分析を確認できる有料版です。現在は先行登録のみ受け付けています。</p><a class="club-button" href="/club.html#club-waitlist">CLUB有料登録へ</a></div></section>
