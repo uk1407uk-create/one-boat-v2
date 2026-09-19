@@ -9,8 +9,8 @@ function nullableNum(v){if(v===null||v===undefined||v==='')return null;const n=N
 function pad(v){return String(v).padStart(2,'0')}
 function jstDate(){return new Date(Date.now()+32400000).toISOString().slice(0,10)}
 function jstYmd(){return jstDate().replaceAll('-','')}
-function hmMin(hm){const m=String(hm||'').match(/(\d{1,2}):(\d{2})/);return m?Number(m[1])*60+Number(m[2]):null}
-function nowMin(){const d=new Date(Date.now()+32400000);return d.getUTCHours()*60+d.getUTCMinutes()}
+function hmMin(hm){const m=String(hm||'').match(/(\d{1,2}):(\d{2})(?::(\d{2}))?/);return m?Number(m[1])*60+Number(m[2])+Number(m[3]||0)/60:null}
+function nowMin(){const d=new Date(Date.now()+32400000);return d.getUTCHours()*60+d.getUTCMinutes()+d.getUTCSeconds()/60}
 function enter(r){const p=r?.prediction||{};return String(r?.decision||p?.decision||'').toUpperCase()==='ENTER'&&num(r?.stake_total_yen??p?.stake_total_yen)>0}
 function decision(r){return String(r?.decision||r?.prediction?.decision||'').toUpperCase()}
 function stake(r){return num(r?.stake_total_yen??r?.prediction?.stake_total_yen)}
