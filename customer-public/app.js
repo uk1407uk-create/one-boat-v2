@@ -69,7 +69,9 @@ trackLite('landing');
 function setTone(el,n){if(!el)return;el.classList.remove('positive','negative');if(Number(n)>0)el.classList.add('positive');if(Number(n)<0)el.classList.add('negative')}
 function renderMetrics(key='today'){const x=STATS?.[key];if(!x)return;$('#m-roi').textContent=pct(x.roi);setTone($('#m-roi'),x.roi-100);$('#m-hit').textContent=pct(x.hit_rate);$('#m-profit').textContent=`${x.profit_yen>0?'+':''}${yen(x.profit_yen)}`;setTone($('#m-profit'),x.profit_yen);$('#m-races').textContent=`公開 ${x.races||0}R / ${x.hits||0}的中`;renderBandPerformance(key)}
 function formatJpDate(v){const d=v?new Date(`${String(v).slice(0,10)}T00:00:00+09:00`):new Date();return `${d.getMonth()+1}月${d.getDate()}日(${['日','月','火','水','木','金','土'][d.getDay()]})のレース`}
-function stateLabel(s){return {PUBLIC:'予想公開',WATCH:'様子見',SKIP:'見送り',PRIVATE:'CLUB対象',SETTLED:'結果確定',FINISHED:'本日終了',CLOSED:'終了',NOEVENT:'本日非開催',PENDING:'直前分析中',UPDATING:'更新中'}[s]||'更新中'}
+const CLUB_LAUNCH_STATUS='PRELAUNCH';
+function clubCustomerLabel(){return CLUB_LAUNCH_STATUS==='LIVE'?'CLUB会員限定':'CLUB限定｜準備中'}
+function stateLabel(s){return {PUBLIC:'無料公開',WATCH:'様子見',SKIP:'見送り',PRIVATE:clubCustomerLabel(),SETTLED:'結果確定',FINISHED:'本日終了',CLOSED:'終了',NOEVENT:'本日非開催',PENDING:'直前分析中',UPDATING:'更新中'}[s]||'更新中'}
 function stateClass(s){return {PUBLIC:'live',WATCH:'watch',SKIP:'skip',PRIVATE:'idle',SETTLED:'settled',FINISHED:'idle',CLOSED:'idle',NOEVENT:'idle',PENDING:'pending',UPDATING:'pending'}[s]||'pending'}
 function timeText(v){const m=String(v||'').match(/(\d{1,2}:\d{2})/);return m?m[1]:'--:--'}
 function deadlineMinute(v){const m=String(v||'').match(/(\d{1,2}):(\d{2})/);return m?Number(m[1])*60+Number(m[2]):9999}
@@ -176,7 +178,7 @@ function renderFreeStrip(o){
   $('#free-strip-list').innerHTML=`<div class="free-progress-card"><div class="free-progress-head"><div><small>TODAY FREE</small><strong>本日の無料予想</strong></div><span class="${liveClass}"><i></i>${liveState}</span></div><div class="free-progress-numbers"><div class="free-used"><strong>${m.count}</strong><span>/ ${m.limit}R</span></div><div class="free-remaining"><small>残り</small><strong>${m.remaining}R</strong></div></div>${complete}<p class="free-progress-note">正式ENTERのみ公開</p></div>`;
 }
 function publicRaceCard(r){
-  const settled=!!r.settlement,memberEnter=!settled&&['paid','staff'].includes(String(r?.access_scope||'')),strategyMode=String(r?.prediction?.strategy_mode||''),siteOnly=String(r?.visibility_code||'')==='SNS_PRIVATE'||String(r?.customer_visibility_label||'')==='サイト限定',status=settled?(r.settlement.hit?'的中':'不的中'):(siteOnly?'サイト限定':strategyMode==='外枠BOX'?'外枠BOX':memberEnter?'正式ENTER':'予想公開'),cls=settled?(r.settlement.hit?'hit':'miss'):'locked';
+  const settled=!!r.settlement,memberEnter=!settled&&['paid','staff'].includes(String(r?.access_scope||'')),strategyMode=String(r?.prediction?.strategy_mode||''),siteOnly=String(r?.visibility_code||'')==='SNS_PRIVATE'||String(r?.customer_visibility_label||'')==='サイト限定',status=settled?(r.settlement.hit?'的中':'不的中'):(siteOnly?'サイト限定':strategyMode==='外枠BOX'?'外枠BOX':memberEnter?'正式ENTER':'無料公開'),cls=settled?(r.settlement.hit?'hit':'miss'):'locked';
   let sub;
   if(savedViewMode()==='pro'){
     sub=settled?`${r.settlement?.result?.trifecta||r.settlement?.trifecta||'結果反映済'} ・ ${r.settlement.hit?`払戻 ${yen(r.settlement.payout_yen)}`:'結果公開'}`:`締切 ${timeText(r.deadline||r.close_time)} ・ 投資 ${yen(r.stake_total_yen||r.prediction?.stake_total_yen)}`;
@@ -356,7 +358,7 @@ function raceDetail(r){
   }
 
   if(effectiveState==='PRIVATE'){
-    html+=`<section class="detail-block decision-message private-access-teaser"><div class="detail-label">ONE BOATの判断</div><h3>正式ENTER / 無料公開枠外</h3><p>ONE BOATでは正式ENTER判定です。無料公開枠外のため、買い目・資金配分・PRO分析は非表示です。CLUBでは正式ENTER全件を確認できる設計です。</p><a class="private-access-open" href="/club.html?plan=club_monthly#club-waitlist">CLUBで正式判断を見る</a><small class="private-access-note">現在は先行登録のみ。登録だけでは課金されません。</small></section>`;
+    html+=`<section class="detail-block decision-message private-access-teaser"><div class="detail-label">ONE BOATの判断</div><h3>${clubCustomerLabel()}</h3><p>ONE BOATでは正式ENTER判定です。無料公開枠外のため、買い目・資金配分・PRO分析は現在非表示です。正式開始後はCLUBで正式ENTER全件を確認できます。</p><a class="private-access-open" href="/club.html?plan=club_monthly#club-waitlist">CLUB先行登録へ</a><small class="private-access-note">現在は準備中です。先行登録だけでは課金されません。</small></section>`;
   }else if(publicRecord(rec)){
     html+=`<section class="detail-block easy-bets">
       <div class="detail-label">これだけ見ればOK｜推奨買い目</div>
