@@ -134,7 +134,7 @@ function venueTile(v){
   const cls=stateClass(v.state),quiet=(v.state==='NOEVENT'||v.state==='FINISHED')?' easy-quiet':'',hasRace=Number(v.next_race_no)>=1,hasPrediction=Number(v.public_count||0)>0,urg=hasRace?deadlineUrgency(v.next_deadline):{cls:'',left:null};
   const time=timeText(v.next_deadline);
   const meta=v.state==='NOEVENT'?'開催なし':v.state==='FINISHED'?'全レース終了':v.state==='UPDATING'&&!hasRace?'正式データ更新中':urg.left!==null?(urg.left<=0?`締切間近 ${time}`:`あと${urg.left}分 ${time}`):`締切 ${time}`;
-  return `<button class="venue-tile ${cls}${quiet}${hasPrediction?' has-auto-prediction':''}" type="button" data-code="${String(v.code).padStart(2,'0')}" aria-label="${esc(v.name)} ${stateLabel(v.state)}"><span class="venue-name-line"><span class="venue-name">${esc(v.name)}</span>${categoryBadges(v,{compact:true})}</span><span class="venue-strip">${stateLabel(v.state)}</span><span class="venue-meta"><strong>${v.state==='NOEVENT'||!hasRace?'—':`${v.next_race_no}R`}</strong><em class="${urg.cls}">${esc(meta)}</em></span></button>`;
+  return `<button class="venue-tile ${cls}${quiet}${hasPrediction?' has-auto-prediction':''}" type="button" data-code="${String(v.code).padStart(2,'0')}" aria-label="${esc(v.name)} ${stateLabel(v.state)}"><span class="venue-category-corner">${categoryBadges(v,{compact:true})}</span><span class="venue-name">${esc(v.name)}</span><span class="venue-strip">${stateLabel(v.state)}</span><span class="venue-meta"><strong>${v.state==='NOEVENT'||!hasRace?'—':`${v.next_race_no}R`}</strong><em class="${urg.cls}">${esc(meta)}</em></span></button>`;
 }
 function renderVenues(venues){$('#venue-grid').innerHTML=(venues||[]).map(venueTile).join('');document.querySelectorAll('.venue-tile').forEach(b=>b.addEventListener('click',()=>openVenue(b.dataset.code)))}
 function freeProgressModel(o){
@@ -318,7 +318,7 @@ function openRace(rno){
     return;
   }
   showRaceSheet();
-  $('#race-sheet-title').innerHTML=`${esc(CURRENT_VENUE.name)} ${rno}R ${categoryBadges(r,{compact:true})}`;
+  $('#race-sheet-title').innerHTML=`<span class="race-title-main">${esc(CURRENT_VENUE.name)} ${rno}R</span><span class="race-title-category">${categoryBadges(r)}</span>`;
   $('#race-sheet-state').className=`sheet-state ${stateClass(r.state)}`;
   $('#race-sheet-state').textContent=stateLabel(r.state);
   $('#race-detail').innerHTML=raceDetail(r);
