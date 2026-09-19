@@ -1235,6 +1235,43 @@ html.pro-mode .free-progress-head>div small{font-size:9px}
 html.pro-mode .live-update{font-size:9px}
 html.pro-mode .free-progress-note{font-size:10px}
 @media(max-width:380px){html:not(.pro-mode) .venue-strip{font-size:8.5px!important}html:not(.pro-mode) .venue-meta em{font-size:8px!important}}
+
+/* 2026-09-19 venue status/readability + deadline urgency */
+html.pro-mode .venue-tile.pending{
+  border-color:#426c84!important;
+  box-shadow:0 3px 10px rgba(0,0,0,.22)!important;
+}
+html.pro-mode .venue-tile.pending .venue-name{
+  background:#111a21!important;
+  color:#f2f6f8!important;
+}
+html.pro-mode .venue-tile.pending .venue-strip{
+  background:#2d5e79!important;
+  color:#ffffff!important;
+  border-top:1px solid #477a96!important;
+  border-bottom:1px solid #183a4f!important;
+  text-shadow:0 1px 0 rgba(0,0,0,.18);
+}
+html.pro-mode .venue-tile.live .venue-strip{background:#176e66!important;color:#f3fffc!important}
+html.pro-mode .venue-tile.watch .venue-strip{background:#745a21!important;color:#fff7df!important}
+html.pro-mode .venue-tile.skip .venue-strip{background:#71343b!important;color:#fff2f3!important}
+html.pro-mode .venue-tile.settled .venue-strip{background:#275f50!important;color:#effff9!important}
+.venue-meta em.deadline-soon,.race-time.deadline-soon{
+  color:#e44f59!important;
+  font-weight:950!important;
+}
+.venue-meta em.deadline-hot,.race-time.deadline-hot{
+  color:#d92736!important;
+  font-weight:950!important;
+}
+html.pro-mode .venue-meta em.deadline-soon,html.pro-mode .race-time.deadline-soon{
+  color:#ff777f!important;
+}
+html.pro-mode .venue-meta em.deadline-hot,html.pro-mode .race-time.deadline-hot{
+  color:#ff4d5a!important;
+  text-shadow:0 0 12px rgba(255,77,90,.18);
+}
+
 </style>
 </head>
 <body>
@@ -1275,7 +1312,7 @@ html.pro-mode .free-progress-note{font-size:10px}
 <section id="race-sheet" class="bottom-sheet race-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="race-sheet-title"><div class="sheet-handle"></div><div class="sheet-head"><button id="race-back" class="sheet-back" type="button">‹</button><div><small>RACE DETAIL</small><h2 id="race-sheet-title">レース詳細</h2></div><span id="race-sheet-state" class="sheet-state">--</span></div><div id="race-detail" class="race-detail"></div></section>
 <nav class="bottom-app-nav" aria-label="下部ナビゲーション"><a href="/"><b>⌂</b><span>ホーム</span></a><a href="/today.html" class="active"><b>▦</b><span>本日の予想</span></a><a href="#results"><b><svg class="bottom-nav-chart-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V14M9 19V10M14 19V12M19 19V6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 11.5 9 8.5 13 10.2 20 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></b><span>実績</span></a><a href="/club.html"><b>◎</b><span>CLUB</span></a></nav>
 <footer><strong>ONE BOAT</strong><span>BOAT RACE ANALYTICS</span><small>© ONE BOAT</small></footer>
-<script src="/app.js?v=20260919-clubenter1" defer></script>
+<script src="/app.js?v=20260919-clarity1" defer></script>
 <script src="/ai-picks.js?v=20260918-ai3" defer></script>
 <script>const mb=document.getElementById('topMenuButton'),mp=document.getElementById('topMenuPanel');function closeTopMenu(){mp.classList.remove('open');mb.setAttribute('aria-expanded','false')}mb.addEventListener('click',e=>{e.stopPropagation();const open=mp.classList.toggle('open');mb.setAttribute('aria-expanded',String(open))});document.addEventListener('click',e=>{if(!mp.contains(e.target)&&!mb.contains(e.target))closeTopMenu()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTopMenu()});</script>
 </body>
