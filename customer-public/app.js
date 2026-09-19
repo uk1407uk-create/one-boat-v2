@@ -279,6 +279,7 @@ function openRace(rno){
   $('#race-sheet-state').textContent=stateLabel(r.state);
   $('#race-detail').innerHTML=raceDetail(r);
   document.querySelectorAll('[data-view-mode="pro"]').forEach(a=>a.addEventListener('click',()=>saveViewMode('pro')));
+  document.querySelector('[data-next-public]')?.addEventListener('click',()=>{closeAll();location.hash='today';document.getElementById('today')?.scrollIntoView({behavior:'smooth',block:'start'})});
 }
 function raceDetail(r){
   const rec=r.record||{},p=rec.prediction||{},sett=rec.settlement||null,bets=betsOf(rec),referencePicks=referencePicksOf(rec);
@@ -327,7 +328,7 @@ function raceDetail(r){
 
   if(sett){
     const tri=sett?.result?.trifecta||sett?.trifecta||'--',profit=Number(sett.profit_yen||0);
-    html+=`<section class="detail-block result-block ${sett.hit?'hit':'miss'}"><div class="detail-label">RESULT</div><h3>${sett.hit?'的中':'不的中'}　3連単 ${esc(tri)}</h3><div class="result-grid"><div><span>投資</span><strong>${yen(stake)}</strong></div><div><span>払戻</span><strong>${yen(sett.payout_yen)}</strong></div><div><span>収支</span><strong class="${profit>=0?'positive':'negative'}">${profit>0?'+':''}${yen(profit)}</strong></div></div></section>`;
+    html+=`<section class="detail-block result-block ${sett.hit?'hit':'miss'}"><div class="detail-label">RESULT</div><h3>${sett.hit?'的中':'不的中'}　3連単 ${esc(tri)}</h3><div class="result-grid"><div><span>投資</span><strong>${yen(stake)}</strong></div><div><span>払戻</span><strong>${yen(sett.payout_yen)}</strong></div><div><span>収支</span><strong class="${profit>=0?'positive':'negative'}">${profit>0?'+':''}${yen(profit)}</strong></div></div></section><button class="next-public-action" type="button" data-next-public>次の公開予想を見る <b>›</b></button>`;
   }
   return html;
 }
