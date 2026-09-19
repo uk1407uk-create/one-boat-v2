@@ -312,7 +312,11 @@ async function refreshOpenVenue(){
   if(VENUE_SHEET_LOADING||!CURRENT_VENUE)return CURRENT_VENUE;
   VENUE_SHEET_LOADING=true;
   try{
-    const code=CURRENT_VENUE.code;
+    const code=CURRENT_VENUE.code,date=String(CURRENT_VENUE.date||trafficDay()).slice(0,10);
+    if(Array.isArray(MEMBER_TODAY_ENTER)){
+      const freshMember=await paidTodayEnter(date);
+      if(Array.isArray(freshMember))MEMBER_TODAY_ENTER=freshMember;
+    }
     const r=await fetch(`/api/public/venue?code=${encodeURIComponent(code)}`,{cache:'no-store'});
     if(!r.ok)return CURRENT_VENUE;
     const v=mergeMemberVenue(await r.json());
