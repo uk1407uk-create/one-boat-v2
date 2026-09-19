@@ -20,7 +20,14 @@ async function siteVisibility(date){if(!date)return{available:false,keys:null,co
 async function sourceHistory(params={},visibilityPromise=null){const u=new URL(HISTORY_API);Object.entries(params).forEach(([k,v])=>v!==undefined&&v!==null&&v!==''&&u.searchParams.set(k,String(v)));const visP=visibilityPromise||siteVisibility(params.date);const [r,visibility]=await Promise.all([fetch(u,{headers:{accept:'application/json'},cache:'no-store'}),visP]);if(!r.ok)throw new Error(`history_${r.status}`);const d=await r.json(),rows=Array.isArray(d?.records)?d.records:[],visible=visibility?.keys,siteOnly=new Set(Array.isArray(visibility?.site_only_keys)?visibility.site_only_keys.map(String):[]);if(!visible)return rows;return rows.map(x=>{const key=String(x?.race_key||'');if(!enter(x)||visible.has(key))return siteOnly.has(key)?{...x,__sns_private:true}:x;return{race_key:x?.race_key||null,race_date:x?.race_date||null,venue_code:x?.venue_code??null,race_no:x?.race_no??null,decision:'PRIVATE_ENTER',stake_total_yen:0,prediction:{decision:'PRIVATE_ENTER'},settlement:null,__private_enter:true}})}
 async function official(date=jstDate()){const raw=String(date).replaceAll('-',''),target=raw===jstYmd()?'https://boatraceopenapi.github.io/api/v1/today.json':`https://boatraceopenapi.github.io/api/v1/${raw.slice(0,4)}/${raw}.json`;const r=await fetch(target,{headers:{accept:'application/json','user-agent':'ONE-BOAT-CUSTOMER/1.0'}});if(!r.ok)throw new Error(`official_${r.status}`);return r.json()}
 function stadiumsOf(o){return o?.programs?.stadiums||{}}
-function scheduleRaces(st){if(!st?.races)return[];return Object.entries(st.races).map(([rn,r])=>({race_no:num(r?.race_number??rn),deadline:r?.closed_at||r?.close_time||null,close_min:hmMin(r?.closed_at||r?.close_time)})).filter(x=>x.race_no>=1&&x.race_no<=12).sort((a,b)=>a.race_no-b.race_no)}
+function raceCategoryMeta(r){
+  const raw=String(r?.grade_number_source||r?.grade_source||'').toUpperCase().replace(/\s+/g,'').replace(/Ｇ/g,'G').replace(/Ｓ/g,'S').replace(/Ⅰ/g,'1').replace(/Ⅱ/g,'2').replace(/Ⅲ/g,'3');
+  const grade=raw.includes('SG')?'SG':raw.includes('G1')?'G1':raw.includes('G2')?'G2':raw.includes('G3')?'G3':null;
+  const title=String(r?.title||''),subtitle=String(r?.subtitle||''),text=`${title} ${subtitle}`;
+  const women=/女子|レディース|ヴィーナス|クイーンズ|LADIES|WOMEN/i.test(text);
+  return{grade,women,title:title||null,subtitle:subtitle||null}
+}
+function scheduleRaces(st){if(!st?.races)return[];return Object.entries(st.races).map(([rn,r])=>{const meta=raceCategoryMeta(r);return{race_no:num(r?.race_number??rn),deadline:r?.closed_at||r?.close_time||null,close_min:hmMin(r?.closed_at||r?.close_time),grade:meta.grade,women:meta.women,title:meta.title,subtitle:meta.subtitle}}).filter(x=>x.race_no>=1&&x.race_no<=12).sort((a,b)=>a.race_no-b.race_no)}
 function recordState(rec,closed=false,customerCutoff=false){if(!rec)return closed||customerCutoff?'SKIP':'PENDING';const d=decision(rec);if(d==='PRIVATE_ENTER'||rec?.__private_enter===true)return'PRIVATE';if(enter(rec))return rec.settlement?'SETTLED':'PUBLIC';if(d==='SKIP')return'SKIP';if(d==='WATCH'||d==='FINALIZING')return closed||customerCutoff?'SKIP':'WATCH';return closed||customerCutoff?'SKIP':'PENDING'}
 function noteFor(state){return state==='WATCH'?'最終判断待ち｜締切1分前までにENTERしなければ見送り':state==='SKIP'?'ONE BOATは購入しません':state==='PRIVATE'?'このレースの正式予想は無料公開対象外':state==='CLOSED'?'レース終了':state==='PENDING'?'直前分析中｜締切1分前までに最終判断':state==='UPDATING'?'正式データを更新中':''}
 function publicItem(r,scheduleMap){const code=num(r.venue_code),rn=num(r.race_no),sc=scheduleMap?.get(`${code}-${rn}`),safe=safeRecord(r);return {...safe,venue_code:code,venue_name:VENUES[code-1]||`場${code}`,race_no:rn,deadline:r.deadline||r.close_time||sc?.deadline||null}}
@@ -43,14 +50,14 @@ async function buildOverview(){
     }
     const st=stMap[String(code)]||stMap[pad(code)],rs=scheduleRaces(st);
     rs.forEach(x=>scheduleMap.set(`${code}-${x.race_no}`,x));
-    if(!rs.length){venues.push({code,name:VENUES[code-1],state:'NOEVENT',next_race_no:null,next_deadline:null,public_count:historyAvailable?0:null});continue}
+    if(!rs.length){venues.push({code,name:VENUES[code-1],state:'NOEVENT',next_race_no:null,next_deadline:null,grade:null,women:false,public_count:historyAvailable?0:null});continue}
     const next=rs.find(x=>x.close_min===null||x.close_min>=now-1);
-    if(!next){venues.push({code,name:VENUES[code-1],state:'FINISHED',next_race_no:12,next_deadline:rs[rs.length-1]?.deadline||null,public_count:historyAvailable?publicRows.length:null});continue}
+    if(!next){venues.push({code,name:VENUES[code-1],state:'FINISHED',next_race_no:12,next_deadline:rs[rs.length-1]?.deadline||null,grade:rs[0]?.grade||null,women:rs.some(x=>x.women===true),public_count:historyAvailable?publicRows.length:null});continue}
     const targetNo=next.race_no,targetRec=vr.find(r=>num(r.race_no)===targetNo)||null,targetSc=next;
     const closed=targetSc?.close_min!==null&&targetSc?.close_min!==undefined&&targetSc.close_min<=now;
     const customerCutoff=targetSc?.close_min!==null&&targetSc?.close_min!==undefined&&(targetSc.close_min-now)<=1;
     const state=historyAvailable?recordState(targetRec,closed,customerCutoff):'UPDATING';
-    venues.push({code,name:VENUES[code-1],state,next_race_no:targetNo,next_deadline:targetSc?.deadline||null,public_count:historyAvailable?publicRows.length:null});
+    venues.push({code,name:VENUES[code-1],state,next_race_no:targetNo,next_deadline:targetSc?.deadline||null,grade:targetSc?.grade||rs[0]?.grade||null,women:targetSc?.women===true||rs.some(x=>x.women===true),public_count:historyAvailable?publicRows.length:null});
   }
   const publicItems=historyAvailable?rows.filter(enter).sort((a,b)=>num(a.venue_code)-num(b.venue_code)||num(a.race_no)-num(b.race_no)).map(r=>publicItem(r,scheduleMap)):[];
   const latestByRace=new Map();
@@ -94,7 +101,7 @@ async function buildVenue(code){
     const rec=recBy.get(sc.race_no)||null,closed=scheduleAvailable&&sc.close_min!==null&&sc.close_min<=now,customerCutoff=scheduleAvailable&&sc.close_min!==null&&(sc.close_min-now)<=1;
     const state=historyAvailable?recordState(rec,closed,customerCutoff):'UPDATING';
     const cutoffApplied=customerCutoff&&state==='SKIP'&&(!rec||['WATCH','FINALIZING',''].includes(decision(rec)));
-    return{race_no:sc.race_no,deadline:sc.deadline,state,note:cutoffApplied?'締切1分前までにENTER確定せず、今回は見送り':noteFor(state),record:safeRecord(rec),customer_cutoff:cutoffApplied}
+    return{race_no:sc.race_no,deadline:sc.deadline,grade:sc.grade||null,women:sc.women===true,title:sc.title||null,subtitle:sc.subtitle||null,state,note:cutoffApplied?'締切1分前までにENTER確定せず、今回は見送り':noteFor(state),record:safeRecord(rec),customer_cutoff:cutoffApplied}
   });
   const next=scheduleAvailable?races.find(r=>{const m=hmMin(r.deadline);return m===null||m>=now-1}):races.find(r=>r.state!=='CLOSED'&&r.state!=='SETTLED');
   const publicCount=historyAvailable?rows.filter(enter).length:null;
@@ -104,7 +111,7 @@ async function buildVenue(code){
     const future=races.find(r=>r.race_no>=next.race_no&&(r.state==='PUBLIC'||r.state==='WATCH'||r.state==='SKIP'));
     if(future)state=future.state
   }
-  return{ok:true,date,code,name:VENUES[code-1],state,public_count:publicCount,races,degraded:!scheduleAvailable||!historyAvailable,source:{schedule:scheduleAvailable,predictions:historyAvailable}}
+  return{ok:true,date,code,name:VENUES[code-1],state,grade:officialRs[0]?.grade||null,women:officialRs.some(x=>x.women===true),event_title:officialRs[0]?.title||null,public_count:publicCount,races,degraded:!scheduleAvailable||!historyAvailable,source:{schedule:scheduleAvailable,predictions:historyAvailable}}
 }
 function engineLaneInputs(rec){const xs=rec?.prediction?.input_snapshot?.lanes;return Array.isArray(xs)?xs:[]}
 function candidateSet(v){if(!Array.isArray(v))return[];return v.slice(0,6).map(x=>({lane:num(x?.lane),probability:nullableNum(x?.probability)})).filter(x=>x.lane>=1&&x.lane<=6)}
