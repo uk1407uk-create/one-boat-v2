@@ -192,7 +192,7 @@ function aiMetrics(rows){
     const xs=Array.isArray(r?.persona_settlements)?r.persona_settlements:[];
     const pp=rawPersona(r);
     for(const x of xs){
-      if(String(x?.version||'')!=='persona-v1')continue;
+      if(!String(x?.version||'').startsWith('persona-v1'))continue;
       const key=mapKey(String(x?.persona_key||''));if(!out[key])continue;
       const m=out[key];m.races++;m.stake_yen+=num(x?.stake_yen);m.payout_yen+=num(x?.payout_yen);if(x?.hit===true)m.hits++;
       if(x?.hit===true){
