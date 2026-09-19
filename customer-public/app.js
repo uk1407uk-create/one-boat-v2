@@ -484,6 +484,9 @@ function resetRefreshBurst(){REFRESH_BURST_LEFT=2}
 function nextRefreshDelay(o=LAST_OVERVIEW){
   const progress=freeProgressModel(o||{});
   if(progress.available&&progress.complete)return 300000;
+  const left=Number(o?.next_decision?.minutes_left);
+  if(Number.isFinite(left)&&left>=0&&left<=10)return 30000+Math.floor(Math.random()*15000);
+  if(Number.isFinite(left)&&left>10&&left<=20)return 45000+Math.floor(Math.random()*15000);
   if(REFRESH_BURST_LEFT>0){REFRESH_BURST_LEFT--;return 60000+Math.floor(Math.random()*12000)}
   const base=savedViewMode()==='pro'?180000:240000;
   return base+Math.floor(Math.random()*30000);
