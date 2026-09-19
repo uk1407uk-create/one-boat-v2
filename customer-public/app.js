@@ -200,6 +200,33 @@ function betsOf(r){const p=r?.prediction||{};return Array.isArray(r?.bets)&&r.be
 function referencePicksOf(r){const xs=r?.prediction?.reference_picks;return Array.isArray(xs)?xs.filter(x=>x?.ticket):[]}
 function ticketOf(x){return x?.ticket||x?.combination||x?.bet||'--'}
 function stakeOf(x){return Number(x?.stake_yen??x?.amount??x?.stake??0)}
+function clubPortfolioModel(raw){
+  const rec=raw?.record||raw||{},p=rec?.prediction||{},bets=betsOf(rec);
+  const baseStake=Number(rec?.stake_total_yen??p?.stake_total_yen??0);
+  if(!publicRecord(rec))return{mode:'PASS',label:'NO BOOST',baseStake,extraStake:0,totalStake:baseStake,reason:'正式ENTERではないため追加投資なし',tickets:[]};
+  const strategy=String(p?.strategy_mode||p?.allocation_meta?.strategy_mode||p?.odds_class||'').toUpperCase();
+  if(strategy==='BOX')return{mode:'BOX',label:'BOX',baseStake,extraStake:0,totalStake:baseStake,reason:'頭が割れるレースはBOX型を維持',tickets:[]};
+  const odds=bets.map(x=>Number(x?.odds)).filter(x=>Number.isFinite(x)&&x>0);
+  if(odds.length<2)return{mode:'PASS',label:'NO BOOST',baseStake,extraStake:0,totalStake:baseStake,reason:'オッズ条件を確認できないため追加投資なし',tickets:[]};
+  const avgOdds=odds.reduce((a,b)=>a+b,0)/odds.length;
+  if(avgOdds>=65&&avgOdds<100&&bets.length>=2){
+    const tickets=bets.slice(0,2).map((x,i)=>({ticket:ticketOf(x),boost_yen:2500,rank:i+1,odds:Number.isFinite(Number(x?.odds))?Number(x.odds):null}));
+    return{mode:'FOCUS',label:'FOCUS β',baseStake,extraStake:5000,totalStake:baseStake+5000,reason:'中高配当ゾーンで上位候補へ追加投資',tickets,avgOdds};
+  }
+  return{mode:'NORMAL',label:'NORMAL',baseStake,extraStake:0,totalStake:baseStake,reason:'正式配分をそのまま使用',tickets:[],avgOdds};
+}
+function renderClubPortfolioPlan(rows,{memberActive=false}={}){
+  const root=$('#club-portfolio-beta');if(!root)return;
+  const live=(Array.isArray(rows)?rows:[]).filter(x=>publicRecord(x)&&!x?.settlement);
+  if(!live.length){root.hidden=true;root.innerHTML='';return}
+  const models=live.map(clubPortfolioModel);
+  const counts={FOCUS:0,BOX:0,NORMAL:0,PASS:0};models.forEach(x=>counts[x.mode]=(counts[x.mode]||0)+1);
+  const base=models.reduce((a,x)=>a+Number(x.baseStake||0),0),extra=models.reduce((a,x)=>a+Number(x.extraStake||0),0);
+  const focusRows=live.map((r,i)=>({r,m:models[i]})).filter(x=>x.m.mode==='FOCUS');
+  const scope=memberActive?'CLUB正式ENTER全件':'公開中予想';
+  root.hidden=false;
+  root.innerHTML=`<div class="portfolio-beta-head"><div><small>CLUB PORTFOLIO β</small><strong>本日の資金プラン</strong></div><span>β運用中</span></div><p>${esc(scope)}のうち、現在購入可能な正式ENTERを資金モード別に自動整理しています。</p><div class="portfolio-beta-modes"><div class="focus"><span>FOCUS</span><strong>${counts.FOCUS}R</strong></div><div class="box"><span>BOX</span><strong>${counts.BOX}R</strong></div><div><span>NORMAL</span><strong>${counts.NORMAL}R</strong></div><div><span>NO BOOST</span><strong>${counts.PASS}R</strong></div></div><div class="portfolio-beta-money"><div><span>正式投資</span><strong>${yen(base)}</strong></div><b>＋</b><div><span>BOOST候補</span><strong>${yen(extra)}</strong></div><em>=</em><div><span>参考総投資</span><strong>${yen(base+extra)}</strong></div></div>${focusRows.length?`<div class="portfolio-focus-list"><small>FOCUS β</small>${focusRows.slice(0,4).map(x=>`<span><b>${esc(x.r.venue_name||'')} ${Number(x.r.race_no)}R</b><em>+5,000円 / 上位2点</em></span>`).join('')}${focusRows.length>4?`<i>ほか ${focusRows.length-4}R</i>`:''}</div>`:''}<small class="portfolio-beta-note">β検証中。正式予想・通常の買い目は変更せず、追加投資レイヤーだけを検証しています。</small>`;
+}
 function effectiveRaceState(r){
   const d=String(r?.record?.decision||r?.record?.prediction?.decision||'').toUpperCase();
   if(d==='ENTER'&&publicRecord(r?.record||{}))return'ENTER';
@@ -315,7 +342,9 @@ function publicRaceCard(r,{memberActive=false}={}){
     sub=`${left?left+' ・ ':''}締切 ${timeText(dl)} ・ 買い目 ${betsOf(r).length}点`;
   }
   const badge=settled?(r.settlement.hit?'的中':'不的中'):access.label;
-  return `<button class="race-card race-card-button${gated?' club-gated':''}" type="button" data-vcode="${String(r.venue_code).padStart(2,'0')}" data-rno="${Number(r.race_no)}" data-access="${access.club?'club':access.cls.replace('access-','')}"><div class="race-main"><strong>${esc(r.venue_name)} ${Number(r.race_no)}R</strong><small>${esc(sub)}</small></div><span class="status ${cls}">${badge}</span></button>`;
+  const pm=(!settled&&!gated&&publicRecord(r))?clubPortfolioModel(r):null;
+  const ptag=pm?`<em class="portfolio-mini ${pm.mode.toLowerCase()}">CLUB ${esc(pm.label)}${pm.extraStake?` +${yen(pm.extraStake)}`:''}</em>`:'';
+  return `<button class="race-card race-card-button${gated?' club-gated':''}" type="button" data-vcode="${String(r.venue_code).padStart(2,'0')}" data-rno="${Number(r.race_no)}" data-access="${access.club?'club':access.cls.replace('access-','')}"><div class="race-main"><strong>${esc(r.venue_name)} ${Number(r.race_no)}R</strong><small>${esc(sub)}</small>${ptag}</div><span class="status ${cls}">${badge}</span></button>`;
 }
 function normalizeResultTicket(v){return String(v||'').replace(/[‐‑‒–—―ー−]/g,'-').replace(/\s+/g,'').trim()}
 function resultModel(x){
@@ -559,6 +588,12 @@ function raceDetail(r){
     html+=`<div class="box-mode-note"><strong>BOX型AI</strong><span>${esc(b1)} BOX ＋ ${esc(b2)} BOX｜12点・総投資5,000円</span></div>`;
   }
 
+  if(publicRecord(rec)){
+    const pm=clubPortfolioModel(rec);
+    const ticketHtml=pm.mode==='FOCUS'&&pm.tickets.length?pm.tickets.map(x=>`<span><b>${esc(x.ticket)}</b><em>BOOST ${yen(x.boost_yen)}${x.odds?` / ${x.odds.toFixed(1)}倍`:''}</em></span>`).join(''):'';
+    html+=`<section class="club-portfolio-detail ${pm.mode.toLowerCase()}"><div class="club-portfolio-title"><span>CLUB PORTFOLIO β</span><strong>${esc(pm.label)}</strong></div><p>${esc(pm.reason)}</p><div class="club-portfolio-money"><div><small>通常</small><b>${yen(pm.baseStake)}</b></div><div><small>追加</small><b>${pm.extraStake?'+'+yen(pm.extraStake):'なし'}</b></div><div><small>参考総投資</small><b>${yen(pm.totalStake)}</b></div></div>${ticketHtml?`<div class="club-portfolio-focus-picks">${ticketHtml}</div>`:''}<small class="club-portfolio-caution">β検証中｜正式予想・通常配分は変更していません。</small></section>`;
+  }
+
   if(effectiveState==='PRIVATE'){
     html+=`<section class="detail-block decision-message private-access-teaser"><div class="detail-label">ONE BOATの判断</div><h3>${clubCustomerLabel()}</h3><p>ONE BOATでは正式ENTER判定です。無料公開枠外のため、買い目・資金配分・PRO分析は現在非表示です。正式開始後はCLUBで正式ENTER全件を確認できます。</p><a class="private-access-open" href="/club.html?plan=club_monthly#club-waitlist">CLUB先行登録へ</a><small class="private-access-note">現在は準備中です。先行登録だけでは課金されません。</small></section>`;
   }else if(publicRecord(rec)){
@@ -677,6 +712,7 @@ async function load(){
     $('#public-count').textContent=o.public_count===null||o.public_count===undefined?'更新中':pro?`無料 ${Number(o.public_count)}/${Number(o.free_limit||30)}R`:`公開中 ${items.length}R`;
   }
   $('#today-list').innerHTML=memberSyncBlocked?'<div class="race-card"><div class="race-main"><strong>CLUB正式判定を再取得中</strong><small>取得完了まで「判定中」へ戻さず、正式データを再確認します。</small></div></div>':items.length?items.map(x=>publicRaceCard(x,{memberActive:usingClub})).join(''):(usingClub&&!pro?'<div class="race-card"><div class="race-main"><strong>現在、購入可能な正式ENTERはありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>':usingClub?'<div class="race-card"><div class="race-main"><strong>本日の正式ENTERはまだありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>':pro?'<div class="race-card"><div class="race-main"><strong>現在、公開対象なし</strong><small>対象レースが確定すると自動表示します</small></div></div>':'<div class="race-card"><div class="race-main"><strong>現在、公開中の予想はありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>');
+  renderClubPortfolioPlan(items,{memberActive:usingClub});
   document.querySelectorAll('.race-card-button').forEach(b=>b.addEventListener('click',async()=>{
     if(b.dataset.access==='club'&&!usingClub){location.href='/club.html#club-waitlist';return}
     await openVenue(b.dataset.vcode);openRace(Number(b.dataset.rno))
