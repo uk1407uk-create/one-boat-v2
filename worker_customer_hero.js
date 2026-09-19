@@ -64,7 +64,7 @@ async function exactHero(request, env) {
 }
 
 async function freePublicStats(request,ctx){
-  const u=new URL(request.url),key=new Request(`${u.origin}/__edge_cache/free-public-stats-boxai2`);
+  const u=new URL(request.url),key=new Request(`${u.origin}/__edge_cache/free-public-stats-clubstats1`);
   try{const hit=await caches.default.match(key);if(hit)return hit}catch{}
   try{
     const r=await fetch(FREE_PUBLIC_STATS,{headers:{accept:'application/json'},cache:'no-store'});
@@ -72,7 +72,7 @@ async function freePublicStats(request,ctx){
     const d=await r.json();
     if(!d?.ok) throw new Error('free_stats_invalid');
     d.latest=Array.isArray(d.latest)?d.latest.map(x=>({...x,venue_name:VENUES[Number(x.venue_code)-1]||`場${x.venue_code||'--'}`})):[];
-    const out=new Response(JSON.stringify(d),{status:200,headers:{'content-type':'application/json;charset=utf-8','cache-control':'public,max-age=120','x-one-boat-stats-scope':'site-free-public-only'}});
+    const out=new Response(JSON.stringify(d),{status:200,headers:{'content-type':'application/json;charset=utf-8','cache-control':'public,max-age=120','x-one-boat-stats-scope':'site-free-plus-club-aggregate'}});
     if(ctx?.waitUntil)ctx.waitUntil(caches.default.put(key,out.clone()).catch(()=>{}));
     return out;
   }catch(e){return null;}
