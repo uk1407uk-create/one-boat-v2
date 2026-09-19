@@ -17,7 +17,7 @@ const $=s=>document.querySelector(s);
 const yen=n=>`${Math.round(Number(n||0)).toLocaleString('ja-JP')}円`;
 const pct=n=>Number.isFinite(Number(n))?`${Number(n).toFixed(1)}%`:'--';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let STATS=null,STATS_FETCHED_AT=0,CURRENT_VENUE=null,AUTO_OPENED=false,LOAD_TIMER=null,LAST_OVERVIEW=null,REFRESH_BURST_LEFT=2,STATS_LOADING=null,SITE_ONLY_KEYS=new Set(),ACTIVE_RACE_NO=null,VENUE_SHEET_TIMER=null,VENUE_SHEET_LOADING=false,CLUB_LIST_OPEN=false,RESULT_LIST_OPEN=false,MEMBER_TODAY_ENTER=null,MEMBER_SYNC_STATE='unknown',VENUE_BROWSE_MODE='venues',LAST_VENUES=[];
+let STATS=null,STATS_FETCHED_AT=0,CURRENT_VENUE=null,AUTO_OPENED=false,LOAD_TIMER=null,LAST_OVERVIEW=null,REFRESH_BURST_LEFT=2,STATS_LOADING=null,SITE_ONLY_KEYS=new Set(),ACTIVE_RACE_NO=null,VENUE_SHEET_TIMER=null,VENUE_SHEET_LOADING=false,CLUB_LIST_OPEN=false,RESULT_LIST_OPEN=false,MEMBER_TODAY_ENTER=null,MEMBER_SYNC_STATE='unknown',PERFORMANCE_SCOPE='free',VENUE_BROWSE_MODE='venues',LAST_VENUES=[];
 function trafficAttribution(){
   try{
     const q=new URLSearchParams(location.search);
@@ -67,7 +67,26 @@ trackLite('landing');
 
 
 function setTone(el,n){if(!el)return;el.classList.remove('positive','negative');if(Number(n)>0)el.classList.add('positive');if(Number(n)<0)el.classList.add('negative')}
-function renderMetrics(key='today'){const x=STATS?.[key];if(!x)return;$('#m-roi').textContent=pct(x.roi);setTone($('#m-roi'),x.roi-100);$('#m-hit').textContent=pct(x.hit_rate);$('#m-profit').textContent=`${x.profit_yen>0?'+':''}${yen(x.profit_yen)}`;setTone($('#m-profit'),x.profit_yen);$('#m-races').textContent=`公開 ${x.races||0}R / ${x.hits||0}的中`;renderBandPerformance(key);renderBoxValidationReference()}
+function performanceMetric(key='today'){return PERFORMANCE_SCOPE==='club'?STATS?.club?.[key]:STATS?.[key]}
+function syncPerformanceScope(){
+  const root=$('#performance'),club=PERFORMANCE_SCOPE==='club';
+  if(root)root.classList.toggle('club-scope',club);
+  document.querySelectorAll('[data-performance-scope]').forEach(b=>{const on=b.dataset.performanceScope===PERFORMANCE_SCOPE;b.classList.toggle('active',on);b.setAttribute('aria-selected',String(on))});
+  const eyebrow=$('#performance-eyebrow'),title=$('#performance-title'),lead=$('#performance-lead');
+  if(eyebrow)eyebrow.textContent=club?'CLUB PERFORMANCE':'FREE PUBLIC PERFORMANCE';
+  if(title)title.textContent=club?'CLUB正式ENTER実績':'無料公開実績';
+  if(lead)lead.textContent=club?'無料公開枠外を含む正式ENTER全件を集計。見送り・様子見・投資0円は含めません。':'無料公開した正式ENTERのみ集計。非公開・見送り・様子見・投資0円は含めません。';
+}
+function renderMetrics(key='today'){
+  syncPerformanceScope();
+  const x=performanceMetric(key);
+  if(!x){$('#m-roi').textContent='--';$('#m-hit').textContent='--';$('#m-profit').textContent='--';$('#m-races').textContent='集計中';renderBandPerformance(key);renderBoxValidationReference();return}
+  $('#m-roi').textContent=pct(x.roi);setTone($('#m-roi'),x.roi-100);
+  $('#m-hit').textContent=pct(x.hit_rate);
+  $('#m-profit').textContent=`${x.profit_yen>0?'+':''}${yen(x.profit_yen)}`;setTone($('#m-profit'),x.profit_yen);
+  $('#m-races').textContent=`${PERFORMANCE_SCOPE==='club'?'正式ENTER':'公開'} ${x.races||0}R / ${x.hits||0}的中`;
+  renderBandPerformance(key);renderBoxValidationReference()
+}
 function formatJpDate(v){const d=v?new Date(`${String(v).slice(0,10)}T00:00:00+09:00`):new Date();return `${d.getMonth()+1}月${d.getDate()}日(${['日','月','火','水','木','金','土'][d.getDay()]})のレース`}
 const CLUB_LAUNCH_STATUS='PRELAUNCH';
 function clubCustomerLabel(){return CLUB_LAUNCH_STATUS==='LIVE'?'CLUB会員限定':'CLUB限定｜準備中'}
@@ -308,6 +327,7 @@ function resultCard(raw){
 function bandRangeText(m){if(m?.range_label)return String(m.range_label);return m?.odds_max===null?`${Number(m?.odds_min||80).toFixed(1)}倍〜`:`${Number(m?.odds_min||0).toFixed(1)}〜${Number(m?.odds_max||0).toFixed(1)}倍`}
 function renderBoxValidationReference(){
   const root=$('#box-validation-reference');if(!root)return;
+  if(PERFORMANCE_SCOPE==='club'){root.hidden=true;root.innerHTML='';return}
   const x=STATS?.box_validation_reference;
   if(!x){root.hidden=true;root.innerHTML='';return}
   root.hidden=false;
@@ -315,7 +335,7 @@ function renderBoxValidationReference(){
   root.innerHTML=`<div class="box-validation-head"><span>REFERENCE CHECK</span><em>参考検証</em></div><strong>${esc(x.label||'朝から適用した場合')}</strong><p>BOX型AIを朝から同条件で動かした場合の再計算です。正式運用実績とは分けて表示しています。</p><div class="box-validation-metrics"><div><small>対象</small><b>${Number(x.races||0)}R</b></div><div><small>的中</small><b>${Number(x.hits||0)}R</b></div><div><small>的中率</small><b>${pct(x.hit_rate)}</b></div><div><small>回収率</small><b>${pct(x.roi)}</b></div></div><div class="box-validation-money"><span>投資 ${yen(x.stake_yen)} → 払戻 ${yen(x.payout_yen)}</span><strong class="${profit>=0?'positive':'negative'}">${profit>0?'+':''}${yen(profit)}</strong></div><small>BOX① ${Number(x.box1_hits||0)}的中 / BOX② ${Number(x.box2_hits||0)}的中｜${esc(x.date||'')} ${esc(x.as_of||'')}時点</small>`;
 }
 function renderBandPerformance(key='today'){
-  const root=STATS?.ai_types||{},types=root?.[key]?.stable?root[key]:root;
+  const root=(PERFORMANCE_SCOPE==='club'?STATS?.club_ai_types:STATS?.ai_types)||{},types=root?.[key]?.stable?root[key]:root;
   const box=$('#band-performance');if(!box)return;
   const order=['stable','mid','high','box'];
   if(!types?.stable){box.innerHTML='<div class="race-card"><div class="race-main"><strong>集計中</strong><small>予想タイプ別データを更新しています。</small></div></div>';return}
@@ -698,6 +718,11 @@ function setupLazyStats(){
     targets.forEach(t=>io.observe(t));
   }else loadStats();
 }
+document.querySelectorAll('[data-performance-scope]').forEach(b=>b.addEventListener('click',async()=>{
+  PERFORMANCE_SCOPE=b.dataset.performanceScope==='club'?'club':'free';
+  if(!STATS)await loadStats();
+  renderMetrics(document.querySelector('.period.active')?.dataset.period||'today');
+}));
 document.querySelectorAll('.period').forEach(b=>b.addEventListener('click',async()=>{document.querySelectorAll('.period').forEach(x=>x.classList.remove('active'));b.classList.add('active');if(!STATS)await loadStats();renderMetrics(b.dataset.period);renderBandPerformance(b.dataset.period)}));
 $('#venue-close').addEventListener('click',closeAll);$('#race-back').addEventListener('click',showVenueSheet);$('#sheet-backdrop').addEventListener('click',closeAll);document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAll()});
 if(NOTE_URL){const b=$('#note-btn');if(b){b.classList.remove('disabled');b.textContent='ONE BOAT CLUBへ';b.addEventListener('click',()=>location.href=NOTE_URL)}}
