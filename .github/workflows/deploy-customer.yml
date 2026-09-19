@@ -128,6 +128,10 @@ jobs:
           grep -q 'winning_odds' customer-public/app.js
           grep -q 'site_only_keys' worker_customer.js
           grep -q 'const customerCutoff=targetSc' worker_customer.js
+          grep -q "(targetSc.close_min-now)<=5" worker_customer.js
+          grep -q "(sc.close_min-now)<=5" worker_customer.js
+          grep -q '締切5分前までにENTERしなければ見送り' worker_customer.js
+          ! grep -q '締切1分前' worker_customer.js
           ! grep -q 'const futurePublic=publicRows.find' worker_customer.js
           ! grep -q 'one-boat-public-visibility' customer-public/app.js
           ! grep -q 'setInterval(load,30000)' customer-public/app.js
