@@ -101,11 +101,11 @@ jobs:
           grep -q 'scheduleVenueSheetRefresh' customer-public/app.js
           grep -q 'refreshOpenVenue' customer-public/app.js
           grep -q 'ACTIVE_RACE_NO' customer-public/app.js
-          grep -q '遅くとも締切1分前までに最終判断' customer-public/app.js
-          grep -q "const x=(m-1+1440)%1440" customer-public/app.js
-          ! grep -q '締切5分前' customer-public/app.js
-          true # 1分前表記は正式仕様として許可
-          true # 1分前表記は正式仕様として許可
+          grep -q '遅くとも締切5分前までに最終判断' customer-public/app.js
+          grep -q "const x=(m-5+1440)%1440" customer-public/app.js
+          ! grep -q '締切1分前' customer-public/app.js
+          ! grep -q '1分前' customer-public/today.html
+          ! grep -q '1分前' customer-public/today.html
           grep -q "left<=10)return 30000" customer-public/app.js
           grep -q "left<=20)return 45000" customer-public/app.js
           grep -q 'REFRESH_BURST_LEFT=2' customer-public/app.js
@@ -135,10 +135,10 @@ jobs:
           grep -q 'winning_odds' customer-public/app.js
           grep -q 'site_only_keys' worker_customer.js
           grep -q 'const customerCutoff=targetSc' worker_customer.js
-          grep -q "(targetSc.close_min-now)<=1" worker_customer.js
-          grep -q "(sc.close_min-now)<=1" worker_customer.js
-          grep -q '締切1分前までにENTERしなければ見送り' worker_customer.js
-          ! grep -q '締切5分前' worker_customer.js
+          grep -q "(targetSc.close_min-now)<=5" worker_customer.js
+          grep -q "(sc.close_min-now)<=5" worker_customer.js
+          grep -q '締切5分前までにENTERしなければ見送り' worker_customer.js
+          ! grep -q '締切1分前' worker_customer.js
           ! grep -q 'const futurePublic=publicRows.find' worker_customer.js
           ! grep -q 'one-boat-public-visibility' customer-public/app.js
           ! grep -q 'setInterval(load,30000)' customer-public/app.js
