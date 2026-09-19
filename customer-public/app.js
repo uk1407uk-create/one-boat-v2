@@ -94,6 +94,7 @@ async function paidTodayEnter(date){
   }catch{return null}
 }
 function betsOf(r){const p=r?.prediction||{};return Array.isArray(r?.bets)&&r.bets.length?r.bets:Array.isArray(p.production_picks)?p.production_picks:[]}
+function referencePicksOf(r){const xs=r?.prediction?.reference_picks;return Array.isArray(xs)?xs.filter(x=>x?.ticket):[]}
 function ticketOf(x){return x?.ticket||x?.combination||x?.bet||'--'}
 function stakeOf(x){return Number(x?.stake_yen??x?.amount??x?.stake??0)}
 function effectiveRaceState(r){
@@ -187,7 +188,7 @@ function currentRaceNo(races){
   return fallback?Number(fallback.race_no):null;
 }
 async function openVenue(code){showVenueSheet();$('#venue-sheet-title').textContent='読み込み中';$('#venue-sheet-state').textContent='--';$('#venue-sheet-meta').innerHTML='';$('#venue-races').innerHTML='<div class="sheet-loading">1R〜12Rを確認しています</div>';try{const r=await fetch(`/api/public/venue?code=${encodeURIComponent(code)}`,{cache:'no-store'});if(!r.ok)throw Error('venue');const v=await r.json();CURRENT_VENUE=v;$('#venue-sheet-title').textContent=v.name||VENUES[Number(code)-1]||'場詳細';const current=currentRaceNo(v.races||[]),currentRace=(v.races||[]).find(x=>Number(x.race_no)===Number(current)),displayState=currentRace?effectiveRaceState(currentRace):v.state;$('#venue-sheet-state').className=`sheet-state ${stateClass(displayState)}`;$('#venue-sheet-state').textContent=stateLabel(displayState);$('#venue-sheet-meta').innerHTML=`<div><span>開催状況</span><strong>${v.state==='NOEVENT'?'本日非開催':v.state==='FINISHED'?'本日終了':'開催中'}</strong></div><div><span>公開予想</span><strong>${v.public_count===null||v.public_count===undefined?'—':Number(v.public_count)+'R'}</strong></div><div><span>更新</span><strong>自動</strong></div>`;$('#venue-races').innerHTML=(v.races||[]).map(x=>raceRow(x,current)).join('')||'<div class="sheet-loading">本日は開催がありません</div>';document.querySelectorAll('.race-row').forEach(b=>b.addEventListener('click',()=>openRace(Number(b.dataset.rno))))}catch(e){$('#venue-sheet-title').textContent=VENUES[Number(code)-1]||'場詳細';$('#venue-sheet-state').textContent='更新待ち';$('#venue-races').innerHTML='<div class="sheet-loading">データを再取得しています</div>'}}
-function raceRow(r,currentNo=null){const state=effectiveRaceState(r),cls=stateClass(state),isCurrent=Number(currentNo)===Number(r.race_no),deadline=r.deadline?timeText(r.deadline):'--:--',urg=deadlineUrgency(r.deadline),right=state==='NOEVENT'?'—':deadline;return `<button class="race-row ${cls}${isCurrent?' current-race':''}" type="button" data-rno="${Number(r.race_no)}"><span class="race-no">${Number(r.race_no)}R</span><span class="race-row-main"><strong>${stateLabel(state)}${isCurrent?'<em class="current-mark">現在</em>':''}</strong><small>${state==='PUBLIC'?`投資 ${yen(r.record?.stake_total_yen||r.record?.prediction?.stake_total_yen)}`:state==='SETTLED'?(r.record?.settlement?.hit?'的中結果あり':'結果確定'):state==='PRIVATE'?'本日の無料公開対象外':r.note||''}</small></span><span class="race-time ${urg.cls}">${right}<b>›</b></span></button>`}
+function raceRow(r,currentNo=null){const state=effectiveRaceState(r),cls=stateClass(state),isCurrent=Number(currentNo)===Number(r.race_no),deadline=r.deadline?timeText(r.deadline):'--:--',urg=deadlineUrgency(r.deadline),right=state==='NOEVENT'?'—':deadline,hasRef=referencePicksOf(r.record||{}).length>0;return `<button class="race-row ${cls}${isCurrent?' current-race':''}" type="button" data-rno="${Number(r.race_no)}"><span class="race-no">${Number(r.race_no)}R</span><span class="race-row-main"><strong>${stateLabel(state)}${isCurrent?'<em class="current-mark">現在</em>':''}</strong><small>${state==='PUBLIC'?`投資 ${yen(r.record?.stake_total_yen||r.record?.prediction?.stake_total_yen)}`:state==='SETTLED'?(r.record?.settlement?.hit?'的中結果あり':'結果確定'):state==='PRIVATE'?'本日の無料公開対象外':hasRef?`参考予想あり｜${r.note||'購入対象外'}`:r.note||''}</small></span><span class="race-time ${urg.cls}">${right}<b>›</b></span></button>`}
 const VIEW_MODE_KEY='one_boat_view_mode';
 function requestedViewMode(){
   try{
@@ -280,7 +281,7 @@ function openRace(rno){
   document.querySelectorAll('[data-view-mode="pro"]').forEach(a=>a.addEventListener('click',()=>saveViewMode('pro')));
 }
 function raceDetail(r){
-  const rec=r.record||{},p=rec.prediction||{},sett=rec.settlement||null,bets=betsOf(rec);
+  const rec=r.record||{},p=rec.prediction||{},sett=rec.settlement||null,bets=betsOf(rec),referencePicks=referencePicksOf(rec);
   const stake=Number(rec.stake_total_yen??p.stake_total_yen??0);
   const reason=p.reason||p.skip_reason||rec.reason||'';
   const reasonShort=shortOfficialReason(reason);
@@ -310,7 +311,11 @@ function raceDetail(r){
     </section>`;
     if(reason)html+=`<section class="detail-block easy-reason"><div class="detail-label">ひとこと理由</div><p>${esc(reasonShort)}</p></section>`;
   }else{
-    html+=`<section class="detail-block decision-message"><div class="detail-label">ONE BOATの判断</div><h3>${state}</h3><p>${esc(reasonShort||r.note||'条件が整うまで公開予想には含めません。')}</p></section>`;
+    const noBuy=effectiveState==='SKIP'?'ONE BOATは購入しません':'ONE BOATは現時点で購入しません';
+    html+=`<section class="detail-block decision-message no-buy-message"><div class="detail-label">ONE BOATの判断</div><h3>${state}</h3><strong class="no-buy-badge">${noBuy}</strong><p>${esc(reasonShort||r.note||'条件が整うまで購入対象にはしません。')}</p></section>`;
+    if(referencePicks.length){
+      html+=`<section class="detail-block reference-prediction"><div class="detail-label">参考予想｜購入対象外</div><p class="reference-warning">予想順位の参考表示です。ONE BOATの推奨買い目ではありません。</p><div class="reference-pick-list">${referencePicks.map((x,i)=>`<div><span>${i+1}</span><strong>${esc(x.ticket)}</strong><em>${Number.isFinite(Number(x.probability))?`${(Number(x.probability)*100).toFixed(1)}%`:''}</em></div>`).join('')}</div></section>`;
+    }
   }
 
   if(effectiveState!=='PRIVATE')html+=`<a class="pro-jump" data-view-mode="pro" href="${proHref}">
