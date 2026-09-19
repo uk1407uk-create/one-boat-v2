@@ -56,3 +56,10 @@
 .portfolio-beta-bottom{margin:18px 18px 22px!important}
 html:not(.pro-mode) .portfolio-beta-bottom{order:7}
 @media(max-width:380px){.portfolio-beta-bottom{margin:14px 14px 18px!important}}
+
+.persona-stake-summary{display:grid;grid-template-columns:auto 1fr auto;align-items:end;gap:8px;margin:0 0 10px;padding:10px 12px;border:1px solid #dbe8f0;border-radius:12px;background:#f8fbfd}
+.persona-stake-summary span{font-size:10px;font-weight:800;color:#687f91}
+.persona-stake-summary strong{font-size:19px;line-height:1;color:#123d63}
+.persona-stake-summary small{font-size:9px;color:#8b9eac}
+.persona-reason{display:block;margin-top:9px;padding-top:9px;border-top:1px dashed #dbe8f0;font-size:9.5px;line-height:1.55;color:#6f8494}
+.ai-pick-card .ai-card-body>p strong{font-size:14px;color:#647b8c}
