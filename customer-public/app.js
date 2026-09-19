@@ -169,7 +169,7 @@ function renderFreeStrip(o){
   $('#free-strip-list').innerHTML=`<div class="free-progress-card"><div class="free-progress-head"><div><small>TODAY FREE</small><strong>本日の無料予想</strong></div><span class="${liveClass}"><i></i>${liveState}</span></div><div class="free-progress-numbers"><div class="free-used"><strong>${m.count}</strong><span>/ ${m.limit}R</span></div><div class="free-remaining"><small>残り</small><strong>${m.remaining}R</strong></div></div>${complete}<p class="free-progress-note">正式ENTERのみ公開</p></div>`;
 }
 function publicRaceCard(r){
-  const settled=!!r.settlement,memberEnter=!settled&&['paid','staff'].includes(String(r?.access_scope||'')),strategyMode=String(r?.prediction?.strategy_mode||''),status=settled?(r.settlement.hit?'的中':'不的中'):(strategyMode==='外枠BOX'?'外枠BOX':memberEnter?'正式ENTER':'予想公開'),cls=settled?(r.settlement.hit?'hit':'miss'):'locked';
+  const settled=!!r.settlement,memberEnter=!settled&&['paid','staff'].includes(String(r?.access_scope||'')),strategyMode=String(r?.prediction?.strategy_mode||''),siteOnly=String(r?.visibility_code||'')==='SNS_PRIVATE'||String(r?.customer_visibility_label||'')==='サイト限定',status=settled?(r.settlement.hit?'的中':'不的中'):(siteOnly?'サイト限定':strategyMode==='外枠BOX'?'外枠BOX':memberEnter?'正式ENTER':'予想公開'),cls=settled?(r.settlement.hit?'hit':'miss'):'locked';
   let sub;
   if(savedViewMode()==='pro'){
     sub=settled?`${r.settlement?.result?.trifecta||r.settlement?.trifecta||'結果反映済'} ・ ${r.settlement.hit?`払戻 ${yen(r.settlement.payout_yen)}`:'結果公開'}`:`締切 ${timeText(r.deadline||r.close_time)} ・ 投資 ${yen(r.stake_total_yen||r.prediction?.stake_total_yen)}`;
@@ -324,14 +324,14 @@ function raceDetail(r){
   const reason=p.reason||p.skip_reason||rec.reason||'';
   const reasonShort=shortOfficialReason(reason);
   const proHref=proRaceUrl(r);
-  const effectiveState=effectiveRaceState(r),state=stateLabel(effectiveState),strategyMode=String(p.strategy_mode||'');
+  const effectiveState=effectiveRaceState(r),state=stateLabel(effectiveState),strategyMode=String(p.strategy_mode||''),siteOnly=String(rec.visibility_code||'')==='SNS_PRIVATE'||String(rec.customer_visibility_label||'')==='サイト限定';
   let html=`<nav class="race-mode-switch" aria-label="表示モード">
     <span class="race-mode active">かんたん</span>
     <a class="race-mode" data-view-mode="pro" href="${proHref}">PRO</a>
   </nav>
   <section class="easy-decision ${stateClass(effectiveState)}">
     <small>ひと目で確認</small>
-    <strong>${state}${strategyMode?`<em class="strategy-mode-badge ${strategyMode==='外枠BOX'?'box':''}">${esc(strategyMode)}</em>`:''}</strong>
+    <strong>${state}${siteOnly?`<em class="site-only-badge">サイト限定</em>`:''}${strategyMode?`<em class="strategy-mode-badge ${strategyMode==='外枠BOX'?'box':''}">${esc(strategyMode)}</em>`:''}</strong>
     <p>${esc(effectiveState==='PRIVATE'?'本日の無料公開対象外':reasonShort||(publicRecord(rec)?'正式予想が公開されています。買い目と金額を確認してください。':r.note||'正式判定を表示しています。'))}</p>
   </section>
   <div class="detail-summary">
