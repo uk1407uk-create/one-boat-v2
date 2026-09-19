@@ -350,7 +350,7 @@ function renderOfficialPrediction(v){
     const focus=$('#decision-focus');if(focus)focus.hidden=true;
     return;
   }
-  const rec=r.record||{},p=rec.prediction||{},bets=officialBets(rec);
+  const rec=r.record||{},p=rec.prediction||{},liveOdds=new Map((Array.isArray(DATA?.trifecta_odds?.items)?DATA.trifecta_odds.items:[]).map(x=>[String(x?.combination||'').replace(/[‐-‒–—―ー−]/g,'-').replace(/\s+/g,''),Number(x?.odds)])),bets=officialBets(rec).map(x=>{const k=String(officialTicket(x)).replace(/[‐-‒–—―ー−]/g,'-').replace(/\s+/g,''),o=Number(x?.odds),fallback=liveOdds.get(k);return{...x,odds:Number.isFinite(o)&&o>1?o:(Number.isFinite(fallback)&&fallback>1?fallback:x?.odds)}});
   const stake=Number(rec.stake_total_yen??p.stake_total_yen??0);
   const reason=normalizeLegacyCutoffText(p.reason||p.skip_reason||rec.reason||r.note||'').trim();
   const theory=textValue(p.selected_theory||p.current_theory||p.strategy||rec.theory||'');
