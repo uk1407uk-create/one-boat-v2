@@ -76,9 +76,49 @@ async function proxyProtectedAnalysis(request,targetBase){
   for(const c of access.cookies||[])h.append('set-cookie',c);
   return new Response(upstream.body,{status:upstream.status,headers:h});
 }
+function memberPersonaPortfolio(raw){
+  const p=raw?.prediction||{},fs=p?.final_snapshot||raw?.final_snapshot||{},x=fs?.persona_portfolio_v1||p?.persona_portfolio_v1||raw?.persona_portfolio||null;
+  if(!x||x?.applied!==true)return null;
+  const one=(key,person,role)=>{
+    const v=x?.[key]||{},picks=(Array.isArray(v?.picks)?v.picks:[]).slice(0,15).map(z=>({
+      ticket:String(z?.ticket||z?.combination||''),
+      stake_yen:Number(z?.stake_yen??z?.stake??0)||0,
+      odds:Number.isFinite(Number(z?.odds))?Number(z.odds):null,
+      probability:Number.isFinite(Number(z?.probability))?Number(z.probability):null,
+      edge:Number.isFinite(Number(z?.edge))?Number(z.edge):null
+    })).filter(z=>z.ticket);
+    return{person,role,name:String(v?.name||''),status:String(v?.status||'SKIP'),reason:String(v?.reason||''),style:String(v?.style||''),point_count:Number(v?.point_count||picks.length)||0,stake_total_yen:Number(v?.stake_total_yen||0)||0,max_points:Number(v?.max_points||0)||0,picks};
+  };
+  return{
+    applied:true,
+    version:String(x?.version||'persona-v1'),
+    has_any_pick:x?.has_any_pick===true,
+    max_stake_yen_per_persona:Number(x?.max_stake_yen_per_persona||5000)||5000,
+    stable:one('stable','SORA','安定派'),
+    balanced:one('balanced','REN','中配当派'),
+    high:one('high','KAI','高配当派'),
+    box:one('box','JIN','BOX派')
+  };
+}
+function memberPersonaSettlements(raw){
+  return(Array.isArray(raw?.persona_settlements)?raw.persona_settlements:[]).map(x=>({
+    persona_key:String(x?.persona_key||''),
+    version:String(x?.version||''),
+    stake_yen:Number(x?.stake_yen||0)||0,
+    payout_yen:Number(x?.payout_yen||0)||0,
+    profit_yen:Number.isFinite(Number(x?.profit_yen))?Number(x.profit_yen):(Number(x?.payout_yen||0)-Number(x?.stake_yen||0)),
+    hit:x?.hit===true,
+    point_count:Number(x?.point_count||0)||0,
+    result:x?.result?.trifecta?{trifecta:String(x.result.trifecta),trifecta_unit_payout:Number(x.result.trifecta_unit_payout||0)||0}:null,
+    settled_at:x?.settled_at||null
+  })).filter(x=>['stable','balanced','high','box'].includes(x.persona_key));
+}
+function memberPersonaApplied(raw){return memberPersonaPortfolio(raw)?.applied===true}
+function memberPersonaHasPick(raw){return memberPersonaPortfolio(raw)?.has_any_pick===true}
+
 function memberPredictionRecord(raw,accessScope){
   if(!raw)return null;
-  const p=raw.prediction||{},alloc=p?.allocation_meta||raw?.allocation_meta||{},finalSnap=p?.final_snapshot||raw?.final_snapshot||{};
+  const p=raw.prediction||{},alloc=p?.allocation_meta||raw?.allocation_meta||{},finalSnap=p?.final_snapshot||raw?.final_snapshot||{},persona=memberPersonaPortfolio(raw),personaSettlements=memberPersonaSettlements(raw);
   const decision=String(raw.decision||p.decision||'').toUpperCase();
   const stake=Number(raw.stake_total_yen??p.stake_total_yen??0)||0;
   const oddsFallback=new Map();
@@ -138,8 +178,12 @@ function memberPredictionRecord(raw,accessScope){
       support_materials:Array.isArray(p.support_materials)?p.support_materials:[],
       opposing_materials:Array.isArray(p.opposing_materials)?p.opposing_materials:[],
       production_picks:bets,
-      model_version:p.model_version||raw.model_version||null
+      model_version:p.model_version||raw.model_version||null,
+      persona_portfolio:persona
     },
+    persona_portfolio:persona,
+    persona_settlements:personaSettlements,
+    customer_prediction_available:persona?.applied?persona.has_any_pick:(decision==='ENTER'&&stake>0),
     settlement,
     access_scope:accessScope
   };
@@ -173,15 +217,37 @@ async function protectedTodayEnter(request){
   if(!upstream.ok)return json({ok:false,error:'prediction_upstream_unavailable'},502,s.cookies||[]);
   const d=await upstream.json().catch(()=>null);
   const rows=(Array.isArray(d?.records)?d.records:[]).filter(x=>{
-    const p=x?.prediction||{},decision=String(x?.decision||p?.decision||'').toUpperCase(),stake=Number(x?.stake_total_yen??p?.stake_total_yen??0)||0;
-    return decision==='ENTER'&&stake>0&&String(x?.race_date||'').slice(0,10)===date;
+    const p=x?.prediction||{},decision=String(x?.decision||p?.decision||'').toUpperCase(),stake=Number(x?.stake_total_yen??p?.stake_total_yen??0)||0,persona=memberPersonaPortfolio(x);
+    const buy=persona?.applied?persona.has_any_pick:(decision==='ENTER'&&stake>0);
+    return buy&&String(x?.race_date||'').slice(0,10)===date;
   });
   const scope=s.ent?.staff_access===true?'staff':'paid';
   const records=rows.map(x=>memberPredictionRecord(x,scope)).filter(Boolean);
   return json({ok:true,date,count:records.length,records},200,s.cookies||[]);
 }
 
+
+async function protectedTodayTeam(request){
+  const u0=new URL(request.url),date=String(u0.searchParams.get('date')||'');
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date))return json({ok:false,error:'invalid_date'},400);
+  const s=await resolveSession(request);
+  if(!s.ok)return json({ok:false,error:'login_required',message:'ログインが必要です。'},401,s.cookies||[]);
+  if(s.entitlement_unavailable)return json({ok:false,error:'entitlement_unavailable',message:'会員状態を確認できません。'},503,s.cookies||[]);
+  if(s.ent?.has_paid_access!==true)return json({ok:false,error:'paid_access_required',message:'ANALYST TEAMは有料会員向けです。'},403,s.cookies||[]);
+  const u=new URL(HISTORY_API);u.searchParams.set('date',date);u.searchParams.set('limit','500');
+  const upstream=await fetch(u,{headers:{accept:'application/json'},cache:'no-store'});
+  if(!upstream.ok)return json({ok:false,error:'prediction_upstream_unavailable'},502,s.cookies||[]);
+  const d=await upstream.json().catch(()=>null);
+  const scope=s.ent?.staff_access===true?'staff':'paid';
+  const records=(Array.isArray(d?.records)?d.records:[])
+    .filter(x=>String(x?.race_date||'').slice(0,10)===date&&memberPersonaApplied(x))
+    .map(x=>memberPredictionRecord(x,scope))
+    .filter(Boolean)
+    .sort((a,b)=>(Number(a.venue_code)-Number(b.venue_code))||(Number(a.race_no)-Number(b.race_no)));
+  return json({ok:true,date,count:records.length,records},200,s.cookies||[]);
+}
+
 async function billing(request,action){if(!sameOrigin(request))return json({ok:false,error:'origin'},403);const s=await resolveSession(request);if(!s.ok)return json({ok:false,error:'login_required',message:'ログインが必要です。'},401,s.cookies||[]);if(s.entitlement_unavailable)return json({ok:false,error:'entitlement_unavailable',message:'会員状態を確認できないため、安全のため購入・解約操作を停止しています。'},503,s.cookies||[]);if(s.ent?.staff_access===true)return json({ok:false,error:'staff_billing_disabled',message:'運営アカウントは決済不要です。'},409,s.cookies||[]);if(!s.ent?.eligibility_confirmed)return json({ok:false,error:'age_confirmation_required',message:'20歳以上の確認と規約同意が必要です。'},403,s.cookies||[]);const body=await bodyJson(request);if(action==='checkout'&&!['day_pass','club_monthly'].includes(String(body.plan||'')))return json({ok:false,error:'invalid_plan'},400,s.cookies||[]);const r=await fetch(`${MEMBERSHIP_API}?action=${encodeURIComponent(action)}`,{method:'POST',headers:{authorization:`Bearer ${s.token}`,'content-type':'application/json',accept:'application/json'},body:JSON.stringify(action==='checkout'?{plan:String(body.plan)}:{}),cache:'no-store'});const d=await r.json().catch(()=>({}));if(!r.ok){const pending=d?.error==='billing_not_configured'||d?.error==='stripe_not_configured';const message=pending?'決済システムの最終接続中です。購入・解約はまだ確定しません。':action==='cancel'?'解約処理を完了できませんでした。時間をおいて再度お試しください。':'決済サービスを利用できません。';return json({ok:false,error:d?.error||'billing_unavailable',message},r.status,s.cookies||[])}return json(d,200,s.cookies||[])}
 async function protectedPage(request,env){const s=await resolveSession(request),baseUrl=new URL(request.url).origin;if(!s.ok)return redirect(`${baseUrl}/login?next=${encodeURIComponent('/premium.html')}`,302,s.cookies||[]);if(s.entitlement_unavailable||s.ent?.has_paid_access!==true)return redirect(`${baseUrl}/club.html?locked=1`,302,s.cookies||[]);const u=new URL(request.url);u.pathname='/premium.html';u.search='';const r=await env.ASSETS.fetch(new Request(u,request));const h=new Headers(r.headers);h.set('cache-control','private,no-store,max-age=0');h.set('x-robots-tag','noindex,nofollow');for(const c of s.cookies||[])h.append('set-cookie',c);return new Response(r.body,{status:r.status,headers:h})}
 
-export default{async fetch(request,env,ctx){const u=new URL(request.url);try{if(u.pathname==='/api/auth/signup'&&request.method==='POST')return signup(request);if(u.pathname==='/api/auth/login'&&request.method==='POST')return login(request);if(u.pathname==='/api/auth/logout'&&request.method==='POST')return logout(request);if((u.pathname==='/api/auth/session'||u.pathname==='/api/member/session')&&request.method==='GET')return session(request);if(u.pathname==='/api/member/checkout-intent'&&request.method==='POST')return billing(request,'checkout');if(u.pathname==='/api/member/billing-portal'&&request.method==='POST')return billing(request,'portal');if(u.pathname==='/api/member/cancel-subscription'&&request.method==='POST')return billing(request,'cancel');if(u.pathname==='/api/member/analysis'&&request.method==='GET')return proxyProtectedAnalysis(request,RACE_ANALYSIS_API);if(u.pathname==='/api/member/prediction'&&request.method==='GET')return protectedPrediction(request);if(u.pathname==='/api/member/today-enter'&&request.method==='GET')return protectedTodayEnter(request);if(u.pathname==='/api/member/live-original'&&request.method==='GET')return proxyProtectedAnalysis(request,LIVE_ORIGINAL_API);if(u.pathname==='/premium.html')return protectedPage(request,env);return base.fetch(request,env,ctx)}catch{return json({ok:false,error:'member_service_unavailable',message:'会員サービスを一時的に利用できません。'},503)}}};
+export default{async fetch(request,env,ctx){const u=new URL(request.url);try{if(u.pathname==='/api/auth/signup'&&request.method==='POST')return signup(request);if(u.pathname==='/api/auth/login'&&request.method==='POST')return login(request);if(u.pathname==='/api/auth/logout'&&request.method==='POST')return logout(request);if((u.pathname==='/api/auth/session'||u.pathname==='/api/member/session')&&request.method==='GET')return session(request);if(u.pathname==='/api/member/checkout-intent'&&request.method==='POST')return billing(request,'checkout');if(u.pathname==='/api/member/billing-portal'&&request.method==='POST')return billing(request,'portal');if(u.pathname==='/api/member/cancel-subscription'&&request.method==='POST')return billing(request,'cancel');if(u.pathname==='/api/member/analysis'&&request.method==='GET')return proxyProtectedAnalysis(request,RACE_ANALYSIS_API);if(u.pathname==='/api/member/prediction'&&request.method==='GET')return protectedPrediction(request);if(u.pathname==='/api/member/today-enter'&&request.method==='GET')return protectedTodayEnter(request);if(u.pathname==='/api/member/today-team'&&request.method==='GET')return protectedTodayTeam(request);if(u.pathname==='/api/member/live-original'&&request.method==='GET')return proxyProtectedAnalysis(request,LIVE_ORIGINAL_API);if(u.pathname==='/premium.html')return protectedPage(request,env);return base.fetch(request,env,ctx)}catch{return json({ok:false,error:'member_service_unavailable',message:'会員サービスを一時的に利用できません。'},503)}}};
