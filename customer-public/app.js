@@ -102,7 +102,21 @@ function effectiveRaceState(r){
   return r?.state||'UPDATING';
 }
 
-function venueTile(v){const cls=stateClass(v.state),quiet=(v.state==='NOEVENT'||v.state==='FINISHED')?' easy-quiet':'',hasRace=Number(v.next_race_no)>=1,meta=v.state==='NOEVENT'?'開催なし':v.state==='FINISHED'?'全レース終了':v.state==='UPDATING'&&!hasRace?'正式データ更新中':`${hasRace?v.next_race_no:'—'}R　${timeText(v.next_deadline)}`;return `<button class="venue-tile ${cls}${quiet}" type="button" data-code="${String(v.code).padStart(2,'0')}" aria-label="${esc(v.name)} ${stateLabel(v.state)}"><span class="venue-name">${esc(v.name)}</span><span class="venue-strip">${stateLabel(v.state)}</span><span class="venue-meta"><strong>${v.state==='NOEVENT'||!hasRace?'—':`${v.next_race_no}R`}</strong><em>${esc(meta)}</em></span></button>`}
+function deadlineUrgency(deadline){
+  const m=deadlineMinute(deadline);
+  if(m===9999)return{cls:'',left:null};
+  const now=new Date(Date.now()+32400000),cur=now.getUTCHours()*60+now.getUTCMinutes(),left=m-cur;
+  if(left<0)return{cls:'',left:null};
+  if(left<=5)return{cls:'deadline-hot',left};
+  if(left<=10)return{cls:'deadline-soon',left};
+  return{cls:'',left};
+}
+function venueTile(v){
+  const cls=stateClass(v.state),quiet=(v.state==='NOEVENT'||v.state==='FINISHED')?' easy-quiet':'',hasRace=Number(v.next_race_no)>=1,urg=hasRace?deadlineUrgency(v.next_deadline):{cls:'',left:null};
+  const time=timeText(v.next_deadline);
+  const meta=v.state==='NOEVENT'?'開催なし':v.state==='FINISHED'?'全レース終了':v.state==='UPDATING'&&!hasRace?'正式データ更新中':urg.left!==null?(urg.left<=0?`締切間近 ${time}`:`あと${urg.left}分 ${time}`):`締切 ${time}`;
+  return `<button class="venue-tile ${cls}${quiet}" type="button" data-code="${String(v.code).padStart(2,'0')}" aria-label="${esc(v.name)} ${stateLabel(v.state)}"><span class="venue-name">${esc(v.name)}</span><span class="venue-strip">${stateLabel(v.state)}</span><span class="venue-meta"><strong>${v.state==='NOEVENT'||!hasRace?'—':`${v.next_race_no}R`}</strong><em class="${urg.cls}">${esc(meta)}</em></span></button>`;
+}
 function renderVenues(venues){$('#venue-grid').innerHTML=(venues||[]).map(venueTile).join('');document.querySelectorAll('.venue-tile').forEach(b=>b.addEventListener('click',()=>openVenue(b.dataset.code)))}
 function freeProgressModel(o){
   const limit=Number(o?.free_limit??30);
@@ -173,7 +187,7 @@ function currentRaceNo(races){
   return fallback?Number(fallback.race_no):null;
 }
 async function openVenue(code){showVenueSheet();$('#venue-sheet-title').textContent='読み込み中';$('#venue-sheet-state').textContent='--';$('#venue-sheet-meta').innerHTML='';$('#venue-races').innerHTML='<div class="sheet-loading">1R〜12Rを確認しています</div>';try{const r=await fetch(`/api/public/venue?code=${encodeURIComponent(code)}`,{cache:'no-store'});if(!r.ok)throw Error('venue');const v=await r.json();CURRENT_VENUE=v;$('#venue-sheet-title').textContent=v.name||VENUES[Number(code)-1]||'場詳細';const current=currentRaceNo(v.races||[]),currentRace=(v.races||[]).find(x=>Number(x.race_no)===Number(current)),displayState=currentRace?effectiveRaceState(currentRace):v.state;$('#venue-sheet-state').className=`sheet-state ${stateClass(displayState)}`;$('#venue-sheet-state').textContent=stateLabel(displayState);$('#venue-sheet-meta').innerHTML=`<div><span>開催状況</span><strong>${v.state==='NOEVENT'?'本日非開催':v.state==='FINISHED'?'本日終了':'開催中'}</strong></div><div><span>公開予想</span><strong>${v.public_count===null||v.public_count===undefined?'—':Number(v.public_count)+'R'}</strong></div><div><span>更新</span><strong>自動</strong></div>`;$('#venue-races').innerHTML=(v.races||[]).map(x=>raceRow(x,current)).join('')||'<div class="sheet-loading">本日は開催がありません</div>';document.querySelectorAll('.race-row').forEach(b=>b.addEventListener('click',()=>openRace(Number(b.dataset.rno))))}catch(e){$('#venue-sheet-title').textContent=VENUES[Number(code)-1]||'場詳細';$('#venue-sheet-state').textContent='更新待ち';$('#venue-races').innerHTML='<div class="sheet-loading">データを再取得しています</div>'}}
-function raceRow(r,currentNo=null){const state=effectiveRaceState(r),cls=stateClass(state),isCurrent=Number(currentNo)===Number(r.race_no),deadline=r.deadline?timeText(r.deadline):'--:--',right=state==='NOEVENT'?'—':deadline;return `<button class="race-row ${cls}${isCurrent?' current-race':''}" type="button" data-rno="${Number(r.race_no)}"><span class="race-no">${Number(r.race_no)}R</span><span class="race-row-main"><strong>${stateLabel(state)}${isCurrent?'<em class="current-mark">現在</em>':''}</strong><small>${state==='PUBLIC'?`投資 ${yen(r.record?.stake_total_yen||r.record?.prediction?.stake_total_yen)}`:state==='SETTLED'?(r.record?.settlement?.hit?'的中結果あり':'結果確定'):state==='PRIVATE'?'本日の無料公開対象外':r.note||''}</small></span><span class="race-time">${right}<b>›</b></span></button>`}
+function raceRow(r,currentNo=null){const state=effectiveRaceState(r),cls=stateClass(state),isCurrent=Number(currentNo)===Number(r.race_no),deadline=r.deadline?timeText(r.deadline):'--:--',urg=deadlineUrgency(r.deadline),right=state==='NOEVENT'?'—':deadline;return `<button class="race-row ${cls}${isCurrent?' current-race':''}" type="button" data-rno="${Number(r.race_no)}"><span class="race-no">${Number(r.race_no)}R</span><span class="race-row-main"><strong>${stateLabel(state)}${isCurrent?'<em class="current-mark">現在</em>':''}</strong><small>${state==='PUBLIC'?`投資 ${yen(r.record?.stake_total_yen||r.record?.prediction?.stake_total_yen)}`:state==='SETTLED'?(r.record?.settlement?.hit?'的中結果あり':'結果確定'):state==='PRIVATE'?'本日の無料公開対象外':r.note||''}</small></span><span class="race-time ${urg.cls}">${right}<b>›</b></span></button>`}
 const VIEW_MODE_KEY='one_boat_view_mode';
 function requestedViewMode(){
   try{

@@ -32,7 +32,7 @@ function publicRecord(r){const d=String(r?.decision||r?.prediction?.decision||''
 function officialBets(r){const p=r?.prediction||{};return Array.isArray(r?.bets)&&r.bets.length?r.bets:Array.isArray(p.production_picks)?p.production_picks:[]}
 function officialTicket(x){return x?.ticket||x?.combination||x?.bet||'—'}
 function officialStake(x){return Number(x?.stake_yen??x?.amount??x?.stake??0)}
-function officialRole(x){const v=String(x?.selection_role||'').toLowerCase();if(/main|本線|primary|core/.test(v))return'本線';if(/cover|押さえ|抑え|sub|secondary/.test(v))return'押さえ';return'買い目'}
+function officialRole(x){const v=String(x?.selection_role||'').toLowerCase();if(/main|本線|primary|core/.test(v))return'本線';return'押さえ'}
 function officialFinalOddsRange(x,deadline){
   const o=Number(x?.odds);if(!Number.isFinite(o)||o<=1)return'データなし';
   let left=null,d=null,s=String(deadline||'');
@@ -72,13 +72,13 @@ function renderDecisionFocus(meta){
   const xs=decisionFocusCategories(meta);
   el.hidden=false;
   if(!xs.length){
-    el.innerHTML='<small>DECISION-LINKED DATA</small><h2>判断記録に紐づく項目</h2><p>この予想には、補助データ項目の構造化記録がありません。推測で「使ったデータ」を決めず、上の正式な判断理由を優先して表示します。</p><button type="button" data-focus-tab="basic">補助データを確認する</button>';
+    el.innerHTML='<details class="decision-focus-compact"><summary><span>判断に使ったデータ</span><b>見る</b></summary><p>この予想には補助データ項目の構造化記録がありません。推測せず、上の正式な判断理由を優先して表示します。</p></details>';
   }else{
-    const first=xs[0],rest=xs.slice(1);
-    el.innerHTML=`<small>DECISION-LINKED DATA</small><h2>判断に使ったデータを深掘り</h2><p>正式な判断記録に出ている順で、まず見る場所を1つに絞っています。</p><div class="decision-focus-list"><button class="decision-focus-next" type="button" data-focus-tab="${first.tab}"><em>NEXT</em><strong>${esc(first.label)}を確認</strong><span>${esc(first.note)}</span><b>›</b></button>${rest.length?`<details class="decision-focus-more"><summary>ほかの判断材料（${rest.length}件）</summary><div>${rest.map(x=>`<button type="button" data-focus-tab="${x.tab}"><strong>${esc(x.label)}</strong><span>${esc(x.note)}</span><b>›</b></button>`).join('')}</div></details>`:''}</div>`;
+    el.innerHTML=`<details class="decision-focus-compact"><summary><span>判断に使ったデータ</span><b>${xs.length}項目</b></summary><div class="decision-focus-list">${xs.map((x,i)=>`<button class="${i===0?'decision-focus-next':''}" type="button" data-focus-tab="${x.tab}"><strong>${esc(x.label)}</strong><span>${esc(x.note)}</span><b>›</b></button>`).join('')}</div></details>`;
   }
   el.querySelectorAll('[data-focus-tab]').forEach(b=>b.addEventListener('click',()=>activateAnalysisTab(b.dataset.focusTab)));
 }
+
 async function fetchMemberPrediction(){
   try{
     const u=new URL('/api/member/prediction',location.origin);
@@ -307,7 +307,7 @@ function renderOfficialPrediction(v){
   if(!box)return;
   const r=(v?.races||[]).find(x=>Number(x.race_no)===RACE);
   if(!r){
-    box.innerHTML='<div class="pro-official-empty"><strong>正式判断を確認中</strong><p>ONE BOATの正式記録が取得でき次第、判断理由を先に表示します。</p></div>';
+    box.innerHTML='<div class="pro-official-empty"><strong>正式判断を確認中</strong><p>ONE BOATの正式記録が取得でき次第、結論を表示します。</p></div>';
     const focus=$('#decision-focus');if(focus)focus.hidden=true;
     return;
   }
@@ -318,30 +318,25 @@ function renderOfficialPrediction(v){
   const support=materialList(p.support_materials||rec.support_materials);
   const opposing=materialList(p.opposing_materials||rec.opposing_materials);
   renderDecisionFocus({reason,theory,support,opposing});
-  const label=stateLabel(r.state);
-  let html=`<div class="pro-official-head"><div><small>OFFICIAL DECISION</small><h2>ONE BOATの正式判断</h2></div><span>${esc(label)}</span></div>
-    <div class="pro-official-grid">
+  const label=stateLabel(r.state),isOfficial=publicRecord(rec),comboText=r.state==='PRIVATE'?'非公開':isOfficial?`${bets.length}点`:'なし';
+  let html=`<div class="pro-official-head"><div><small>ONE BOAT 正式判断</small><h2>このレースの結論</h2></div><span>${esc(label)}</span></div>
+    <div class="pro-official-grid pro-official-grid-clear">
+      <div><span>結論</span><strong>${esc(label)}</strong></div>
+      <div><span>3連単の組み合わせ</span><strong>${esc(comboText)}</strong></div>
       <div><span>締切</span><strong>${esc(String(r.deadline||'—').match(/\d{1,2}:\d{2}/)?.[0]||'—')}</strong></div>
-      <div><span>判定</span><strong>${esc(label)}</strong></div>
-      <div><span>買い目</span><strong>${r.state==='PRIVATE'?'非公開':publicRecord(rec)?`${bets.length}点`:'購入なし'}</strong></div>
-    </div>
-    <div class="decision-trace"><small>WHY THIS DECISION</small><h3>この判断の決め手</h3><p>${esc(reason||(publicRecord(rec)?'正式ENTERとして確定しています。下の記録で判断材料を確認できます。':r.note||'正式判定を表示しています。'))}</p></div>
-    <div class="pro-data-principle"><strong>PROの見方</strong><span>データを大量表示する画面ではありません。正式予想に紐づく判断記録を先に見て、必要な補助データだけ下で確認します。</span></div>`;
-  if(theory||support.length||opposing.length){
-    html+='<div class="decision-materials">';
-    if(theory)html+=`<div class="decision-material theory"><span>採用理論</span><strong>${esc(theory)}</strong></div>`;
-    if(support.length)html+=`<div class="decision-material support"><span>支持材料</span><ul>${support.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`;
-    if(opposing.length)html+=`<div class="decision-material caution"><span>不安材料</span><ul>${opposing.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`;
-    html+='</div>';
+    </div>`;
+
+  if(isOfficial){
+    html+=`<details class="pro-picks-accordion"><summary><span><small>3連単の組み合わせ</small><strong>公式買い目を見る</strong></span><b>${bets.length}点</b></summary><div class="pro-picks-body">${bets.length?`<div class="pro-bets pro-bets-picks">${bets.map(x=>`<div class="pro-pick"><strong>${esc(officialTicket(x))}</strong><small class="pro-final-odds">最終オッズ予想 ${officialFinalOddsRange(x,r.deadline)}</small><span class="pick-role">${officialRole(x)}</span></div>`).join('')}</div><p class="pro-odds-note">最終オッズ予想は参考レンジです。確定オッズや正式実績を後から変更するものではありません。</p>`:'<p>組み合わせを取得中です。</p>'}${bets.length?`<details class="pro-allocation"><summary><span>資金配分を見る</span><b>合計 ${yen(stake)}</b></summary><div class="pro-allocation-body"><div class="pro-bets">${bets.map(x=>`<div><strong>${esc(officialTicket(x))}</strong><span>${yen(officialStake(x))}</span></div>`).join('')}</div><p>公式成績はレース前に確定した資金配分を基準に集計します。</p></div></details>`:''}</div></details>`;
   }
-  if(publicRecord(rec)){
-    html+=`<div class="pro-official-section"><b>推奨買い目</b>${bets.length?`<div class="pro-bets pro-bets-picks">${bets.map(x=>`<div><strong>${esc(officialTicket(x))}</strong><span class="pick-role">${officialRole(x)}</span><small class="pro-final-odds">最終オッズ予想 ${officialFinalOddsRange(x,r.deadline)}</small></div>`).join('')}</div><p class="pro-odds-note">※最終オッズ予想は予想確定時の現在オッズと締切までの残り時間から算出した参考レンジです。確定オッズではなく、ENTER判定・買い目・公式実績を後から変更するものではありません。</p>`:'<p>買い目取得待ち</p>'}</div>`;
-    if(bets.length){
-      html+=`<details class="pro-allocation"><summary><span>資金配分を見る</span><b>合計 ${yen(stake)}</b></summary><div class="pro-allocation-body"><div class="pro-bets">${bets.map(x=>`<div><strong>${esc(officialTicket(x))}</strong><span>${yen(officialStake(x))}</span></div>`).join('')}</div><p>公式成績はレース前に確定した正式資金配分を基準に集計します。</p></div></details>`;
-    }
+
+  if(reason||theory||support.length||opposing.length){
+    html+=`<details class="decision-details"><summary><span><small>WHY THIS DECISION</small><strong>この結論の理由を見る</strong></span><b>＋</b></summary><div class="decision-details-body">${reason?`<div class="decision-trace"><h3>判断の決め手</h3><p>${esc(reason)}</p></div>`:''}${theory?`<div class="decision-material theory"><span>採用理論</span><strong>${esc(theory)}</strong></div>`:''}${support.length?`<div class="decision-material support"><span>支持材料</span><ul>${support.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`:''}${opposing.length?`<div class="decision-material caution"><span>不安材料</span><ul>${opposing.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`:''}</div></details>`;
   }
-  if(r.state==='PRIVATE')html+=`<div class="pro-official-section"><b>公開状況</b><p>ONE BOATでは正式判断済みですが、本日の無料公開対象外です。有料版では正式ENTER全件を確認できる設計です。</p></div>`;
+
+  if(r.state==='PRIVATE')html+=`<div class="pro-official-section"><b>公開状況</b><p>ONE BOATでは正式判断済みですが、本日の無料公開対象外です。有料版では正式ENTER全件を確認できます。</p></div>`;
   box.innerHTML=html;
+  box.querySelectorAll('.decision-details').forEach(d=>d.addEventListener('toggle',()=>{const b=d.querySelector('summary>b');if(b)b.textContent=d.open?'−':'＋'}));
   if(r.deadline)$('#race-deadline').textContent=String(r.deadline).match(/\d{1,2}:\d{2}/)?.[0]||'—';
 }
 
