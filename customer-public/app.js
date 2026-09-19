@@ -80,11 +80,20 @@ function syncPerformanceScope(){
 function renderMetrics(key='today'){
   syncPerformanceScope();
   const x=performanceMetric(key);
-  if(!x){$('#m-roi').textContent='--';$('#m-hit').textContent='--';$('#m-profit').textContent='--';$('#m-races').textContent='集計中';renderBandPerformance(key);renderBoxValidationReference();return}
-  $('#m-roi').textContent=pct(x.roi);setTone($('#m-roi'),x.roi-100);
-  $('#m-hit').textContent=pct(x.hit_rate);
-  $('#m-profit').textContent=`${x.profit_yen>0?'+':''}${yen(x.profit_yen)}`;setTone($('#m-profit'),x.profit_yen);
-  $('#m-races').textContent=`${PERFORMANCE_SCOPE==='club'?'正式ENTER':'公開'} ${x.races||0}R / ${x.hits||0}的中`;
+  const setMetric=(sel,val)=>{const el=$(sel);if(el)el.textContent=val};
+  if(!x){
+    setMetric('#m-roi','--');setMetric('#m-hit','--');setMetric('#m-profit','--');setMetric('#m-races','集計中');
+    setMetric('#m-race-count','--');setMetric('#m-hit-count','--');setMetric('#m-stake','--');setMetric('#m-payout','--');
+    renderBandPerformance(key);renderBoxValidationReference();return
+  }
+  setMetric('#m-roi',pct(x.roi));setTone($('#m-roi'),x.roi-100);
+  setMetric('#m-hit',pct(x.hit_rate));
+  setMetric('#m-profit',`${x.profit_yen>0?'+':''}${yen(x.profit_yen)}`);setTone($('#m-profit'),x.profit_yen);
+  setMetric('#m-races',`${PERFORMANCE_SCOPE==='club'?'正式ENTER':'公開'} ${x.races||0}R / ${x.hits||0}的中`);
+  setMetric('#m-race-count',`${Number(x.races||0)}R`);
+  setMetric('#m-hit-count',`${Number(x.hits||0)}件`);
+  setMetric('#m-stake',yen(x.stake_yen));
+  setMetric('#m-payout',yen(x.payout_yen));
   renderBandPerformance(key);renderBoxValidationReference()
 }
 function formatJpDate(v){const d=v?new Date(`${String(v).slice(0,10)}T00:00:00+09:00`):new Date();return `${d.getMonth()+1}月${d.getDate()}日(${['日','月','火','水','木','金','土'][d.getDay()]})のレース`}
