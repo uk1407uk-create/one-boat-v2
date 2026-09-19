@@ -1,9 +1,9 @@
 (function(){
   var TYPES=[
-    {key:'stable',persona:'stable',index:'01',initial:'S',role:'堅実派',name:'安定型AI',range:'最大5点',tagline:'絞れる時だけ、厚く。',desc:'展開が読みやすく、確率が集中した時だけ買う。無理に参加しない堅実派。'},
-    {key:'mid',persona:'balanced',index:'02',initial:'M',role:'バランス派',name:'中配当型AI',range:'最大8点',tagline:'当てるだけでも、穴だけでもない。',desc:'的中確率と市場との評価差を両方見て、回収とのバランスを取りにいく。'},
-    {key:'high',persona:'high',index:'03',initial:'H',role:'攻め派',name:'高配当型AI',range:'最大15点',tagline:'人気より、評価差を見る。',desc:'市場よりONE BOAT評価が高い組み合わせを狙う。必要なら広げ、絞れれば厚く。'},
-    {key:'box',persona:'box',index:'04',initial:'B',role:'組み立て派',name:'BOX型AI',range:'最大15点',tagline:'順番より、来る艇を読む。',desc:'着順は割れても、来る艇の集合を絞れる時だけBOXで勝負する。'}
+    {key:'stable',persona:'stable',index:'01',initial:'S',person:'SORA',role:'安定派',name:'安定型AI',range:'最大5点',tagline:'絞れる時だけ、厚く。',desc:'展開が読みやすく、確率が集中した時だけ買う。無理に参加しない堅実派。'},
+    {key:'mid',persona:'balanced',index:'02',initial:'R',person:'REN',role:'中配当派',name:'中配当型AI',range:'最大8点',tagline:'当てるだけでも、穴だけでもない。',desc:'的中確率と市場との評価差を両方見て、回収とのバランスを取りにいく。'},
+    {key:'high',persona:'high',index:'03',initial:'K',person:'KAI',role:'高配当派',name:'高配当型AI',range:'最大15点',tagline:'人気より、評価差を見る。',desc:'市場よりONE BOAT評価が高い組み合わせを狙う。必要なら広げ、絞れれば厚く。'},
+    {key:'box',persona:'box',index:'04',initial:'J',person:'JIN',role:'BOX派',name:'BOX型AI',range:'最大15点',tagline:'順番より、来る艇を読む。',desc:'着順は割れても、来る艇の集合を絞れる時だけBOXで勝負する。'}
   ];
   function band(odds){var o=Number(odds);if(!Number.isFinite(o)||o<1)return null;if(o<=20)return'stable';if(o<80)return'mid';return'high'}
   function groups(bets,strategyMode){var g={stable:[],mid:[],high:[],box:[],unclassified:[]};var isBox=String(strategyMode||'').toUpperCase()==='BOX'||String(strategyMode||'')==='watch-box-e-v1'||(bets||[]).some(function(b){return String(b&&b.selection_role||'').toUpperCase()==='BOX'});(bets||[]).forEach(function(b){if(isBox){g.box.push(b);return}var k=band(b&&b.odds);(k?g[k]:g.unclassified).push(b)});return g}
@@ -32,7 +32,7 @@
       html+='<summary>';
       html+='<div class="persona-profile">';
       html+='<div class="persona-avatar"><b>'+t.initial+'</b><small>'+t.index+'</small></div>';
-      html+='<div class="persona-identity"><small>ONE BOAT ANALYST '+t.index+' / '+t.role+'</small><strong>'+t.name+'</strong><em>'+t.tagline+'</em></div>';
+      html+='<div class="persona-identity"><small>ONE BOAT ANALYST '+t.index+' / '+t.role+'</small><strong>'+t.person+' <i>'+t.name+'</i></strong><em>'+t.tagline+'</em></div>';
       html+='<div class="persona-verdict '+(buy?'buy':'skip')+'"><span>'+(buy?'今回':'今回')+'</span><strong>'+(buy?'買う':'見送り')+'</strong></div>';
       html+='</div>';
       html+='<p class="persona-style">'+t.desc+'</p>';
