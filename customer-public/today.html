@@ -2345,6 +2345,10 @@ html.pro-mode .performance-section.club-scope .band-average{
 .status-day .member-status-badge{background:#fff9e9;border-color:#cfb46d;color:#84651e}
 .status-premium .member-status-link{border-color:#bca76e;background:#fbfaf7}
 .status-premium .member-status-badge{background:#25282b;border-color:#b79a5a;color:#f2d889}
+.status-command .member-status-link{border-color:#9d7d2f;background:linear-gradient(135deg,#151617,#24211a);color:#f7f3e8;box-shadow:0 3px 12px rgba(73,56,17,.16)}
+.status-command .member-status-copy small{color:#c6ab62}.status-command .member-status-copy em{color:#c9c2ae}
+.status-command .member-status-badge{background:linear-gradient(135deg,#e0c778,#b89236);border-color:#e8cf82;color:#15130d;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+.status-command .member-status-link>b{color:#d1b45d}
 .status-loading .member-status-link{opacity:.82}
 html.pro-mode .member-status-strip{background:#0d0e10}
 html.pro-mode .member-status-link{background:#111214;border-color:#343539;color:#f2f1ed;box-shadow:none}
@@ -2356,6 +2360,8 @@ html.pro-mode .status-free .member-status-link{border-color:#3c3d40;background:#
 html.pro-mode .status-free .member-status-badge{background:#18191b;border-color:#505156;color:#d8d8d5}
 html.pro-mode .status-day .member-status-link,html.pro-mode .status-premium .member-status-link{border-color:#6f5d2f;background:#111214}
 html.pro-mode .status-day .member-status-badge,html.pro-mode .status-premium .member-status-badge{background:#d8b75c;border-color:#d8b75c;color:#111214}
+html.pro-mode .status-command .member-status-link{background:linear-gradient(135deg,#0b0c0d,#1b1811);border-color:#8b7130}
+html.pro-mode .status-command .member-status-badge{background:linear-gradient(135deg,#f0d77f,#b88e2f);border-color:#ebd27a;color:#0d0d0d}
 @media(max-width:380px){
   .member-status-strip{padding-left:8px;padding-right:8px}
   .member-status-link{gap:7px;padding-left:9px;padding-right:8px}
@@ -2451,7 +2457,7 @@ html.pro-mode .status-day .member-status-badge,html.pro-mode .status-premium .me
 <section id="race-sheet" class="bottom-sheet race-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="race-sheet-title"><div class="sheet-handle"></div><div class="sheet-head"><button id="race-back" class="sheet-back" type="button">‹</button><div><small>RACE DETAIL</small><h2 id="race-sheet-title">レース詳細</h2></div><span id="race-sheet-state" class="sheet-state">--</span></div><div id="race-detail" class="race-detail"></div></section>
 <nav class="bottom-app-nav" aria-label="下部ナビゲーション"><a href="/"><b>⌂</b><span>ホーム</span></a><a href="/today.html" class="active"><b>▦</b><span>本日の予想</span></a><a href="#results"><b><svg class="bottom-nav-chart-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V14M9 19V10M14 19V12M19 19V6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 11.5 9 8.5 13 10.2 20 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></b><span>実績</span></a><a href="/club.html"><b>◎</b><span>CLUB</span></a></nav>
 <footer><strong>ONE BOAT</strong><span>BOAT RACE ANALYTICS</span><small>© ONE BOAT</small></footer>
-<script src="/app.js?v=20260919-memberstatus1" defer></script>
+<script src="/app.js?v=20260919-commandstatus1" defer></script>
 <script src="/ai-picks.js?v=20260919-metrics1" defer></script>
 <script>const mb=document.getElementById('topMenuButton'),mp=document.getElementById('topMenuPanel');function closeTopMenu(){mp.classList.remove('open');mb.setAttribute('aria-expanded','false')}mb.addEventListener('click',e=>{e.stopPropagation();const open=mp.classList.toggle('open');mb.setAttribute('aria-expanded',String(open))});document.addEventListener('click',e=>{if(!mp.contains(e.target)&&!mb.contains(e.target))closeTopMenu()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTopMenu()});</script>
 </body>
