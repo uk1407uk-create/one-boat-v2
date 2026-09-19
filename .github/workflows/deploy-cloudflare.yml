@@ -33,6 +33,9 @@ jobs:
           grep -q "_early_ready','1'" worker_obpe_social.js
           grep -q "early_final_window_minutes:20" worker_obpe_social.js
           grep -q "必要データがそろい次第すぐ最終判定" worker_obpe_social.js
+          grep -q "v==='ENTER'||v==='SKIP'" worker_obpe_social.js
+          grep -q "markCronLocked(origin,raceCode,p?.decision)" worker_obpe_social.js
+          grep -q 'WATCHは固定せず毎分再判定' worker_obpe_social.js
 
       - name: Deploy Worker
         env:
