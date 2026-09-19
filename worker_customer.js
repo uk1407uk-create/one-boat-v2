@@ -53,8 +53,32 @@ async function buildOverview(){
     venues.push({code,name:VENUES[code-1],state,next_race_no:targetNo,next_deadline:targetSc?.deadline||null,public_count:historyAvailable?publicRows.length:null});
   }
   const publicItems=historyAvailable?rows.filter(enter).sort((a,b)=>num(a.venue_code)-num(b.venue_code)||num(a.race_no)-num(b.race_no)).map(r=>publicItem(r,scheduleMap)):[];
+  const latestByRace=new Map();
+  for(const r of rows){const k=String(r?.race_key||`${num(r.venue_code)}-${num(r.race_no)}`);if(k)latestByRace.set(k,r)}
+  const decidedRows=[...latestByRace.values()];
+  const decisionSummary=historyAvailable?{
+    buy:decidedRows.filter(enter).length,
+    waiting:decidedRows.filter(r=>['WATCH','FINALIZING'].includes(decision(r))).length,
+    skip:decidedRows.filter(r=>decision(r)==='SKIP').length
+  }:{buy:null,waiting:null,skip:null};
+  let nextDecision=null;
+  if(scheduleAvailable){
+    const candidates=[];
+    for(let code=1;code<=24;code++){
+      const st=stMap[String(code)]||stMap[pad(code)],rs=scheduleRaces(st),vr=byVenue.get(code)||[];
+      const recMap=new Map(vr.map(r=>[num(r.race_no),r]));
+      for(const sc of rs){
+        if(sc.close_min===null||sc.close_min<now-1)continue;
+        const rec=recMap.get(sc.race_no)||null,d=decision(rec);
+        if(enter(rec)||d==='SKIP'||d==='PRIVATE_ENTER'||rec?.settlement)continue;
+        candidates.push({venue_code:code,venue_name:VENUES[code-1],race_no:sc.race_no,deadline:sc.deadline,state:['WATCH','FINALIZING'].includes(d)?'WATCH':'PENDING',minutes_left:Math.max(0,Math.floor(sc.close_min-now))});
+      }
+    }
+    candidates.sort((a,b)=>hmMin(a.deadline)-hmMin(b.deadline)||a.venue_code-b.venue_code||a.race_no-b.race_no);
+    nextDecision=candidates[0]||null;
+  }
   const freeLimit=30,freeCount=visibility?.available&&Number.isFinite(Number(visibility.count))?Math.max(0,Math.min(freeLimit,Number(visibility.count))):null,freeRemaining=freeCount===null?null:Math.max(0,freeLimit-freeCount);
-  return{ok:true,date,degraded:!scheduleAvailable||!historyAvailable||!visibility?.available,source:{schedule:scheduleAvailable,predictions:historyAvailable,visibility:visibility?.available===true},active_count:scheduleAvailable?venues.filter(v=>v.state!=='NOEVENT'&&v.state!=='FINISHED').length:null,public_count:historyAvailable?publicItems.length:null,free_limit:freeLimit,free_count:freeCount,free_remaining:freeRemaining,free_note:'正式ENTERが出たレースのみ無料公開',site_only_keys:Array.isArray(visibility?.site_only_keys)?visibility.site_only_keys:[],venues,public_items:publicItems}
+  return{ok:true,date,degraded:!scheduleAvailable||!historyAvailable||!visibility?.available,source:{schedule:scheduleAvailable,predictions:historyAvailable,visibility:visibility?.available===true},active_count:scheduleAvailable?venues.filter(v=>v.state!=='NOEVENT'&&v.state!=='FINISHED').length:null,public_count:historyAvailable?publicItems.length:null,decision_summary:decisionSummary,next_decision:nextDecision,free_limit:freeLimit,free_count:freeCount,free_remaining:freeRemaining,free_note:'正式ENTERが出たレースのみ無料公開',site_only_keys:Array.isArray(visibility?.site_only_keys)?visibility.site_only_keys:[],venues,public_items:publicItems}
 }
 async function buildVenue(code){
   code=num(code);if(code<1||code>24)throw new Error('bad_venue');
