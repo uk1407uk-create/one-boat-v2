@@ -1205,24 +1205,37 @@ html.pro-mode .private-plan-options span,html.pro-mode .private-plan-compare{col
 
 
 /* 2026-09-19 iPhone readability pass */
-.venue-name-line{display:flex;align-items:center;gap:5px;min-width:0;flex-wrap:wrap}
-.race-category-badges{display:inline-flex;align-items:center;gap:4px;vertical-align:middle}
+.venue-tile{position:relative}
+.venue-category-corner{position:absolute;top:5px;right:5px;z-index:2;display:flex;align-items:center;justify-content:flex-end;pointer-events:none}
+.race-category-badges{display:inline-flex;align-items:center;gap:3px;vertical-align:middle}
 .race-category-badges.compact{margin-left:5px}
-.race-category-badge{display:inline-flex;align-items:center;justify-content:center;min-height:19px;padding:2px 6px;border-radius:999px;font-size:8px;line-height:1;font-style:normal;font-weight:950;letter-spacing:.02em;white-space:nowrap}
-.race-category-badge.grade{border:1px solid #c6d9e7;background:#f4f8fb;color:#365f78}
-.race-category-badge.grade.sg{border-color:#8c73d9;background:#f3efff;color:#5d39b0}
-.race-category-badge.grade.g1{border-color:#e6a6aa;background:#fff1f2;color:#b24750}
-.race-category-badge.grade.g2{border-color:#e4c06d;background:#fff8e7;color:#9b6c0a}
-.race-category-badge.grade.g3{border-color:#93cdb1;background:#effbf5;color:#247d52}
-.race-category-badge.women{border-color:#efaacb;background:#fff1f7;color:#bd4b82}
-#venue-sheet-meta .race-category-badges{justify-content:center}
-#race-sheet-title .race-category-badges{margin-left:5px}
-html.pro-mode .race-category-badge.grade{background:#17191c;border-color:#4c5660;color:#d5d9dd}
-html.pro-mode .race-category-badge.grade.sg{background:#20172f;border-color:#755bbb;color:#c8b7ff}
-html.pro-mode .race-category-badge.grade.g1{background:#2c181b;border-color:#8e4f55;color:#f0b4ba}
-html.pro-mode .race-category-badge.grade.g2{background:#2a2415;border-color:#816d32;color:#ebcf7e}
-html.pro-mode .race-category-badge.grade.g3{background:#14251d;border-color:#3f795d;color:#9bd8b8}
-html.pro-mode .race-category-badge.women{background:#2b1722;border-color:#914e70;color:#f3b3d3}
+.venue-category-corner .race-category-badges.compact{margin-left:0}
+.race-category-badge{display:inline-flex;align-items:center;justify-content:center;height:17px;min-width:25px;padding:0 5px;border-radius:4px;border:1px solid rgba(26,111,164,.28);background:rgba(236,247,253,.96);color:#155b84;font-size:7.5px;line-height:1;font-style:normal;font-weight:950;letter-spacing:.04em;white-space:nowrap;box-shadow:0 1px 3px rgba(10,70,107,.04)}
+.race-category-badge.grade.sg{background:#0b5f98;border-color:#0b5f98;color:#fff}
+.race-category-badge.grade.g1{background:#0f75b7;border-color:#0f75b7;color:#fff}
+.race-category-badge.grade.g2{background:#dceffa;border-color:#8ec5e4;color:#0c5f91}
+.race-category-badge.grade.g3{background:#edf7fc;border-color:#a9cede;color:#246984}
+.race-category-badge.women{background:#f1f7fb;border-color:#aecbdc;color:#426f88}
+.venue-category-corner .race-category-badge{height:16px;min-width:24px;padding:0 4px;font-size:7px;border-radius:3px}
+.venue-category-corner + .venue-name{padding-right:34px!important}
+.venue-category-corner:has(.race-category-badge.women) + .venue-name{padding-right:44px!important}
+.venue-category-corner:has(.race-category-badge.grade):has(.race-category-badge.women) + .venue-name{padding-right:72px!important}
+.race-row-main .race-category-badges{margin-left:5px}
+.race-row-main .race-category-badge{height:15px;min-width:22px;padding:0 4px;font-size:6.8px;border-radius:3px;box-shadow:none}
+#venue-sheet-meta .race-category-badges{justify-content:center;margin:0}
+#venue-sheet-meta .race-category-badge{height:18px;font-size:7.5px}
+#race-sheet-title{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.race-title-main{display:inline-block}
+.race-title-category{display:inline-flex;align-items:center}
+.race-title-category:empty{display:none}
+#race-sheet-title .race-category-badges{margin:0}
+#race-sheet-title .race-category-badge{height:20px;min-width:29px;padding:0 6px;font-size:8px;border-radius:4px}
+html.pro-mode .race-category-badge{background:#0e1c26;border-color:#294a60;color:#a9ccdf}
+html.pro-mode .race-category-badge.grade.sg{background:#0a4b73;border-color:#2383b9;color:#e7f7ff}
+html.pro-mode .race-category-badge.grade.g1{background:#0c5f91;border-color:#2a8cc0;color:#f0fbff}
+html.pro-mode .race-category-badge.grade.g2{background:#102b3c;border-color:#315d78;color:#b9d7e7}
+html.pro-mode .race-category-badge.grade.g3{background:#101f2a;border-color:#2d4e61;color:#a8c8d9}
+html.pro-mode .race-category-badge.women{background:#131f27;border-color:#344c5b;color:#b7cad5}
 
 .site-only-badge{display:inline-flex;margin-left:7px;padding:4px 7px;border-radius:999px;background:#edf6ff;color:#246c9b;border:1px solid #b9d8ec;font-size:9px;font-style:normal;font-weight:950;vertical-align:middle}
 html.pro-mode .site-only-badge{background:#151f29;color:#8fcdec;border-color:#31566d}
@@ -1551,7 +1564,7 @@ html.pro-mode .current-mark{background:#d8b75c!important;color:#111214!important
 <section id="race-sheet" class="bottom-sheet race-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="race-sheet-title"><div class="sheet-handle"></div><div class="sheet-head"><button id="race-back" class="sheet-back" type="button">‹</button><div><small>RACE DETAIL</small><h2 id="race-sheet-title">レース詳細</h2></div><span id="race-sheet-state" class="sheet-state">--</span></div><div id="race-detail" class="race-detail"></div></section>
 <nav class="bottom-app-nav" aria-label="下部ナビゲーション"><a href="/"><b>⌂</b><span>ホーム</span></a><a href="/today.html" class="active"><b>▦</b><span>本日の予想</span></a><a href="#results"><b><svg class="bottom-nav-chart-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V14M9 19V10M14 19V12M19 19V6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 11.5 9 8.5 13 10.2 20 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></b><span>実績</span></a><a href="/club.html"><b>◎</b><span>CLUB</span></a></nav>
 <footer><strong>ONE BOAT</strong><span>BOAT RACE ANALYTICS</span><small>© ONE BOAT</small></footer>
-<script src="/app.js?v=20260919-racecategory1" defer></script>
+<script src="/app.js?v=20260919-racecategory2" defer></script>
 <script src="/ai-picks.js?v=20260918-ai3" defer></script>
 <script>const mb=document.getElementById('topMenuButton'),mp=document.getElementById('topMenuPanel');function closeTopMenu(){mp.classList.remove('open');mb.setAttribute('aria-expanded','false')}mb.addEventListener('click',e=>{e.stopPropagation();const open=mp.classList.toggle('open');mb.setAttribute('aria-expanded',String(open))});document.addEventListener('click',e=>{if(!mp.contains(e.target)&&!mb.contains(e.target))closeTopMenu()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTopMenu()});</script>
 </body>
