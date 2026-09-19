@@ -17,7 +17,7 @@ const $=s=>document.querySelector(s);
 const yen=n=>`${Math.round(Number(n||0)).toLocaleString('ja-JP')}円`;
 const pct=n=>Number.isFinite(Number(n))?`${Number(n).toFixed(1)}%`:'--';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let STATS=null,STATS_FETCHED_AT=0,CURRENT_VENUE=null,AUTO_OPENED=false,LOAD_TIMER=null,LAST_OVERVIEW=null,REFRESH_BURST_LEFT=2,STATS_LOADING=null,SITE_ONLY_KEYS=new Set(),ACTIVE_RACE_NO=null,VENUE_SHEET_TIMER=null,VENUE_SHEET_LOADING=false,CLUB_LIST_OPEN=false,RESULT_LIST_OPEN=false,MEMBER_TODAY_ENTER=null,MEMBER_SYNC_STATE='unknown';
+let STATS=null,STATS_FETCHED_AT=0,CURRENT_VENUE=null,AUTO_OPENED=false,LOAD_TIMER=null,LAST_OVERVIEW=null,REFRESH_BURST_LEFT=2,STATS_LOADING=null,SITE_ONLY_KEYS=new Set(),ACTIVE_RACE_NO=null,VENUE_SHEET_TIMER=null,VENUE_SHEET_LOADING=false,CLUB_LIST_OPEN=false,RESULT_LIST_OPEN=false,MEMBER_TODAY_ENTER=null,MEMBER_SYNC_STATE='unknown',VENUE_BROWSE_MODE='venues',LAST_VENUES=[];
 function trafficAttribution(){
   try{
     const q=new URLSearchParams(location.search);
@@ -201,7 +201,31 @@ function venueTile(v){
   const meta=v.state==='NOEVENT'?'開催なし':v.state==='FINISHED'?'全レース終了':v.state==='UPDATING'&&!hasRace?'正式データ更新中':urg.left!==null?(urg.left<=0?`締切間近 ${time}`:`あと${urg.left}分 ${time}`):`締切 ${time}`;
   return `<button class="venue-tile ${cls}${quiet}${hasPrediction?' has-auto-prediction':''}" type="button" data-code="${String(v.code).padStart(2,'0')}" aria-label="${esc(v.name)} ${stateLabel(v.state)}"><span class="venue-category-corner">${categoryBadges(v,{compact:true})}</span><span class="venue-name">${esc(v.name)}</span><span class="venue-strip">${stateLabel(v.state)}</span><span class="venue-meta"><strong>${v.state==='NOEVENT'||!hasRace?'—':`${v.next_race_no}R`}</strong><em class="${urg.cls}">${esc(meta)}</em></span></button>`;
 }
-function renderVenues(venues){$('#venue-grid').innerHTML=(venues||[]).map(venueTile).join('');document.querySelectorAll('.venue-tile').forEach(b=>b.addEventListener('click',()=>openVenue(b.dataset.code)))}
+function deadlineBrowseRow(v){
+  const hasRace=Number(v?.next_race_no)>=1,time=timeText(v?.next_deadline),urg=hasRace?deadlineUrgency(v.next_deadline):{left:null};
+  const meta=!hasRace?'レース情報確認中':urg.left!==null?(urg.left<=0?'締切間近':('あと'+urg.left+'分')):'締切 '+time;
+  return '<button class="deadline-browse-row" type="button" data-code="'+String(v.code).padStart(2,'0')+'" data-rno="'+Number(v.next_race_no||0)+'"><span class="deadline-place"><strong>'+esc(v.name)+'</strong>'+categoryBadges(v,{compact:true})+'</span><span class="deadline-race">'+(hasRace?(Number(v.next_race_no)+'R'):'—')+'</span><span class="deadline-time"><strong>'+esc(meta)+'</strong><small>'+esc(time||'--:--')+'</small></span><b>›</b></button>';
+}
+function renderDeadlineBrowse(venues){
+  const root=$('#venue-deadline-list');if(!root)return;
+  const xs=(venues||[]).filter(v=>!['NOEVENT','FINISHED'].includes(String(v?.state||''))&&Number(v?.next_race_no)>=1).slice().sort((a,b)=>deadlineMinute(a.next_deadline)-deadlineMinute(b.next_deadline)||Number(a.code)-Number(b.code));
+  root.innerHTML=xs.length?xs.map(deadlineBrowseRow).join(''):'<div class="deadline-empty">現在、締切順で表示できるレースはありません</div>';
+  root.querySelectorAll('.deadline-browse-row').forEach(b=>b.addEventListener('click',async()=>{await openVenue(b.dataset.code);const rno=Number(b.dataset.rno);if(rno>=1&&rno<=12)openRace(rno)}));
+}
+function syncVenueBrowseMode(){
+  const grid=$('#venue-grid'),dead=$('#venue-deadline-list'),toggle=$('#venue-toggle');
+  document.querySelectorAll('[data-venue-browse]').forEach(b=>{const on=b.dataset.venueBrowse===VENUE_BROWSE_MODE;b.classList.toggle('active',on);b.setAttribute('aria-selected',String(on))});
+  if(grid)grid.hidden=VENUE_BROWSE_MODE!=='venues';
+  if(dead)dead.hidden=VENUE_BROWSE_MODE!=='deadline';
+  if(toggle)toggle.hidden=VENUE_BROWSE_MODE!=='venues';
+}
+function renderVenues(venues){
+  LAST_VENUES=Array.isArray(venues)?venues:[];
+  $('#venue-grid').innerHTML=LAST_VENUES.map(venueTile).join('');
+  document.querySelectorAll('.venue-tile').forEach(b=>b.addEventListener('click',()=>openVenue(b.dataset.code)));
+  renderDeadlineBrowse(LAST_VENUES);
+  syncVenueBrowseMode();
+}
 function freeProgressModel(o){
   const limit=Number(o?.free_limit??30);
   const raw=o?.free_count;
@@ -691,6 +715,10 @@ if(clubEnterToggle)clubEnterToggle.addEventListener('click',()=>{
   clubEnterToggle.setAttribute('aria-expanded',String(CLUB_LIST_OPEN));
   clubEnterToggle.innerHTML=`<span><small>CLUB ENTER LIST</small><strong>${CLUB_LIST_OPEN?'一覧を閉じる':'正式ENTER一覧を見る'} <b>${total}R</b></strong><em>購入可能 ${live}R / 結果確定 ${settled}R</em></span><i>${CLUB_LIST_OPEN?'▲':'▼'}</i>`;
 });
+document.querySelectorAll('[data-venue-browse]').forEach(b=>b.addEventListener('click',()=>{
+  VENUE_BROWSE_MODE=b.dataset.venueBrowse==='deadline'?'deadline':'venues';
+  syncVenueBrowseMode();
+}));
 const venueToggle=$('#venue-toggle');
 if(venueToggle)venueToggle.addEventListener('click',()=>{
   if(savedViewMode()==='pro')return;
