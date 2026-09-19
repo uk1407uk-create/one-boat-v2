@@ -367,8 +367,13 @@ function proRaceUrl(r){
   const q=new URLSearchParams({date:raceDateForView(),venue:String(code),race:String(Number(r.race_no)),mode:'pro'});
   return `/analysis.html?${q.toString()}`;
 }
+function normalizeLegacyCutoffText(v){
+  return String(v||'')
+    .replace(/締切\s*1\s*分前/g,'締切5分前')
+    .replace(/1\s*分前までに/g,'5分前までに');
+}
 function shortOfficialReason(v,max=118){
-  const x=String(v||'').replace(/\s+/g,' ').trim();
+  const x=normalizeLegacyCutoffText(v).replace(/\s+/g,' ').trim();
   return x.length>max?`${x.slice(0,max)}…`:x;
 }
 function openRace(rno){
