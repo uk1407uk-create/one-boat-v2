@@ -430,6 +430,7 @@ function resultCard(raw){
 function bandRangeText(m){if(m?.range_label)return String(m.range_label);return m?.odds_max===null?`${Number(m?.odds_min||80).toFixed(1)}倍〜`:`${Number(m?.odds_min||0).toFixed(1)}〜${Number(m?.odds_max||0).toFixed(1)}倍`}
 function renderBoxValidationReference(){
   const root=$('#box-validation-reference');if(!root)return;
+  if(STATS?.ai_types?.today?.stable){root.hidden=true;root.innerHTML='';return}
   if(PERFORMANCE_SCOPE==='club'){root.hidden=true;root.innerHTML='';return}
   const x=STATS?.box_validation_reference;
   if(!x){root.hidden=true;root.innerHTML='';return}
@@ -438,11 +439,39 @@ function renderBoxValidationReference(){
   root.innerHTML=`<div class="box-validation-head"><span>REFERENCE CHECK</span><em>参考検証</em></div><strong>${esc(x.label||'朝から適用した場合')}</strong><p>BOX型AIを朝から同条件で動かした場合の再計算です。正式運用実績とは分けて表示しています。</p><div class="box-validation-metrics"><div><small>対象</small><b>${Number(x.races||0)}R</b></div><div><small>的中</small><b>${Number(x.hits||0)}R</b></div><div><small>的中率</small><b>${pct(x.hit_rate)}</b></div><div><small>回収率</small><b>${pct(x.roi)}</b></div></div><div class="box-validation-money"><span>投資 ${yen(x.stake_yen)} → 払戻 ${yen(x.payout_yen)}</span><strong class="${profit>=0?'positive':'negative'}">${profit>0?'+':''}${yen(profit)}</strong></div><small>BOX① ${Number(x.box1_hits||0)}的中 / BOX② ${Number(x.box2_hits||0)}的中｜${esc(x.date||'')} ${esc(x.as_of||'')}時点</small>`;
 }
 function renderBandPerformance(key='today'){
-  const root=(PERFORMANCE_SCOPE==='club'?STATS?.club_ai_types:STATS?.ai_types)||{},types=root?.[key]?.stable?root[key]:root;
+  const root=STATS?.ai_types||{},types=root?.[key]?.stable?root[key]:root;
   const box=$('#band-performance');if(!box)return;
+  const meta={
+    stable:{person:'SORA',role:'安定派',initial:'S',tagline:'絞れる時だけ、厚く。'},
+    mid:{person:'REN',role:'中配当派',initial:'R',tagline:'確率と妙味のバランス。'},
+    high:{person:'KAI',role:'高配当派',initial:'K',tagline:'人気より、評価差を見る。'},
+    box:{person:'JIN',role:'BOX派',initial:'J',tagline:'順番より、来る艇を読む。'}
+  };
   const order=['stable','mid','high','box'];
-  if(!types?.stable){box.innerHTML='<div class="race-card"><div class="race-main"><strong>集計中</strong><small>予想タイプ別データを更新しています。</small></div></div>';return}
-  box.innerHTML=order.map(k=>{const m=types[k]||{},sample=m.sample_status||((Number(m.races)||0)<20?'参考値':'集計値'),avg=Number.isFinite(Number(m.avg_hit_odds))?`平均的中オッズ ${oddsText(m.avg_hit_odds)}`:'平均的中オッズ —';return `<article class="band-card"><div class="band-name"><strong>${esc(m.name||k)}</strong><span>${bandRangeText(m)}</span><em>${esc(sample)}</em></div><div class="band-metrics"><div><span>対象</span><strong>${Number(m.races||0)}R</strong></div><div><span>的中率</span><strong>${pct(m.hit_rate)}</strong></div><div><span>回収率</span><strong>${pct(m.roi)}</strong></div><small class="band-average">${avg}</small></div></article>`}).join('');
+  if(!types?.stable){box.innerHTML='<div class="race-card"><div class="race-main"><strong>集計中</strong><small>4人の予想家実績を更新しています。</small></div></div>';return}
+  box.innerHTML=order.map(k=>{
+    const m=types[k]||{},a=meta[k],races=Number(m.races||0),hits=Number(m.hits||0),roi=Number(m.roi||0),profit=Number(m.profit_yen||0),stake=Number(m.stake_yen||0),payout=Number(m.payout_yen||0),avgPts=Number(m.avg_points||0),avgStake=Number(m.avg_stake_yen||0),sample=m.sample_status||'新方式・参考値';
+    const roiTone=races===0?'neutral':roi>=100?'positive':'negative';
+    const profitText=profit>0?`+${yen(profit)}`:yen(profit);
+    return `<article class="analyst-performance-card analyst-${k}">
+      <div class="analyst-performance-head">
+        <div class="analyst-performance-avatar">${esc(a.initial)}</div>
+        <div class="analyst-performance-id"><small>ONE BOAT ANALYST / ${esc(a.role)}</small><strong>${esc(a.person)} <i>${esc(m.name||'')}</i></strong><span>${esc(a.tagline)}</span></div>
+        <em>${esc(sample)}</em>
+      </div>
+      <div class="analyst-performance-main">
+        <div class="analyst-roi"><span>回収率</span><strong class="${roiTone}">${races?pct(roi):'—'}</strong></div>
+        <div class="analyst-profit"><span>収支</span><strong class="${profit>=0?'positive':'negative'}">${races?profitText:'—'}</strong></div>
+      </div>
+      <div class="analyst-performance-grid">
+        <div><span>参加</span><strong>${races}R</strong></div>
+        <div><span>的中</span><strong>${hits}R</strong></div>
+        <div><span>的中率</span><strong>${races?pct(m.hit_rate):'—'}</strong></div>
+        <div><span>平均点数</span><strong>${races?avgPts.toFixed(1)+'点':'—'}</strong></div>
+      </div>
+      <div class="analyst-performance-money"><span>投資 ${races?yen(stake):'—'} → 払戻 ${races?yen(payout):'—'}</span><small>${races?'平均 '+yen(avgStake)+' / R':'結果確定後に自動集計'}</small></div>
+    </article>`;
+  }).join('');
 }
 
 function openBackdrop(){const b=$('#sheet-backdrop');b.hidden=false;document.body.classList.add('sheet-open')}
