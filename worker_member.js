@@ -78,15 +78,33 @@ async function proxyProtectedAnalysis(request,targetBase){
 }
 function memberPredictionRecord(raw,accessScope){
   if(!raw)return null;
-  const p=raw.prediction||{};
+  const p=raw.prediction||{},alloc=p?.allocation_meta||raw?.allocation_meta||{},finalSnap=p?.final_snapshot||raw?.final_snapshot||{};
   const decision=String(raw.decision||p.decision||'').toUpperCase();
   const stake=Number(raw.stake_total_yen??p.stake_total_yen??0)||0;
-  const bets=(Array.isArray(raw.bets)&&raw.bets.length?raw.bets:Array.isArray(p.production_picks)?p.production_picks:[]).map(x=>({
-    ticket:x?.ticket||x?.combination||x?.bet||'',
-    stake_yen:Number(x?.stake_yen??x?.amount??x?.stake??0)||0,
-    odds:Number.isFinite(Number(x?.odds))?Number(x.odds):null,
-    selection_role:x?.selection_role||null
-  })).filter(x=>x.ticket);
+  const oddsFallback=new Map();
+  const savedOdds=finalSnap?.odds_by_ticket;
+  if(savedOdds&&typeof savedOdds==='object'&&!Array.isArray(savedOdds)){
+    Object.entries(savedOdds).forEach(([ticket,odds])=>{if(Number.isFinite(Number(odds))&&Number(odds)>1)oddsFallback.set(String(ticket),Number(odds))});
+  }
+  [finalSnap?.top_combinations,finalSnap?.market_differences,finalSnap?.candidate_bets].forEach(xs=>{
+    if(!Array.isArray(xs))return;
+    xs.forEach(x=>{const ticket=String(x?.ticket||x?.combination||x?.bet||'');const odds=Number(x?.odds);if(ticket&&Number.isFinite(odds)&&odds>1&&!oddsFallback.has(ticket))oddsFallback.set(ticket,odds)});
+  });
+  const bets=(Array.isArray(raw.bets)&&raw.bets.length?raw.bets:Array.isArray(p.production_picks)?p.production_picks:[]).map(x=>{
+    const ticket=x?.ticket||x?.combination||x?.bet||'';
+    const direct=Number(x?.odds),fallback=oddsFallback.get(String(ticket));
+    return{
+      ticket,
+      stake_yen:Number(x?.stake_yen??x?.amount??x?.stake??0)||0,
+      odds:Number.isFinite(direct)&&direct>1?direct:(Number.isFinite(fallback)?fallback:null),
+      selection_role:x?.selection_role||null,
+      box_rank:Number.isFinite(Number(x?.box_rank))?Number(x.box_rank):null,
+      permutation_rank:Number.isFinite(Number(x?.permutation_rank))?Number(x.permutation_rank):null
+    };
+  }).filter(x=>x.ticket);
+  const oddsClass=String(p?.odds_class||raw?.odds_class||'').toUpperCase();
+  const strategyVersion=String(alloc?.strategy_version||alloc?.method||'');
+  const strategyMode=String(alloc?.strategy_mode||oddsClass||(strategyVersion==='watch-box-e-v1'?'BOX':'')).toUpperCase();
   const settlement=raw.settlement?{
     hit:raw.settlement.hit===true,
     payout_yen:Number(raw.settlement.payout_yen||0)||0,
@@ -110,6 +128,13 @@ function memberPredictionRecord(raw,accessScope){
       selected_theory:p.selected_theory||null,
       current_theory:p.current_theory||null,
       strategy:p.strategy||null,
+      odds_class:oddsClass||null,
+      strategy_mode:strategyMode||null,
+      strategy_version:strategyVersion||null,
+      box_lanes:Array.isArray(alloc?.box_lanes)?alloc.box_lanes:[],
+      box1_lanes:Array.isArray(alloc?.box1_lanes)?alloc.box1_lanes:[],
+      box2_lanes:Array.isArray(alloc?.box2_lanes)?alloc.box2_lanes:[],
+      odds_status:finalSnap?.odds_status||null,
       support_materials:Array.isArray(p.support_materials)?p.support_materials:[],
       opposing_materials:Array.isArray(p.opposing_materials)?p.opposing_materials:[],
       production_picks:bets,
