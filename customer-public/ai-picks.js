@@ -1,9 +1,9 @@
 (function(){
   var TYPES=[
-    {key:'stable',persona:'stable',index:'01',initial:'S',person:'SORA',role:'安定派',name:'安定型AI',range:'最大5点',tagline:'絞れる時だけ、厚く。',desc:'展開が読みやすく、確率が集中した時だけ買う。無理に参加しない堅実派。'},
-    {key:'mid',persona:'balanced',index:'02',initial:'R',person:'REN',role:'中配当派',name:'中配当型AI',range:'最大8点',tagline:'当てるだけでも、穴だけでもない。',desc:'的中確率と市場との評価差を両方見て、回収とのバランスを取りにいく。'},
-    {key:'high',persona:'high',index:'03',initial:'K',person:'KAI',role:'高配当派',name:'高配当型AI',range:'最大15点',tagline:'人気より、評価差を見る。',desc:'市場よりONE BOAT評価が高い組み合わせを狙う。必要なら広げ、絞れれば厚く。'},
-    {key:'box',persona:'box',index:'04',initial:'J',person:'JIN',role:'BOX派',name:'BOX型AI',range:'最大15点',tagline:'順番より、来る艇を読む。',desc:'着順は割れても、来る艇の集合を絞れる時だけBOXで勝負する。'}
+    {key:'stable',persona:'stable',index:'01',role:'安定型',name:'安定型AI',range:'最大5点',tagline:'絞れる時だけ、厚く。',desc:'展開が読みやすく、確率が集中した時だけ買う。無理に参加しない堅実型。'},
+    {key:'mid',persona:'balanced',index:'02',role:'中配当型',name:'中配当型AI',range:'最大8点',tagline:'当てるだけでも、穴だけでもない。',desc:'的中確率と市場との評価差を両方見て、回収とのバランスを取りにいく。'},
+    {key:'high',persona:'high',index:'03',role:'高配当型',name:'高配当型AI',range:'最大15点',tagline:'人気より、評価差を見る。',desc:'市場よりONE BOAT評価が高い組み合わせを狙う。必要なら広げ、絞れれば厚く。'},
+    {key:'box',persona:'box',index:'04',role:'BOX型',name:'BOX型AI',range:'最大15点',tagline:'順番より、来る艇を読む。',desc:'着順は割れても、来る艇の集合を絞れる時だけBOXで判断する。'}
   ];
   function band(odds){var o=Number(odds);if(!Number.isFinite(o)||o<1)return null;if(o<=20)return'stable';if(o<80)return'mid';return'high'}
   function groups(bets,strategyMode){var g={stable:[],mid:[],high:[],box:[],unclassified:[]};var isBox=String(strategyMode||'').toUpperCase()==='BOX'||String(strategyMode||'')==='watch-box-e-v1'||(bets||[]).some(function(b){return String(b&&b.selection_role||'').toUpperCase()==='BOX'});(bets||[]).forEach(function(b){if(isBox){g.box.push(b);return}var k=band(b&&b.odds);(k?g[k]:g.unclassified).push(b)});return g}
@@ -31,14 +31,13 @@
       html+='<details class="ai-pick-card persona-card ai-'+t.key+' '+(buy?'is-buy':'is-skip')+'" '+(first===t.key?'open':'')+'>';
       html+='<summary>';
       html+='<div class="persona-profile">';
-      html+='<div class="persona-avatar"><b>'+t.initial+'</b><small>'+t.index+'</small></div>';
-      html+='<div class="persona-identity"><small>ONE BOAT ANALYST '+t.index+' / '+t.role+'</small><strong>'+t.person+' <i>'+t.name+'</i></strong><em>'+t.tagline+'</em></div>';
+      html+='<div class="persona-identity"><small>ONE BOAT ANALYSIS / '+t.role+'</small><strong>'+t.name+'</strong><em>'+t.tagline+'</em></div>';
       html+='<div class="persona-verdict '+(buy?'buy':'skip')+'"><span>'+(buy?'今回':'今回')+'</span><strong>'+(buy?'買う':'見送り')+'</strong></div>';
       html+='</div>';
       html+='<p class="persona-style">'+t.desc+'</p>';
       html+='<div class="persona-now"><div><span>今回の点数</span><strong>'+(buy?xs.length:0)+'点</strong></div><div><span>今回の投資</span><strong>'+(buy?yen(stake):'0円')+'</strong></div><div><span>上限</span><strong>'+t.range+'</strong></div></div>';
       html+='<div class="ai-card-metrics"><div><span>これまでの的中率</span><strong>'+metricValue(m,'hit_rate')+'</strong></div><div><span>これまでの回収率</span><strong>'+metricValue(m,'roi')+'</strong></div><div><span>判定</span><strong>'+(buy?'BUY':'SKIP')+'</strong></div></div>';
-      html+='<div class="ai-card-toggle"><span>'+(buy?'この人の買い目を見る':'この人の判断を見る')+'</span><b>開く / 閉じる</b></div></summary>';
+      html+='<div class="ai-card-toggle"><span>'+(buy?'このタイプの買い目を見る':'このタイプの判断を見る')+'</span><b>開く / 閉じる</b></div></summary>';
       html+='<div class="ai-card-body">';
       if(buy){
         html+='<div class="persona-stake-summary"><span>推奨投資</span><strong>'+yen(stake)+'</strong><small>上限 '+yen(Number(portfolio.max_stake_yen_per_persona||5000))+'</small></div>';
@@ -120,14 +119,14 @@
     var reason=p.reason||p.skip_reason||rec.reason||'',reasonShort=shortOfficialReason(reason),proHref=proRaceUrl(r),state=stateLabel(r.state),left=remaining(r.deadline);
     var activeTypes=portfolio&&portfolio.applied===true?TYPES.filter(function(t){var x=personaPart(portfolio,t);return x&&x.status==='BUY'&&Array.isArray(x.picks)&&x.picks.length}).length:0;
     var html='<nav class="race-mode-switch" aria-label="表示モード"><span class="race-mode active">かんたん</span><a class="race-mode" data-view-mode="pro" href="'+proHref+'">PRO</a></nav>';
-    html+='<section class="easy-decision '+stateClass(r.state)+'"><small>ONE BOAT判定</small><strong>'+state+'</strong><p>'+esc(portfolio&&portfolio.applied===true?(portfolio.has_any_pick?'4人のうち、購入判断を出した予想家がいます。':'4人全員が見送り判断です。'):(reasonShort||(publicRecord(rec)?'正式予想が確定しました。':'必要な正式データを確認しています。')))+'</p></section>';
+    html+='<section class="easy-decision '+stateClass(r.state)+'"><small>ONE BOAT判定</small><strong>'+state+'</strong><p>'+esc(portfolio&&portfolio.applied===true?(portfolio.has_any_pick?'購入判断を出した分析タイプがあります。':'全タイプが見送り判断です。'):(reasonShort||(publicRecord(rec)?'正式予想が確定しました。':'必要な正式データを確認しています。')))+'</p></section>';
     if(hasPrediction){
-      var headLabel=portfolio&&portfolio.applied===true?'4人の予想家':'正式買い目',headCount=portfolio&&portfolio.applied===true?(activeTypes+'/4人がBUY'):(bets.length+'点');
-      html+='<section class="official-ai-section"><div class="detail-label">AI予想｜'+headLabel+'</div><div class="official-order-head"><strong>買い目</strong><span>'+headCount+'</span></div><div class="ai-pick-stack">'+cards(bets,r.deadline,strategyMode,metricScope,portfolio,rec.persona_settlements)+'</div><p class="odds-range-note">'+(portfolio&&portfolio.applied===true?'※4人は同じONE BOAT予測データを見ていますが、買い方・点数・資金配分はそれぞれ別です。各予想家1レース最大5,000円で、買う価値がなければ見送ります。':'※旧方式の予想表示です。')+'</p></section>';
+      var headLabel=portfolio&&portfolio.applied===true?'分析タイプ別':'正式買い目',headCount=portfolio&&portfolio.applied===true?(activeTypes+'/4タイプがBUY'):(bets.length+'点');
+      html+='<section class="official-ai-section"><div class="detail-label">AI予想｜'+headLabel+'</div><div class="official-order-head"><strong>買い目</strong><span>'+headCount+'</span></div><div class="ai-pick-stack">'+cards(bets,r.deadline,strategyMode,metricScope,portfolio,rec.persona_settlements)+'</div><p class="odds-range-note">'+(portfolio&&portfolio.applied===true?'※各タイプは同じONE BOAT予測データを使い、買い方・点数・資金配分だけを分けています。条件に合わなければ見送ります。':'※旧方式の予想表示です。')+'</p></section>';
       html+='<section class="purchase-glance"><div><span>'+(portfolio&&portfolio.applied===true?'購入タイプ':'正式買い目')+'</span><strong>'+(portfolio&&portfolio.applied===true?activeTypes+' / 4':bets.length+'点')+'</strong></div><div class="deadline-cell"><span>締切まで</span><strong>'+left+'</strong><small>締切 '+timeText(r.deadline)+'</small></div></section>';
     }else{
       html+='<section class="purchase-glance no-buy"><div><span>購入</span><strong>なし</strong></div><div class="deadline-cell"><span>締切まで</span><strong>'+left+'</strong><small>締切 '+timeText(r.deadline)+'</small></div></section>';
-      html+='<section class="detail-block decision-message"><div class="detail-label">ONE BOATの判断</div><h3>'+state+'</h3><p>'+esc(portfolio&&portfolio.applied===true?'4人全員が購入条件に届かなかったため、このレースは見送ります。':(reasonShort||r.note||'正式データが揃うまで直前分析中として表示します。'))+'</p></section>';
+      html+='<section class="detail-block decision-message"><div class="detail-label">ONE BOATの判断</div><h3>'+state+'</h3><p>'+esc(portfolio&&portfolio.applied===true?'全タイプが購入条件に届かなかったため、このレースは見送ります。':(reasonShort||r.note||'正式データが揃うまで直前分析中として表示します。'))+'</p></section>';
     }
     html+='<a class="pro-jump" data-view-mode="pro" href="'+proHref+'"><span><small>PRO MODE</small><strong>詳しい根拠・展示・モーター・オッズを見る</strong></span><b>›</b></a>';
     if(sett&&!(portfolio&&portfolio.applied===true)){var tri=(sett.result&&sett.result.trifecta)||sett.trifecta||'--',profit=Number(sett.profit_yen||0);html+='<section class="detail-block result-block '+(sett.hit?'hit':'miss')+'"><div class="detail-label">RESULT</div><h3>'+(sett.hit?'的中':'不的中')+'　3連単 '+esc(tri)+'</h3><div class="result-grid"><div><span>旧正式投資</span><strong>'+yen(stake)+'</strong></div><div><span>払戻</span><strong>'+yen(sett.payout_yen)+'</strong></div><div><span>収支</span><strong class="'+(profit>=0?'positive':'negative')+'">'+(profit>0?'+':'')+yen(profit)+'</strong></div></div></section>'}
