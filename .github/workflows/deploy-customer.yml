@@ -95,6 +95,10 @@ jobs:
           grep -q "FREE_STATS_URL='/api/public/stats'" customer-public/app.js
           ! grep -q 'one-boat-public-visibility' customer-public/app.js
           grep -q 'scheduleLiveRefresh' customer-public/app.js
+          grep -q 'scheduleVenueSheetRefresh' customer-public/app.js
+          grep -q 'refreshOpenVenue' customer-public/app.js
+          grep -q 'ACTIVE_RACE_NO' customer-public/app.js
+          grep -q '遅くとも締切5分前までに最終判断' customer-public/app.js
           grep -q "left<=10)return 30000" customer-public/app.js
           grep -q "left<=20)return 45000" customer-public/app.js
           grep -q 'REFRESH_BURST_LEFT=2' customer-public/app.js
