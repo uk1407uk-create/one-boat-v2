@@ -149,7 +149,8 @@ function updated(v){if(!v)return'—';const d=new Date(v);if(Number.isNaN(d.getT
 function laneBadge(n){return `<span class="lane-box lane-${n}">${n}</span>`}
 function stText(v){if(missing(v)||!Number.isFinite(Number(v)))return'—';const n=Number(v);return n<0?`F${Math.abs(n).toFixed(2)}`:n.toFixed(2)}
 function venueName(){return VENUES[CODE-1]||`場${CODE}`}
-function exMap(d){return new Map((d?.exhibition_detail?.boats||[]).map(x=>[Number(x.lane),x]))}
+function exhibitionBoats(d){const xs=d?.exhibition_detail?.boats;if(Array.isArray(xs)&&xs.length)return xs;return (Array.isArray(d?.racers)?d.racers:[]).map(r=>({lane:Number(r?.lane),course:r?.course??null,start_timing:r?.start_exhibition_st??null,exhibition_time:r?.exhibition_time??null,tilt:r?.tilt??null})).filter(r=>r.lane>=1&&r.lane<=6)}
+function exMap(d){return new Map(exhibitionBoats(d).map(x=>[Number(x.lane),x]))}
 
 function renderRacers(d){
   const xs=d?.racers||[],em=exMap(d);
@@ -191,7 +192,7 @@ function startPosition(v){
 
 function renderStartExhibition(d){
   const ex=d?.exhibition_detail||{};
-  const xs=(ex.boats||[]).slice().sort((a,b)=>{
+  const xs=exhibitionBoats(d).slice().sort((a,b)=>{
     const ac=missing(a.course)?99:Number(a.course),bc=missing(b.course)?99:Number(b.course);
     return ac-bc||Number(a.lane)-Number(b.lane);
   });
@@ -217,7 +218,7 @@ function renderStartExhibition(d){
   }
   $('#start-status').textContent=valid?'取得済み':'直前待ち';
   const note=[];
-  if(ex.updated_at)note.push(`更新 ${updated(ex.updated_at)}`);
+  if(ex.updated_at||d?.fetched_at)note.push(`更新 ${updated(ex.updated_at||d.fetched_at)}`);
   note.push('Fはスタートラインを越えた位置と赤文字で表示します。スタート展示と本番の進入・STは異なる場合があります。');
   $('#start-note').textContent=note.join('　');
 }
