@@ -13,8 +13,8 @@ try{
   if(m==='pro')document.documentElement.classList.add('pro-mode');
 }catch{}
 </script>
-<link rel="stylesheet" href="/styles.css?v=20260918-bright2" />
-<link rel="stylesheet" href="/ai-picks.css?v=20260918-ai3" />
+<link rel="stylesheet" href="/styles.css?v=20260919-boxui1" />
+<link rel="stylesheet" href="/ai-picks.css?v=20260919-boxai1" />
 <style>
 :root{
   --navy:#082f59;
@@ -1625,7 +1625,7 @@ html.pro-mode .current-mark{background:#d8b75c!important;color:#111214!important
     <h2 id="customer-guide-title">この3つだけ覚えればOK</h2>
     <div class="customer-guide-items">
       <div class="guide-item buy"><strong>無料公開</strong><span>ONE BOATが購入対象にした無料予想</span></div>
-      <div class="guide-item wait"><strong>判断待ち</strong><span>まだ買わない。締切5分前までに最終判断</span></div>
+      <div class="guide-item wait"><strong>これから判定</strong><span>まだ買わない。購入するか見送るかを直前に確定</span></div>
       <div class="guide-item skip"><strong>見送り</strong><span>ONE BOATはこのレースを買いません</span></div>
     </div>
     <button id="customer-guide-close" type="button">わかった</button>
@@ -1636,8 +1636,8 @@ html.pro-mode .current-mark{background:#d8b75c!important;color:#111214!important
 <section id="race-sheet" class="bottom-sheet race-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="race-sheet-title"><div class="sheet-handle"></div><div class="sheet-head"><button id="race-back" class="sheet-back" type="button">‹</button><div><small>RACE DETAIL</small><h2 id="race-sheet-title">レース詳細</h2></div><span id="race-sheet-state" class="sheet-state">--</span></div><div id="race-detail" class="race-detail"></div></section>
 <nav class="bottom-app-nav" aria-label="下部ナビゲーション"><a href="/"><b>⌂</b><span>ホーム</span></a><a href="/today.html" class="active"><b>▦</b><span>本日の予想</span></a><a href="#results"><b><svg class="bottom-nav-chart-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V14M9 19V10M14 19V12M19 19V6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 11.5 9 8.5 13 10.2 20 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></b><span>実績</span></a><a href="/club.html"><b>◎</b><span>CLUB</span></a></nav>
 <footer><strong>ONE BOAT</strong><span>BOAT RACE ANALYTICS</span><small>© ONE BOAT</small></footer>
-<script src="/app.js?v=20260919-cutoff5-final2" defer></script>
-<script src="/ai-picks.js?v=20260918-ai3" defer></script>
+<script src="/app.js?v=20260919-boxai1" defer></script>
+<script src="/ai-picks.js?v=20260919-boxai1" defer></script>
 <script>const mb=document.getElementById('topMenuButton'),mp=document.getElementById('topMenuPanel');function closeTopMenu(){mp.classList.remove('open');mb.setAttribute('aria-expanded','false')}mb.addEventListener('click',e=>{e.stopPropagation();const open=mp.classList.toggle('open');mb.setAttribute('aria-expanded',String(open))});document.addEventListener('click',e=>{if(!mp.contains(e.target)&&!mb.contains(e.target))closeTopMenu()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTopMenu()});</script>
 </body>
 </html>
