@@ -121,6 +121,47 @@ function deadlineLeftText(v){
   if(left<=0)return'締切';
   return left<60?`あと${left}分`:'';
 }
+let MEMBER_STATUS_SESSION=null,MEMBER_STATUS_LOADING=null;
+async function memberStatusSession({force=false}={}){
+  if(!force&&MEMBER_STATUS_SESSION)return MEMBER_STATUS_SESSION;
+  if(MEMBER_STATUS_LOADING)return MEMBER_STATUS_LOADING;
+  MEMBER_STATUS_LOADING=(async()=>{
+    try{
+      const r=await fetch('/api/member/session',{credentials:'same-origin',cache:'no-store',headers:{accept:'application/json'}});
+      if(!r.ok)return null;
+      const d=await r.json().catch(()=>null);
+      if(!d?.ok)return null;
+      MEMBER_STATUS_SESSION=d;
+      return d;
+    }catch{return null}
+    finally{MEMBER_STATUS_LOADING=null}
+  })();
+  return MEMBER_STATUS_LOADING;
+}
+function memberStatusModel(sess){
+  if(!sess)return{key:'loading',label:'確認中',text:'会員状況を確認中',sub:'最新の会員状態を確認しています'};
+  if(sess.logged_in!==true)return{key:'guest',label:'未登録',text:'あなたは「未登録」です',sub:'無料登録すると会員機能を利用できます'};
+  const plan=String(sess.plan||'').toLowerCase();
+  if(plan==='day_pass')return{key:'day',label:'ONE DAY',text:'あなたは「ONE DAY」です',sub:'ONE DAYアクセスが有効です'};
+  if(plan==='club_monthly'||plan==='staff')return{key:'premium',label:'PREMIUM',text:'あなたは「PREMIUM」です',sub:'PREMIUMアクセスが有効です'};
+  if(plan==='free')return{key:'free',label:'無料会員',text:'あなたは「無料会員」です',sub:'無料公開レースを利用できます'};
+  return{key:'loading',label:'確認中',text:'会員状況を確認中',sub:'会員情報を再確認しています'};
+}
+function renderMemberStatus(sess){
+  const root=$('#member-status-strip'),text=$('#member-status-text'),sub=$('#member-status-sub'),badge=$('#member-status-badge');
+  if(!root||!text||!sub||!badge)return;
+  const m=memberStatusModel(sess);
+  root.className=`member-status-strip status-${m.key}`;
+  text.textContent=m.text;
+  sub.textContent=m.sub;
+  badge.textContent=m.label;
+}
+async function syncMemberStatus({force=false}={}){
+  if(force)MEMBER_STATUS_SESSION=null;
+  const sess=await memberStatusSession({force});
+  renderMemberStatus(sess);
+  return sess;
+}
 function publicRecord(r){const d=String(r?.decision||r?.prediction?.decision||'').toUpperCase(),stake=Number(r?.stake_total_yen??r?.prediction?.stake_total_yen??0);return d==='ENTER'&&stake>0}
 async function paidTodayEnter(date){
   try{
@@ -837,10 +878,12 @@ document.addEventListener('visibilitychange',()=>{
     return;
   }
   resetRefreshBurst();
+  syncMemberStatus({force:true});
   load().then(scheduleLiveRefresh);
   if(CURRENT_VENUE&&!$('#sheet-backdrop')?.hidden)refreshOpenVenue().then(scheduleVenueSheetRefresh);
 });
 setupPageMode();
 setupCustomerGuide();
 setupLazyStats();
+syncMemberStatus();
 load().then(scheduleLiveRefresh);
