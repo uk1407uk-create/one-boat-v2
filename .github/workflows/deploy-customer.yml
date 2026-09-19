@@ -107,6 +107,12 @@ jobs:
           grep -q "const API='/api/member/analysis'" customer-public/analysis.js
           ! grep -q 'one-boat-race-analysis-api' customer-public/analysis.js
           grep -q 'private-access-teaser' customer-public/app.js
+          grep -q 'deadlineUrgency' customer-public/app.js
+          grep -q 'このレースの結論' customer-public/analysis.js
+          grep -q '公式買い目を見る' customer-public/analysis.js
+          grep -q "return'押さえ'" customer-public/analysis.js
+          grep -q 'pro-picks-accordion' customer-public/analysis.css
+          grep -q 'さらに詳しく見る' customer-public/analysis.html
           grep -q 'winning_odds' customer-public/app.js
           grep -q 'site_only_keys' worker_customer.js
           ! grep -q 'one-boat-public-visibility' customer-public/app.js
