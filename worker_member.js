@@ -98,7 +98,7 @@ function memberPredictionRecord(raw,accessScope){
     race_date:raw.race_date||null,
     venue_code:Number(raw.venue_code||0)||null,
     race_no:Number(raw.race_no||0)||null,
-    deadline:raw.deadline||raw.close_time||null,
+    deadline:raw.deadline||raw.close_time||p?.input_snapshot?.deadline_at||raw?.input_snapshot?.deadline_at||null,
     decision,
     stake_total_yen:stake,
     bets,
