@@ -179,63 +179,32 @@ function originalExhibitionOf(rec,code){
 }
 async function buildAnalysis(code,rno){code=num(code);rno=num(rno);if(code<1||code>24)throw new Error('bad_venue');if(rno<1||rno>12)throw new Error('bad_race');const date=jstDate();const [off,rows]=await Promise.all([official(date),sourceHistory({date,venue:code,limit:100}).catch(()=>[])]);const race=officialRace(off,code,rno);if(!race)return{ok:false,error:'race_not_scheduled',date,venue_code:code,venue_name:VENUES[code-1],race_no:rno};const rec=rows.find(x=>num(x.race_no)===rno)||null,engines=engineLaneInputs(rec),engineMap=new Map(engines.map(x=>[num(x.lane),x])),racers=[];for(let lane=1;lane<=6;lane++)racers.push(buildRacer(race,lane,engineMap.get(lane)||null));const closeMin=hmMin(race.closed_at||race.close_time),closed=closeMin!==null&&closeMin<nowMin()-1,state=recordState(rec,closed),engine=safeEngine(rec),surface=surfaceOf(race),exhibition_detail=exhibitionDetailOf(race,rec,racers),original_exhibition=originalExhibitionOf(rec,code);return{ok:true,date,venue_code:code,venue_name:VENUES[code-1],race_no:rno,title:race.title||null,subtitle:race.subtitle||null,deadline:race.closed_at||race.close_time||null,state,official_prediction_available:enter(rec),fetched_at:new Date().toISOString(),racers,surface,engine,exhibition_detail,original_exhibition,odds:{available:false,trifecta:[],updated_at:null,status:'not_connected'},availability:{course_stats:engines.length?'engine_snapshot':'not_connected',original_exhibition:code===3?'not_provided':original_exhibition?.available?'engine_snapshot':'not_connected',lap_time:original_exhibition?.available?'engine_snapshot':'not_connected',half_lap_time:original_exhibition?.available?'engine_snapshot':'not_connected',turn_time:original_exhibition?.available?'engine_snapshot':'not_connected',odds:'not_connected',tide:'not_connected'}}}
 function metric(rows){let races=0,hits=0,stakeY=0,payoutY=0;for(const r of rows){if(!enter(r)||!r.settlement)continue;races++;const st=stake(r),pay=num(r.settlement?.payout_yen);stakeY+=st;payoutY+=pay;if(r.settlement?.hit===true)hits++}const profit=payoutY-stakeY;return{races,hits,hit_rate:races?hits/races*100:0,stake_yen:stakeY,payout_yen:payoutY,profit_yen:profit,roi:stakeY?payoutY/stakeY*100:0}}
-function aiBandKey(odds){const o=Number(odds);if(!Number.isFinite(o)||o<1)return null;if(o<=20)return'stable';if(o<80)return'mid';return'high'}
-function normalizeTicket(v){return String(v||'').replace(/[‐‑‒–—―ー−]/g,'-').replace(/\s+/g,'').trim()}
+function normalizeTicket(v){return String(v||'').replace(/[‐-‒–—―ー−]/g,'-').replace(/\s+/g,'').trim()}
 function aiMetrics(rows){
   const out={
-    stable:{name:'安定型AI',odds_min:1,odds_max:20,races:0,hits:0,stake_yen:0,payout_yen:0,hit_odds_total:0},
-    mid:{name:'中配当型AI',odds_min:20.1,odds_max:79.9,races:0,hits:0,stake_yen:0,payout_yen:0,hit_odds_total:0},
-    high:{name:'高配当型AI',odds_min:80,odds_max:null,races:0,hits:0,stake_yen:0,payout_yen:0,hit_odds_total:0},
-    box:{name:'BOX型AI',range_label:'3艇BOX×2組・12点',strategy:true,races:0,hits:0,stake_yen:0,payout_yen:0,hit_odds_total:0}
+    stable:{name:'安定型AI',range_label:'最大5点',races:0,hits:0,stake_yen:0,payout_yen:0,hit_odds_total:0},
+    mid:{name:'中配当型AI',range_label:'最大8点',races:0,hits:0,stake_yen:0,payout_yen:0,hit_odds_total:0},
+    high:{name:'高配当型AI',range_label:'最大15点',races:0,hits:0,stake_yen:0,payout_yen:0,hit_odds_total:0},
+    box:{name:'BOX型AI',range_label:'最大15点',races:0,hits:0,stake_yen:0,payout_yen:0,hit_odds_total:0}
   };
-  for(const r of rows){
-    if(!enter(r)||!r?.settlement)continue;
-    const p=r?.prediction||{};
-    const bets=Array.isArray(r?.bets)&&r.bets.length?r.bets:Array.isArray(p?.production_picks)?p.production_picks:[];
-    const win=normalizeTicket(r?.settlement?.result?.trifecta||r?.settlement?.trifecta||'');
-    const winningBet=win?bets.find(b=>normalizeTicket(b?.ticket||b?.combination||b?.bet)===win):null;
-    const winningOdds=Number(winningBet?.odds);
-    const strategyMode=String(p?.allocation_meta?.strategy_mode||p?.odds_class||r?.strategy_mode||'');
-    const strategyMethod=String(p?.allocation_meta?.method||'');
-    if(strategyMode==='BOX'||strategyMethod==='watch-box-e-v1'){
-      const m=out.box;
-      m.races++;
-      m.stake_yen+=num(r?.stake_total_yen||p?.stake_total_yen)||bets.reduce((s,b)=>s+num(b?.stake_yen??b?.amount??b?.stake),0);
-      if(r?.settlement?.hit===true){
-        m.hits++;
-        m.payout_yen+=num(r?.settlement?.payout_yen);
-        if(Number.isFinite(winningOdds)&&winningOdds>0)m.hit_odds_total+=winningOdds
-      }
-      continue
-    }
-    const grouped={stable:[],mid:[],high:[]};
-    for(const b of bets){
-      const key=aiBandKey(b?.odds);
-      if(!key)continue;
-      grouped[key].push(b)
-    }
-    for(const key of ['stable','mid','high']){
-      const xs=grouped[key];
-      if(!xs.length)continue;
-      const m=out[key];
-      m.races++;
-      m.stake_yen+=xs.reduce((s,b)=>s+num(b?.stake_yen??b?.amount??b?.stake),0);
-      const hit=!!win&&xs.some(b=>normalizeTicket(b?.ticket||b?.combination||b?.bet)===win);
-      if(hit){
-        m.hits++;
-        m.payout_yen+=num(r?.settlement?.payout_yen);
-        if(Number.isFinite(winningOdds)&&winningOdds>0)m.hit_odds_total+=winningOdds
+  const mapKey=k=>k==='balanced'?'mid':k;
+  for(const r of rows||[]){
+    const xs=Array.isArray(r?.persona_settlements)?r.persona_settlements:[];
+    const pp=rawPersona(r);
+    for(const x of xs){
+      if(String(x?.version||'')!=='persona-v1')continue;
+      const key=mapKey(String(x?.persona_key||''));if(!out[key])continue;
+      const m=out[key];m.races++;m.stake_yen+=num(x?.stake_yen);m.payout_yen+=num(x?.payout_yen);if(x?.hit===true)m.hits++;
+      if(x?.hit===true){
+        const win=normalizeTicket(x?.result?.trifecta||'');
+        const src=key==='mid'?pp?.balanced:pp?.[key],picks=Array.isArray(src?.picks)?src.picks:[];
+        const wb=picks.find(b=>normalizeTicket(b?.ticket||b?.combination)===win),o=Number(wb?.odds);
+        if(Number.isFinite(o)&&o>0)m.hit_odds_total+=o
       }
     }
   }
   for(const key of ['stable','mid','high','box']){
-    const m=out[key];
-    m.hit_rate=m.races?m.hits/m.races*100:0;
-    m.roi=m.stake_yen?m.payout_yen/m.stake_yen*100:0;
-    m.profit_yen=m.payout_yen-m.stake_yen;
-    m.avg_hit_odds=m.hits&&m.hit_odds_total?m.hit_odds_total/m.hits:null;
-    m.sample_status=m.races<20?'参考値':'集計値';
-    delete m.hit_odds_total
+    const m=out[key];m.hit_rate=m.races?m.hits/m.races*100:0;m.roi=m.stake_yen?m.payout_yen/m.stake_yen*100:0;m.profit_yen=m.payout_yen-m.stake_yen;m.avg_hit_odds=m.hits&&m.hit_odds_total?m.hit_odds_total/m.hits:null;m.sample_status=m.races<20?'新方式・参考値':'新方式・集計値';delete m.hit_odds_total
   }
   return out
 }
