@@ -105,7 +105,7 @@
   }
   stateLabel=function(s){return {PUBLIC:'予想公開',WATCH:'様子見',SKIP:'見送り',SETTLED:'結果確定',FINISHED:'本日終了',CLOSED:'終了',NOEVENT:'本日非開催',PENDING:'直前分析中'}[s]||'直前分析中'};
   raceDetail=function(r){
-    var rec=r.record||{},p=rec.prediction||{},sett=rec.settlement||null,bets=betsOf(rec),portfolio=rec.persona_portfolio||p.persona_portfolio||null;
+    var rec=r.record||{},p=rec.prediction||{},sett=rec.settlement||null,bets=betsOf(rec),portfolio=rec.persona_portfolio||p.persona_portfolio||null,hasPrediction=portfolio&&portfolio.applied===true?portfolio.has_any_pick===true:publicRecord(rec);
     var stake=Number(rec.stake_total_yen!=null?rec.stake_total_yen:(p.stake_total_yen||0));
     var strategyMode=String(p.strategy_mode||p.odds_class||(p.strategy_version==='watch-box-e-v1'?'BOX':''));
     var metricScope=(rec&&['paid','staff'].includes(String(rec.access_scope||'')))||r.member_formal===true?'club':'free';
@@ -113,7 +113,7 @@
     var activeTypes=portfolio&&portfolio.applied===true?TYPES.filter(function(t){var x=personaPart(portfolio,t);return x&&x.status==='BUY'&&Array.isArray(x.picks)&&x.picks.length}).length:0;
     var html='<nav class="race-mode-switch" aria-label="表示モード"><span class="race-mode active">かんたん</span><a class="race-mode" data-view-mode="pro" href="'+proHref+'">PRO</a></nav>';
     html+='<section class="easy-decision '+stateClass(r.state)+'"><small>ONE BOAT判定</small><strong>'+state+'</strong><p>'+esc(portfolio&&portfolio.applied===true?(portfolio.has_any_pick?'4タイプのうち購入条件を満たした予想があります。':'4タイプすべて見送りです。'):(reasonShort||(publicRecord(rec)?'正式予想が確定しました。':'必要な正式データを確認しています。')))+'</p></section>';
-    if(publicRecord(rec)){
+    if(hasPrediction){
       var headLabel=portfolio&&portfolio.applied===true?'4タイプ別予想':'正式買い目',headCount=portfolio&&portfolio.applied===true?(activeTypes+'/4タイプ'):(bets.length+'点');
       html+='<section class="official-ai-section"><div class="detail-label">AI予想｜'+headLabel+'</div><div class="official-order-head"><strong>買い目</strong><span>'+headCount+'</span></div><div class="ai-pick-stack">'+cards(bets,r.deadline,strategyMode,metricScope,portfolio)+'</div><p class="odds-range-note">'+(portfolio&&portfolio.applied===true?'※4タイプは同じONE BOAT予測データを、それぞれ異なる購入方針で選別しています。各タイプ1レース最大5,000円で、条件に応じて使わない資金もあります。':'※旧方式の予想表示です。')+'</p></section>';
       html+='<section class="purchase-glance"><div><span>'+(portfolio&&portfolio.applied===true?'購入タイプ':'正式買い目')+'</span><strong>'+(portfolio&&portfolio.applied===true?activeTypes+' / 4':bets.length+'点')+'</strong></div><div class="deadline-cell"><span>締切まで</span><strong>'+left+'</strong><small>締切 '+timeText(r.deadline)+'</small></div></section>';
