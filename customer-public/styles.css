@@ -48,3 +48,7 @@
 .club-portfolio-focus-picks b{font-size:13px;color:#0a5487}
 .club-portfolio-focus-picks em{font-size:8.5px;font-style:normal;color:#0a7db5;font-weight:900}
 .club-portfolio-caution{display:block;margin-top:9px;font-size:8px;line-height:1.5;color:#8a9ba8}
+
+.portfolio-shadow-result{margin-top:10px;padding:10px;border-radius:12px;background:#0b365f;color:#fff;display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center}
+.portfolio-shadow-result>div small{display:block;font-size:7px;font-weight:900;letter-spacing:.14em;color:#70d8ff}.portfolio-shadow-result>div strong{display:block;margin-top:2px;font-size:11px}
+.portfolio-shadow-result>span{font-size:8.5px;color:#d7e8f2}.portfolio-shadow-result>b{grid-column:2;grid-row:1/3;font-size:18px;color:#fff}
