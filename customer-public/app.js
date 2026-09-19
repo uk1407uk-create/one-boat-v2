@@ -17,7 +17,7 @@ const $=s=>document.querySelector(s);
 const yen=n=>`${Math.round(Number(n||0)).toLocaleString('ja-JP')}円`;
 const pct=n=>Number.isFinite(Number(n))?`${Number(n).toFixed(1)}%`:'--';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let STATS=null,STATS_FETCHED_AT=0,CURRENT_VENUE=null,AUTO_OPENED=false,LOAD_TIMER=null,LAST_OVERVIEW=null,REFRESH_BURST_LEFT=2,STATS_LOADING=null,SITE_ONLY_KEYS=new Set(),ACTIVE_RACE_NO=null,VENUE_SHEET_TIMER=null,VENUE_SHEET_LOADING=false;
+let STATS=null,STATS_FETCHED_AT=0,CURRENT_VENUE=null,AUTO_OPENED=false,LOAD_TIMER=null,LAST_OVERVIEW=null,REFRESH_BURST_LEFT=2,STATS_LOADING=null,SITE_ONLY_KEYS=new Set(),ACTIVE_RACE_NO=null,VENUE_SHEET_TIMER=null,VENUE_SHEET_LOADING=false,CLUB_LIST_OPEN=false;
 function trafficAttribution(){
   try{
     const q=new URLSearchParams(location.search);
@@ -478,11 +478,25 @@ async function load(){
   const usingClub=Array.isArray(memberAll);
   const sourceItems=usingClub?memberAll:all;
   const items=pro?sourceItems:all.filter(x=>!x.settlement).sort((a,b)=>deadlineMinute(a.deadline||a.close_time)-deadlineMinute(b.deadline||b.close_time));
+  const clubToggle=$('#club-enter-toggle'),todayList=$('#today-list');
   if(usingClub){
     const title=$('#public-title-text');if(title)title.textContent='CLUB 本日の正式ENTER';
     const lead=document.querySelector('.public-lead');if(lead)lead.textContent='無料公開枠外を含む正式ENTER全件';
     $('#public-count').textContent=`正式ENTER ${items.length}R`;
+    const liveCount=items.filter(x=>!x?.settlement).length,settledCount=items.filter(x=>x?.settlement).length;
+    if(clubToggle){
+      clubToggle.hidden=false;
+      clubToggle.dataset.total=String(items.length);
+      clubToggle.dataset.live=String(liveCount);
+      clubToggle.dataset.settled=String(settledCount);
+      clubToggle.setAttribute('aria-expanded',String(CLUB_LIST_OPEN));
+      clubToggle.innerHTML=`<span><small>CLUB ENTER LIST</small><strong>${CLUB_LIST_OPEN?'一覧を閉じる':'正式ENTER一覧を見る'} <b>${items.length}R</b></strong><em>購入可能 ${liveCount}R / 結果確定 ${settledCount}R</em></span><i>${CLUB_LIST_OPEN?'▲':'▼'}</i>`;
+    }
+    if(todayList)todayList.hidden=!CLUB_LIST_OPEN;
   }else{
+    CLUB_LIST_OPEN=false;
+    if(clubToggle){clubToggle.hidden=true;clubToggle.setAttribute('aria-expanded','false')}
+    if(todayList)todayList.hidden=false;
     $('#public-count').textContent=o.public_count===null||o.public_count===undefined?'更新中':pro?`無料 ${Number(o.public_count)}/${Number(o.free_limit||30)}R`:`公開中 ${items.length}R`;
   }
   $('#today-list').innerHTML=items.length?items.map(publicRaceCard).join(''):(usingClub?'<div class="race-card"><div class="race-main"><strong>本日の正式ENTERはまだありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>':pro?'<div class="race-card"><div class="race-main"><strong>現在、公開対象なし</strong><small>対象レースが確定すると自動表示します</small></div></div>':'<div class="race-card"><div class="race-main"><strong>現在、公開中の予想はありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>');
@@ -535,6 +549,14 @@ function setupLazyStats(){
 document.querySelectorAll('.period').forEach(b=>b.addEventListener('click',async()=>{document.querySelectorAll('.period').forEach(x=>x.classList.remove('active'));b.classList.add('active');if(!STATS)await loadStats();renderMetrics(b.dataset.period);renderBandPerformance(b.dataset.period)}));
 $('#venue-close').addEventListener('click',closeAll);$('#race-back').addEventListener('click',showVenueSheet);$('#sheet-backdrop').addEventListener('click',closeAll);document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAll()});
 if(NOTE_URL){const b=$('#note-btn');if(b){b.classList.remove('disabled');b.textContent='ONE BOAT CLUBへ';b.addEventListener('click',()=>location.href=NOTE_URL)}}
+const clubEnterToggle=$('#club-enter-toggle');
+if(clubEnterToggle)clubEnterToggle.addEventListener('click',()=>{
+  CLUB_LIST_OPEN=!CLUB_LIST_OPEN;
+  const list=$('#today-list'),total=Number(clubEnterToggle.dataset.total||0),live=Number(clubEnterToggle.dataset.live||0),settled=Number(clubEnterToggle.dataset.settled||0);
+  if(list)list.hidden=!CLUB_LIST_OPEN;
+  clubEnterToggle.setAttribute('aria-expanded',String(CLUB_LIST_OPEN));
+  clubEnterToggle.innerHTML=`<span><small>CLUB ENTER LIST</small><strong>${CLUB_LIST_OPEN?'一覧を閉じる':'正式ENTER一覧を見る'} <b>${total}R</b></strong><em>購入可能 ${live}R / 結果確定 ${settled}R</em></span><i>${CLUB_LIST_OPEN?'▲':'▼'}</i>`;
+});
 const venueToggle=$('#venue-toggle');
 if(venueToggle)venueToggle.addEventListener('click',()=>{
   if(savedViewMode()==='pro')return;
