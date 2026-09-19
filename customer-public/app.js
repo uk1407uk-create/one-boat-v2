@@ -17,7 +17,7 @@ const $=s=>document.querySelector(s);
 const yen=n=>`${Math.round(Number(n||0)).toLocaleString('ja-JP')}円`;
 const pct=n=>Number.isFinite(Number(n))?`${Number(n).toFixed(1)}%`:'--';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let STATS=null,STATS_FETCHED_AT=0,CURRENT_VENUE=null,AUTO_OPENED=false,LOAD_TIMER=null,LAST_OVERVIEW=null,REFRESH_BURST_LEFT=2,STATS_LOADING=null,SITE_ONLY_KEYS=new Set();
+let STATS=null,STATS_FETCHED_AT=0,CURRENT_VENUE=null,AUTO_OPENED=false,LOAD_TIMER=null,LAST_OVERVIEW=null,REFRESH_BURST_LEFT=2,STATS_LOADING=null,SITE_ONLY_KEYS=new Set(),ACTIVE_RACE_NO=null,VENUE_SHEET_TIMER=null,VENUE_SHEET_LOADING=false;
 function trafficAttribution(){
   try{
     const q=new URLSearchParams(location.search);
@@ -221,7 +221,8 @@ function renderBandPerformance(key='today'){
 }
 
 function openBackdrop(){const b=$('#sheet-backdrop');b.hidden=false;document.body.classList.add('sheet-open')}
-function closeAll(){$('#venue-sheet').hidden=true;$('#race-sheet').hidden=true;$('#sheet-backdrop').hidden=true;document.body.classList.remove('sheet-open');CURRENT_VENUE=null}
+function stopVenueSheetRefresh(){if(VENUE_SHEET_TIMER){clearTimeout(VENUE_SHEET_TIMER);VENUE_SHEET_TIMER=null}}
+function closeAll(){stopVenueSheetRefresh();$('#venue-sheet').hidden=true;$('#race-sheet').hidden=true;$('#sheet-backdrop').hidden=true;document.body.classList.remove('sheet-open');CURRENT_VENUE=null;ACTIVE_RACE_NO=null}
 function showVenueSheet(){openBackdrop();$('#race-sheet').hidden=true;$('#venue-sheet').hidden=false}
 function showRaceSheet(){openBackdrop();$('#venue-sheet').hidden=true;$('#race-sheet').hidden=false}
 
@@ -233,7 +234,63 @@ function currentRaceNo(races){
   const fallback=xs.find(r=>!['CLOSED','SETTLED','NOEVENT'].includes(r.state));
   return fallback?Number(fallback.race_no):null;
 }
-async function openVenue(code){showVenueSheet();$('#venue-sheet-title').textContent='読み込み中';$('#venue-sheet-state').textContent='--';$('#venue-sheet-meta').innerHTML='';$('#venue-races').innerHTML='<div class="sheet-loading">1R〜12Rを確認しています</div>';try{const r=await fetch(`/api/public/venue?code=${encodeURIComponent(code)}`,{cache:'no-store'});if(!r.ok)throw Error('venue');const v=await r.json();CURRENT_VENUE=v;$('#venue-sheet-title').textContent=v.name||VENUES[Number(code)-1]||'場詳細';const current=currentRaceNo(v.races||[]),currentRace=(v.races||[]).find(x=>Number(x.race_no)===Number(current)),displayState=currentRace?effectiveRaceState(currentRace):v.state;$('#venue-sheet-state').className=`sheet-state ${stateClass(displayState)}`;$('#venue-sheet-state').textContent=stateLabel(displayState);$('#venue-sheet-meta').innerHTML=`<div><span>開催状況</span><strong>${v.state==='NOEVENT'?'本日非開催':v.state==='FINISHED'?'本日終了':'開催中'}</strong></div><div><span>公開予想</span><strong>${v.public_count===null||v.public_count===undefined?'—':Number(v.public_count)+'R'}</strong></div><div><span>種別</span><strong>${categoryBadges(v)||'一般戦'}</strong></div>`;$('#venue-races').innerHTML=(v.races||[]).map(x=>raceRow(x,current)).join('')||'<div class="sheet-loading">本日は開催がありません</div>';document.querySelectorAll('.race-row').forEach(b=>b.addEventListener('click',()=>openRace(Number(b.dataset.rno))))}catch(e){$('#venue-sheet-title').textContent=VENUES[Number(code)-1]||'場詳細';$('#venue-sheet-state').textContent='更新待ち';$('#venue-races').innerHTML='<div class="sheet-loading">データを再取得しています</div>'}}
+function renderVenueSheet(v,{silent=false}={}){
+  CURRENT_VENUE=v;
+  if(!silent){
+    $('#venue-sheet-title').textContent=v.name||VENUES[Number(v.code)-1]||'場詳細';
+  }else if($('#venue-sheet-title')){
+    $('#venue-sheet-title').textContent=v.name||VENUES[Number(v.code)-1]||'場詳細';
+  }
+  const current=currentRaceNo(v.races||[]),currentRace=(v.races||[]).find(x=>Number(x.race_no)===Number(current)),displayState=currentRace?effectiveRaceState(currentRace):v.state;
+  $('#venue-sheet-state').className=`sheet-state ${stateClass(displayState)}`;
+  $('#venue-sheet-state').textContent=stateLabel(displayState);
+  $('#venue-sheet-meta').innerHTML=`<div><span>開催状況</span><strong>${v.state==='NOEVENT'?'本日非開催':v.state==='FINISHED'?'本日終了':'開催中'}</strong></div><div><span>公開予想</span><strong>${v.public_count===null||v.public_count===undefined?'—':Number(v.public_count)+'R'}</strong></div><div><span>種別</span><strong>${categoryBadges(v)||'一般戦'}</strong></div>`;
+  $('#venue-races').innerHTML=(v.races||[]).map(x=>raceRow(x,current)).join('')||'<div class="sheet-loading">本日は開催がありません</div>';
+  document.querySelectorAll('.race-row').forEach(b=>b.addEventListener('click',()=>openRace(Number(b.dataset.rno))));
+  if(ACTIVE_RACE_NO!==null&&!$('#race-sheet').hidden){
+    renderOpenRace(ACTIVE_RACE_NO);
+  }
+}
+function liveVenueRefreshDelay(){
+  if(!CURRENT_VENUE)return 30000;
+  const r=(CURRENT_VENUE.races||[]).find(x=>Number(x.race_no)===Number(ACTIVE_RACE_NO))||(CURRENT_VENUE.races||[]).find(x=>Number(x.race_no)===Number(currentRaceNo(CURRENT_VENUE.races||[])));
+  const left=deadlineUrgency(r?.deadline).left;
+  if(Number.isFinite(left)&&left>=0&&left<=20)return 10000;
+  return 30000;
+}
+function scheduleVenueSheetRefresh(){
+  stopVenueSheetRefresh();
+  if(document.hidden||!CURRENT_VENUE||$('#sheet-backdrop')?.hidden)return;
+  VENUE_SHEET_TIMER=setTimeout(async()=>{
+    await refreshOpenVenue();
+    scheduleVenueSheetRefresh();
+  },liveVenueRefreshDelay());
+}
+async function refreshOpenVenue(){
+  if(VENUE_SHEET_LOADING||!CURRENT_VENUE)return CURRENT_VENUE;
+  VENUE_SHEET_LOADING=true;
+  try{
+    const code=CURRENT_VENUE.code;
+    const r=await fetch(`/api/public/venue?code=${encodeURIComponent(code)}`,{cache:'no-store'});
+    if(!r.ok)return CURRENT_VENUE;
+    const v=await r.json();
+    renderVenueSheet(v,{silent:true});
+    return v;
+  }catch{return CURRENT_VENUE}
+  finally{VENUE_SHEET_LOADING=false}
+}
+function renderOpenRace(rno){
+  const r=(CURRENT_VENUE?.races||[]).find(x=>Number(x.race_no)===Number(rno));
+  if(!r)return;
+  const state=effectiveRaceState(r);
+  $('#race-sheet-title').innerHTML=`<span class="race-title-main">${esc(CURRENT_VENUE.name)} ${rno}R</span><span class="race-title-category">${categoryBadges(r)}</span>`;
+  $('#race-sheet-state').className=`sheet-state ${stateClass(state)}`;
+  $('#race-sheet-state').textContent=stateLabel(state);
+  $('#race-detail').innerHTML=raceDetail(r);
+  document.querySelectorAll('[data-view-mode="pro"]').forEach(a=>a.addEventListener('click',()=>saveViewMode('pro')));
+  document.querySelector('[data-next-public]')?.addEventListener('click',()=>{closeAll();location.hash='today';document.getElementById('today')?.scrollIntoView({behavior:'smooth',block:'start'})});
+}
+async function openVenue(code){stopVenueSheetRefresh();ACTIVE_RACE_NO=null;showVenueSheet();$('#venue-sheet-title').textContent='読み込み中';$('#venue-sheet-state').textContent='--';$('#venue-sheet-meta').innerHTML='';$('#venue-races').innerHTML='<div class="sheet-loading">1R〜12Rを確認しています</div>';try{const r=await fetch(`/api/public/venue?code=${encodeURIComponent(code)}`,{cache:'no-store'});if(!r.ok)throw Error('venue');const v=await r.json();renderVenueSheet(v);scheduleVenueSheetRefresh()}catch(e){$('#venue-sheet-title').textContent=VENUES[Number(code)-1]||'場詳細';$('#venue-sheet-state').textContent='更新待ち';$('#venue-races').innerHTML='<div class="sheet-loading">データを再取得しています</div>'}}
 function raceRow(r,currentNo=null){const state=effectiveRaceState(r),cls=stateClass(state),isCurrent=Number(currentNo)===Number(r.race_no),deadline=r.deadline?timeText(r.deadline):'--:--',urg=deadlineUrgency(r.deadline),right=state==='NOEVENT'?'—':deadline,hasRef=referencePicksOf(r.record||{}).length>0,skipReason=r.record?.prediction?.skip_reason||'',reasonTag=state==='SKIP'?skipReasonTag(skipReason):'';return `<button class="race-row ${cls}${isCurrent?' current-race':''}" type="button" data-rno="${Number(r.race_no)}"><span class="race-no">${Number(r.race_no)}R</span><span class="race-row-main"><strong>${stateLabel(state)}${categoryBadges(r,{compact:true})}${isCurrent?'<em class="current-mark">現在</em>':''}${reasonTag?`<em class="skip-reason-tag">${esc(reasonTag)}</em>`:''}</strong><small>${state==='PUBLIC'?`投資 ${yen(r.record?.stake_total_yen||r.record?.prediction?.stake_total_yen)}`:state==='SETTLED'?(r.record?.settlement?.hit?'的中結果あり':'結果確定'):state==='PRIVATE'?'本日の無料公開対象外':hasRef?`参考予想あり｜${r.note||'購入対象外'}`:r.note||''}</small></span><span class="race-time ${urg.cls}">${right}<b>›</b></span></button>`}
 const VIEW_MODE_KEY='one_boat_view_mode';
 function requestedViewMode(){
@@ -326,13 +383,10 @@ function openRace(rno){
     location.href=proRaceUrl(r);
     return;
   }
+  ACTIVE_RACE_NO=Number(rno);
   showRaceSheet();
-  $('#race-sheet-title').innerHTML=`<span class="race-title-main">${esc(CURRENT_VENUE.name)} ${rno}R</span><span class="race-title-category">${categoryBadges(r)}</span>`;
-  $('#race-sheet-state').className=`sheet-state ${stateClass(r.state)}`;
-  $('#race-sheet-state').textContent=stateLabel(r.state);
-  $('#race-detail').innerHTML=raceDetail(r);
-  document.querySelectorAll('[data-view-mode="pro"]').forEach(a=>a.addEventListener('click',()=>saveViewMode('pro')));
-  document.querySelector('[data-next-public]')?.addEventListener('click',()=>{closeAll();location.hash='today';document.getElementById('today')?.scrollIntoView({behavior:'smooth',block:'start'})});
+  renderOpenRace(ACTIVE_RACE_NO);
+  scheduleVenueSheetRefresh();
 }
 function raceDetail(r){
   const rec=r.record||{},p=rec.prediction||{},sett=rec.settlement||null,bets=betsOf(rec),referencePicks=referencePicksOf(rec);
@@ -356,7 +410,7 @@ function raceDetail(r){
     <div><span>投資</span><strong>${effectiveState==='PRIVATE'?'非公開':publicRecord(rec)?yen(stake):'購入なし'}</strong></div>
   </div>`;
   if(effectiveState==='WATCH'||effectiveState==='PENDING'){
-    html+=`<div class="final-decision-note"><strong>最終判断</strong><span>締切1分前までに確定。ENTERしなければ見送りです。</span></div>`;
+    html+=`<div class="final-decision-note"><strong>最終判断</strong><span>必要データがそろい次第すぐ確定。遅くとも締切5分前までに最終判断します。</span></div>`;
   }
 
   if(publicRecord(rec)&&strategyMode==='BOX'){
@@ -508,10 +562,12 @@ function scheduleLiveRefresh(o=LAST_OVERVIEW){
 document.addEventListener('visibilitychange',()=>{
   if(document.hidden){
     if(LOAD_TIMER){clearTimeout(LOAD_TIMER);LOAD_TIMER=null}
+    stopVenueSheetRefresh();
     return;
   }
   resetRefreshBurst();
   load().then(scheduleLiveRefresh);
+  if(CURRENT_VENUE&&!$('#sheet-backdrop')?.hidden)refreshOpenVenue().then(scheduleVenueSheetRefresh);
 });
 setupPageMode();
 setupCustomerGuide();
