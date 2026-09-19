@@ -52,6 +52,39 @@ function materialList(v){
   if(v&&typeof v==='object')return Object.values(v).map(x=>typeof x==='string'?x:textValue(x)).filter(Boolean).slice(0,5);
   return [];
 }
+function racerLabel(lane){
+  const r=(DATA?.racers||[]).find(x=>Number(x?.lane)===Number(lane));
+  const name=String(r?.name||'').trim();
+  return name?`${lane}号艇の${name}選手`:`${lane}号艇`;
+}
+function plainDecisionReason(raw){
+  const s=String(raw||'').replace(/\s+/g,' ').trim();
+  if(!s)return'';
+  const one=racerLabel(1),parts=[];
+  if(/イン先マイ/.test(s))parts.push(`${one}が1マークを先に回って逃げる展開を中心に見ています。`);
+  if(/頭3艇以下に限定/.test(s))parts.push('1着候補は有力な3艇以内に絞っています。');
+  const top=s.match(/TOP3の([0-9.]+)倍未満を最低([0-9,]+)円保護/i);
+  if(top)parts.push(`有力と判断した上位3点のうち、予想時${top[1]}倍未満の組み合わせには最低${Number(String(top[2]).replace(/,/g,'')).toLocaleString('ja-JP')}円を配分する条件にしています。`);
+  if(/最終ENTER/i.test(s))parts.push('これらの条件がそろったため、購入対象として最終確定しました。');
+  if(parts.length)return parts.join('');
+  return s
+    .replace(/イン先マイ型?/g,`${one}が1マークを先に回って逃げる展開`)
+    .replace(/頭3艇以下に限定/g,'1着候補を有力な3艇以内に絞る')
+    .replace(/モデルTOP3/g,'有力と判断した上位3点')
+    .replace(/最終ENTER/g,'購入対象として最終確定');
+}
+function plainSupportMaterial(raw){
+  const s=String(raw||'').trim(),one=racerLabel(1);
+  let m=s.match(/^直近(\d+)走ST反映:\s*(\d+)\/(\d+)艇/i);
+  if(m)return`${m[3]}艇すべてについて、直近${m[1]}走のスタート実績を反映`;
+  m=s.match(/^場別イン補正:\s*([-+]?\d+(?:\.\d+)?)/i);
+  if(m)return`この場の1コース傾向を補正値${m[1]}として反映`;
+  if(/^最有力展開:\s*イン先マイ/i.test(s))return`${one}が1マークを先に回って逃げる展開を最も有力と判断`;
+  if(/^オリジナル展示v?\d*/i.test(s))return'展示・スタート・コース展開を組み合わせて、1〜3着候補を補正';
+  return s
+    .replace(/イン先マイ/g,`${one}が1マークを先に回って逃げる展開`)
+    .replace(/ST/g,'スタート');
+}
 function decisionFocusCategories({reason='',theory='',support=[],opposing=[]}={}){
   const text=[reason,theory,...support,...opposing].join(' ');
   const defs=[
@@ -317,6 +350,9 @@ function renderOfficialPrediction(v){
   const theory=textValue(p.selected_theory||p.current_theory||p.strategy||rec.theory||'');
   const support=materialList(p.support_materials||rec.support_materials);
   const opposing=materialList(p.opposing_materials||rec.opposing_materials);
+  const plainReason=plainDecisionReason(reason);
+  const plainSupport=support.map(plainSupportMaterial);
+  const plainOpposing=opposing.map(plainSupportMaterial);
   renderDecisionFocus({reason,theory,support,opposing});
   const label=stateLabel(r.state),isOfficial=publicRecord(rec),comboText=r.state==='PRIVATE'?'非公開':isOfficial?`${bets.length}点`:'なし';
   let html=`<div class="pro-official-head"><div><small>ONE BOAT 正式判断</small><h2>このレースの結論</h2></div><span>${esc(label)}</span></div>
@@ -331,7 +367,8 @@ function renderOfficialPrediction(v){
   }
 
   if(reason||theory||support.length||opposing.length){
-    html+=`<details class="decision-details"><summary><span><small>WHY THIS DECISION</small><strong>この結論の理由を見る</strong></span><b>＋</b></summary><div class="decision-details-body">${reason?`<div class="decision-trace"><h3>判断の決め手</h3><p>${esc(reason)}</p></div>`:''}${theory?`<div class="decision-material theory"><span>採用理論</span><strong>${esc(theory)}</strong></div>`:''}${support.length?`<div class="decision-material support"><span>支持材料</span><ul>${support.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`:''}${opposing.length?`<div class="decision-material caution"><span>不安材料</span><ul>${opposing.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`:''}</div></details>`;
+    const technical=[reason?`判断記録：${reason}`:'',theory?`内部判定ルール：${theory}`:''].filter(Boolean);
+    html+=`<details class="decision-details"><summary><span><small>WHY THIS DECISION</small><strong>この結論の理由を見る</strong></span><b>＋</b></summary><div class="decision-details-body">${plainReason?`<div class="decision-trace"><h3>判断の決め手</h3><p>${esc(plainReason)}</p></div>`:''}${plainSupport.length?`<div class="decision-material support"><span>主な判断材料</span><ul>${plainSupport.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`:''}${plainOpposing.length?`<div class="decision-material caution"><span>注意している材料</span><ul>${plainOpposing.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`:''}${technical.length?`<details class="technical-record"><summary>詳しい判定記録を見る</summary><div>${technical.map(x=>`<p>${esc(x)}</p>`).join('')}</div></details>`:''}</div></details>`;
   }
 
   if(r.state==='PRIVATE')html+=`<div class="pro-official-section"><b>公開状況</b><p>ONE BOATでは正式判断済みですが、本日の無料公開対象外です。有料版では正式ENTER全件を確認できます。</p></div>`;
