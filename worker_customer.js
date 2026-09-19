@@ -54,7 +54,7 @@ function raceCategoryMeta(r){
   return{grade,women,title:title||null,subtitle:subtitle||null}
 }
 function scheduleRaces(st){if(!st?.races)return[];return Object.entries(st.races).map(([rn,r])=>{const meta=raceCategoryMeta(r);return{race_no:num(r?.race_number??rn),deadline:r?.closed_at||r?.close_time||null,close_min:hmMin(r?.closed_at||r?.close_time),grade:meta.grade,women:meta.women,title:meta.title,subtitle:meta.subtitle}}).filter(x=>x.race_no>=1&&x.race_no<=12).sort((a,b)=>a.race_no-b.race_no)}
-function recordState(rec,closed=false,customerCutoff=false){if(!rec)return closed||customerCutoff?'SKIP':'PENDING';const d=decision(rec);if(d==='PRIVATE_ENTER'||rec?.__private_enter===true)return'PRIVATE';if(enter(rec))return rec.settlement?'SETTLED':'PUBLIC';if(d==='SKIP')return'SKIP';if(d==='WATCH'||d==='FINALIZING')return closed||customerCutoff?'SKIP':'WATCH';return closed||customerCutoff?'SKIP':'PENDING'}
+function recordState(rec,closed=false,customerCutoff=false){if(!rec)return closed||customerCutoff?'SKIP':'PENDING';const d=decision(rec);if(d==='PRIVATE_ENTER'||rec?.__private_enter===true)return'PRIVATE';if(personaApplied(rec)){if(personaHasPick(rec))return(Array.isArray(rec?.persona_settlements)&&rec.persona_settlements.length)?'SETTLED':'PUBLIC';return'SKIP'}if(enter(rec))return rec.settlement?'SETTLED':'PUBLIC';if(d==='SKIP')return'SKIP';if(d==='WATCH'||d==='FINALIZING')return closed||customerCutoff?'SKIP':'WATCH';return closed||customerCutoff?'SKIP':'PENDING'}
 function noteFor(state){return state==='WATCH'?'最終判断待ち｜締切5分前までにENTERしなければ見送り':state==='SKIP'?'ONE BOATは購入しません':state==='PRIVATE'?'無料公開枠外｜CLUB限定（準備中）':state==='CLOSED'?'レース終了':state==='PENDING'?'直前分析中｜締切5分前までに最終判断':state==='UPDATING'?'正式データを更新中':''}
 function publicItem(r,scheduleMap){const code=num(r.venue_code),rn=num(r.race_no),sc=scheduleMap?.get(`${code}-${rn}`),safe=safeRecord(r);return {...safe,venue_code:code,venue_name:VENUES[code-1]||`場${code}`,race_no:rn,deadline:r.deadline||r.close_time||sc?.deadline||null}}
 async function buildOverview(){
@@ -67,7 +67,7 @@ async function buildOverview(){
   const venues=[];
   for(let code=1;code<=24;code++){
     const vr=(byVenue.get(code)||[]).slice().sort((a,b)=>num(a.race_no)-num(b.race_no));
-    const publicRows=vr.filter(enter);
+    const publicRows=vr.filter(customerPrediction);
     if(!scheduleAvailable){
       const targetRec=publicRows.find(r=>!r.settlement)||vr.find(r=>!r.settlement)||vr[vr.length-1]||null;
       const state=targetRec?recordState(targetRec,false):'UPDATING';
@@ -85,9 +85,9 @@ async function buildOverview(){
     const state=historyAvailable?recordState(targetRec,closed,customerCutoff):'UPDATING';
     venues.push({code,name:VENUES[code-1],state,next_race_no:targetNo,next_deadline:targetSc?.deadline||null,grade:targetSc?.grade||rs[0]?.grade||null,women:targetSc?.women===true||rs.some(x=>x.women===true),public_count:historyAvailable?publicRows.length:null});
   }
-  const publicItems=historyAvailable?rows.filter(enter).sort((a,b)=>num(a.venue_code)-num(b.venue_code)||num(a.race_no)-num(b.race_no)).map(r=>publicItem(r,scheduleMap)):[];
+  const publicItems=historyAvailable?rows.filter(customerPrediction).sort((a,b)=>num(a.venue_code)-num(b.venue_code)||num(a.race_no)-num(b.race_no)).map(r=>publicItem(r,scheduleMap)):[];
   const buyableItems=historyAvailable&&visibility?.available===true?rows
-    .filter(r=>enter(r)||decision(r)==='PRIVATE_ENTER'||r?.__private_enter===true)
+    .filter(r=>customerPrediction(r)||decision(r)==='PRIVATE_ENTER'||r?.__private_enter===true)
     .map(r=>publicItem(r,scheduleMap))
     .filter(r=>{const m=hmMin(r?.deadline);return m===null||m>now})
     .sort((a,b)=>(hmMin(a.deadline)??9999)-(hmMin(b.deadline)??9999)||num(a.venue_code)-num(b.venue_code)||num(a.race_no)-num(b.race_no)):publicItems.filter(r=>{const m=hmMin(r?.deadline);return m===null||m>now});
@@ -95,9 +95,9 @@ async function buildOverview(){
   for(const r of rows){const k=String(r?.race_key||`${num(r.venue_code)}-${num(r.race_no)}`);if(k)latestByRace.set(k,r)}
   const decidedRows=[...latestByRace.values()];
   const decisionSummary=historyAvailable?{
-    buy:decidedRows.filter(enter).length,
-    waiting:decidedRows.filter(r=>['WATCH','FINALIZING'].includes(decision(r))).length,
-    skip:decidedRows.filter(r=>decision(r)==='SKIP').length
+    buy:decidedRows.filter(customerPrediction).length,
+    waiting:decidedRows.filter(r=>!personaApplied(r)&&['WATCH','FINALIZING'].includes(decision(r))).length,
+    skip:decidedRows.filter(r=>personaApplied(r)?!personaHasPick(r):decision(r)==='SKIP').length
   }:{buy:null,waiting:null,skip:null};
   let nextDecision=null;
   if(scheduleAvailable){
@@ -108,7 +108,7 @@ async function buildOverview(){
       for(const sc of rs){
         if(sc.close_min===null||sc.close_min<now-1)continue;
         const rec=recMap.get(sc.race_no)||null,d=decision(rec);
-        if(enter(rec)||d==='SKIP'||d==='PRIVATE_ENTER'||rec?.settlement)continue;
+        if(customerPrediction(rec)||(personaApplied(rec)&&!personaHasPick(rec))||d==='SKIP'||d==='PRIVATE_ENTER'||rec?.settlement||(Array.isArray(rec?.persona_settlements)&&rec.persona_settlements.length))continue;
         candidates.push({venue_code:code,venue_name:VENUES[code-1],race_no:sc.race_no,deadline:sc.deadline,state:['WATCH','FINALIZING'].includes(d)?'WATCH':'PENDING',minutes_left:Math.max(0,Math.floor(sc.close_min-now))});
       }
     }
@@ -135,7 +135,7 @@ async function buildVenue(code){
     return{race_no:sc.race_no,deadline:sc.deadline,grade:sc.grade||null,women:sc.women===true,title:sc.title||null,subtitle:sc.subtitle||null,state,note:cutoffApplied?'締切5分前までにENTER確定せず、今回は見送り':noteFor(state),record:safeRecord(rec),customer_cutoff:cutoffApplied}
   });
   const next=scheduleAvailable?races.find(r=>{const m=hmMin(r.deadline);return m===null||m>=now-1}):races.find(r=>r.state!=='CLOSED'&&r.state!=='SETTLED');
-  const publicCount=historyAvailable?rows.filter(enter).length:null;
+  const publicCount=historyAvailable?rows.filter(customerPrediction).length:null;
   let state=scheduleAvailable?'FINISHED':'UPDATING';
   if(next)state=next.state;
   if(next&&state==='PENDING'){
