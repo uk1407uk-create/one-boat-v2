@@ -143,7 +143,8 @@ function memberStatusModel(sess){
   if(sess.logged_in!==true)return{key:'guest',label:'未登録',text:'あなたは「未登録」です',sub:'無料登録すると会員機能を利用できます'};
   const plan=String(sess.plan||'').toLowerCase();
   if(plan==='day_pass')return{key:'day',label:'ONE DAY',text:'あなたは「ONE DAY」です',sub:'ONE DAYアクセスが有効です'};
-  if(plan==='club_monthly'||plan==='staff')return{key:'premium',label:'PREMIUM',text:'あなたは「PREMIUM」です',sub:'PREMIUMアクセスが有効です'};
+  if(plan==='staff')return{key:'command',label:'COMMAND',text:'あなたは「ONE BOAT COMMAND」です',sub:'管理者アクセスが有効です'};
+  if(plan==='club_monthly')return{key:'premium',label:'PREMIUM',text:'あなたは「PREMIUM」です',sub:'PREMIUMアクセスが有効です'};
   if(plan==='free')return{key:'free',label:'無料会員',text:'あなたは「無料会員」です',sub:'無料公開レースを利用できます'};
   return{key:'loading',label:'確認中',text:'会員状況を確認中',sub:'会員情報を再確認しています'};
 }
