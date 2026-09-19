@@ -75,7 +75,7 @@ function stateLabel(s){return {ENTER:'正式ENTER',PUBLIC:'無料公開',WATCH:'
 function stateClass(s){return {ENTER:'live',PUBLIC:'live',WATCH:'watch',SKIP:'skip',PRIVATE:'idle',SETTLED:'settled',FINISHED:'idle',CLOSED:'idle',NOEVENT:'idle',PENDING:'pending',UPDATING:'pending'}[s]||'pending'}
 function timeText(v){const m=String(v||'').match(/(\d{1,2}:\d{2})/);return m?m[1]:'--:--'}
 function deadlineMinute(v){const m=String(v||'').match(/(\d{1,2}):(\d{2})/);return m?Number(m[1])*60+Number(m[2]):9999}
-function finalDecisionTime(v){const m=deadlineMinute(v);if(m===9999)return'--:--';const x=(m-1+1440)%1440;return String(Math.floor(x/60)).padStart(2,'0')+':'+String(x%60).padStart(2,'0')}
+function finalDecisionTime(v){const m=deadlineMinute(v);if(m===9999)return'--:--';const x=(m-5+1440)%1440;return String(Math.floor(x/60)).padStart(2,'0')+':'+String(x%60).padStart(2,'0')}
 function skipReasonTag(v){
   const s=String(v||'');
   if(!s)return'条件未達';
@@ -413,8 +413,13 @@ function proRaceUrl(r){
   const q=new URLSearchParams({date:raceDateForView(),venue:String(code),race:String(Number(r.race_no)),mode:'pro'});
   return `/analysis.html?${q.toString()}`;
 }
+function normalizeLegacyCutoffText(v){
+  return String(v||'')
+    .replace(/締切\s*1\s*分前/g,'締切5分前')
+    .replace(/1\s*分前までに/g,'5分前までに');
+}
 function shortOfficialReason(v,max=118){
-  const x=String(v||'').replace(/\s+/g,' ').trim();
+  const x=normalizeLegacyCutoffText(v).replace(/\s+/g,' ').trim();
   return x.length>max?`${x.slice(0,max)}…`:x;
 }
 function openRace(rno){
