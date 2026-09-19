@@ -2437,8 +2437,8 @@ html.pro-mode .status-command .member-status-badge{background:linear-gradient(13
     <div class="band-performance"><div class="band-performance-head"><div><small>PERFORMANCE BY TYPE</small><strong>予想タイプ別パフォーマンス</strong></div><small>安定・中配当・高配当＋BOX型AIを独立集計</small></div><div id="band-performance" class="band-list"><div class="skeleton"></div></div><aside id="box-validation-reference" class="box-validation-reference" hidden></aside></div>
     <div class="live-results-section embedded-results" id="results"><div class="section-title-row"><div><small>LIVE RESULTS</small><h2>無料公開最新結果</h2></div><span class="auto-label">自動更新</span></div><button id="result-toggle" class="result-toggle" type="button" aria-expanded="false"><span><small>LIVE RESULTS</small><strong>最新結果を見る</strong><em>結果を確認中</em></span><i>▼</i></button><div id="result-list" class="result-list" hidden><div class="skeleton"></div></div><p class="transparency" hidden>的中だけを選ばず、無料公開したレースを結果順にそのまま表示します。</p></div>
   </section>
-  <section id="club-portfolio-beta" class="club-portfolio-beta portfolio-beta-bottom" hidden aria-live="polite"></section>
   <section class="club-panel" id="club"><div class="club-panel-inner"><span>ONE BOAT CLUB</span><h2>無料は一部公開。CLUBは正式判断を全部。</h2><p>無料公開を含む正式ENTER全件、買い目・資金配分、判断根拠を深掘りするPRO分析を確認できる有料版です。現在は先行登録のみ受け付けています。</p><a class="club-button" href="/club.html#club-waitlist">CLUB有料登録へ</a></div></section>
+  <section id="club-portfolio-beta" class="club-portfolio-beta portfolio-beta-bottom" hidden aria-live="polite"></section>
 
 </main>
 <section id="customer-first-guide" class="customer-first-guide" hidden role="dialog" aria-modal="true" aria-labelledby="customer-guide-title">
@@ -2458,7 +2458,7 @@ html.pro-mode .status-command .member-status-badge{background:linear-gradient(13
 <section id="race-sheet" class="bottom-sheet race-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="race-sheet-title"><div class="sheet-handle"></div><div class="sheet-head"><button id="race-back" class="sheet-back" type="button">‹</button><div><small>RACE DETAIL</small><h2 id="race-sheet-title">レース詳細</h2></div><span id="race-sheet-state" class="sheet-state">--</span></div><div id="race-detail" class="race-detail"></div></section>
 <nav class="bottom-app-nav" aria-label="下部ナビゲーション"><a href="/"><b>⌂</b><span>ホーム</span></a><a href="/today.html" class="active"><b>▦</b><span>本日の予想</span></a><a href="#results"><b><svg class="bottom-nav-chart-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V14M9 19V10M14 19V12M19 19V6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 11.5 9 8.5 13 10.2 20 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></b><span>実績</span></a><a href="/club.html"><b>◎</b><span>CLUB</span></a></nav>
 <footer><strong>ONE BOAT</strong><span>BOAT RACE ANALYTICS</span><small>© ONE BOAT</small></footer>
-<script src="/app.js?v=20260919-portfolioadmin1" defer></script>
+<script src="/app.js?v=20260919-portfoliobottom2" defer></script>
 <script src="/ai-picks.js?v=20260919-metrics1" defer></script>
 <script>const mb=document.getElementById('topMenuButton'),mp=document.getElementById('topMenuPanel');function closeTopMenu(){mp.classList.remove('open');mb.setAttribute('aria-expanded','false')}mb.addEventListener('click',e=>{e.stopPropagation();const open=mp.classList.toggle('open');mb.setAttribute('aria-expanded',String(open))});document.addEventListener('click',e=>{if(!mp.contains(e.target)&&!mb.contains(e.target))closeTopMenu()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTopMenu()});</script>
 </body>
