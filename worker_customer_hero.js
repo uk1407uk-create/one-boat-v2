@@ -64,7 +64,7 @@ async function exactHero(request, env) {
 }
 
 async function freePublicStats(request,ctx){
-  const u=new URL(request.url),key=new Request(`${u.origin}/__edge_cache/free-public-stats`);
+  const u=new URL(request.url),key=new Request(`${u.origin}/__edge_cache/free-public-stats-boxai2`);
   try{const hit=await caches.default.match(key);if(hit)return hit}catch{}
   try{
     const r=await fetch(FREE_PUBLIC_STATS,{headers:{accept:'application/json'},cache:'no-store'});
