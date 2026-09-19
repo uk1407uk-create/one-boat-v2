@@ -206,11 +206,14 @@ function clubPortfolioModel(raw){
   if(!publicRecord(rec))return{mode:'PASS',label:'NO BOOST',baseStake,extraStake:0,totalStake:baseStake,reason:'正式ENTERではないため追加投資なし',tickets:[]};
   const strategy=String(p?.strategy_mode||p?.allocation_meta?.strategy_mode||p?.odds_class||'').toUpperCase();
   if(strategy==='BOX')return{mode:'BOX',label:'BOX',baseStake,extraStake:0,totalStake:baseStake,reason:'頭が割れるレースはBOX型を維持',tickets:[]};
-  const odds=bets.map(x=>Number(x?.odds)).filter(x=>Number.isFinite(x)&&x>0);
-  if(odds.length<2)return{mode:'PASS',label:'NO BOOST',baseStake,extraStake:0,totalStake:baseStake,reason:'オッズ条件を確認できないため追加投資なし',tickets:[]};
-  const avgOdds=odds.reduce((a,b)=>a+b,0)/odds.length;
-  if(avgOdds>=65&&avgOdds<100&&bets.length>=2){
-    const tickets=bets.slice(0,2).map((x,i)=>({ticket:ticketOf(x),boost_yen:2500,rank:i+1,odds:Number.isFinite(Number(x?.odds))?Number(x.odds):null}));
+  const fallbackOdds=bets.map(x=>Number(x?.odds)).filter(x=>Number.isFinite(x)&&x>0);
+  const formalAvg=Number(p?.portfolio_avg_top12_odds);
+  const avgOdds=Number.isFinite(formalAvg)&&formalAvg>0?formalAvg:(fallbackOdds.length?fallbackOdds.reduce((a,b)=>a+b,0)/fallbackOdds.length:null);
+  if(!Number.isFinite(avgOdds))return{mode:'PASS',label:'NO BOOST',baseStake,extraStake:0,totalStake:baseStake,reason:'オッズ条件を確認できないため追加投資なし',tickets:[]};
+  const formalFocus=Array.isArray(p?.portfolio_focus_picks)?p.portfolio_focus_picks.filter(x=>x?.ticket):[];
+  const sourcePicks=formalFocus.length>=2?formalFocus:bets.slice(0,2);
+  if(avgOdds>=65&&avgOdds<100&&sourcePicks.length>=2){
+    const tickets=sourcePicks.slice(0,2).map((x,i)=>({ticket:ticketOf(x),boost_yen:2500,rank:i+1,odds:Number.isFinite(Number(x?.odds))?Number(x.odds):null}));
     return{mode:'FOCUS',label:'FOCUS β',baseStake,extraStake:5000,totalStake:baseStake+5000,reason:'中高配当ゾーンで上位候補へ追加投資',tickets,avgOdds};
   }
   return{mode:'NORMAL',label:'NORMAL',baseStake,extraStake:0,totalStake:baseStake,reason:'正式配分をそのまま使用',tickets:[],avgOdds};
