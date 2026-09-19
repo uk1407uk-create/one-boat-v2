@@ -13,8 +13,8 @@ try{
   if(m==='pro')document.documentElement.classList.add('pro-mode');
 }catch{}
 </script>
-<link rel="stylesheet" href="/styles.css?v=20260919-analysts1" />
-<link rel="stylesheet" href="/ai-picks.css?v=20260919-analysts1" />
+<link rel="stylesheet" href="/styles.css?v=20260919-analysts2" />
+<link rel="stylesheet" href="/ai-picks.css?v=20260919-analysts2" />
 <style>
 :root{
   --navy:#082f59;
@@ -2369,6 +2369,47 @@ html.pro-mode .status-command .member-status-badge{background:linear-gradient(13
   .member-status-copy em{font-size:7.5px}
   .member-status-badge{padding:0 7px;font-size:8px}
 }
+
+/* Four analyst performance */
+.analyst-performance-list{gap:9px}
+.analyst-performance-card{position:relative;padding:12px;border:1px solid #d8e6ee;border-radius:13px;background:#fff;box-shadow:0 4px 12px rgba(16,76,112,.055);overflow:hidden}
+.analyst-performance-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#3697c9}
+.analyst-performance-card.analyst-stable:before{background:#2fa99e}
+.analyst-performance-card.analyst-mid:before{background:#238ed3}
+.analyst-performance-card.analyst-high:before{background:#536bc1}
+.analyst-performance-card.analyst-box:before{background:#173f73}
+.analyst-performance-head{display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:9px;align-items:center}
+.analyst-performance-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:950;background:#eef8fd;border:1px solid #b9dceb;color:#176c9e}
+.analyst-stable .analyst-performance-avatar{background:#ecfaf7;border-color:#b9e3db;color:#197a70}
+.analyst-high .analyst-performance-avatar{background:#f1f3fd;border-color:#c3cae9;color:#485daf}
+.analyst-box .analyst-performance-avatar{background:#eef2f7;border-color:#b9c6d4;color:#173f73}
+.analyst-performance-id{min-width:0}
+.analyst-performance-id small{display:block;font-size:6.5px;font-weight:950;letter-spacing:.08em;color:#8195a4}
+.analyst-performance-id strong{display:block;margin-top:1px;font-size:15px;line-height:1.15;color:#0c365b}
+.analyst-performance-id strong i{font-style:normal;font-size:9px;font-weight:850;color:#6b8191;margin-left:4px}
+.analyst-performance-id span{display:block;margin-top:2px;font-size:8px;font-weight:800;color:#59809a}
+.analyst-performance-head>em{font-style:normal;font-size:6.5px;font-weight:900;color:#768a98;background:#f2f5f7;border-radius:999px;padding:4px 6px;white-space:nowrap}
+.analyst-performance-main{display:grid;grid-template-columns:1.15fr 1fr;gap:7px;margin-top:10px}
+.analyst-performance-main>div{padding:9px 10px;border-radius:9px;background:#f7fafc;border:1px solid #e1eaf0}
+.analyst-performance-main span{display:block;font-size:7px;font-weight:900;color:#7d91a0}
+.analyst-performance-main strong{display:block;margin-top:1px;font-size:20px;line-height:1.05;font-variant-numeric:tabular-nums}
+.analyst-performance-main strong.neutral{color:#8293a0}
+.analyst-performance-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:7px}
+.analyst-performance-grid>div{padding:7px 3px;text-align:center;border-radius:8px;background:#fafcfd;border:1px solid #e5edf2}
+.analyst-performance-grid span{display:block;font-size:6.5px;font-weight:850;color:#8798a5}
+.analyst-performance-grid strong{display:block;margin-top:2px;font-size:10.5px;color:#173f60;white-space:nowrap}
+.analyst-performance-money{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid #e8eef2}
+.analyst-performance-money span{font-size:8.5px;font-weight:850;color:#56758a}
+.analyst-performance-money small{font-size:7px;color:#8a9aa6;text-align:right}
+html.pro-mode .analyst-performance-card{background:#08131d;border-color:#17384c}
+html.pro-mode .analyst-performance-id strong{color:#eefaff}
+html.pro-mode .analyst-performance-id strong i,html.pro-mode .analyst-performance-id span,html.pro-mode .analyst-performance-id small{color:#7f95a4}
+html.pro-mode .analyst-performance-head>em{background:#111d25;color:#a48d5e}
+html.pro-mode .analyst-performance-main>div,html.pro-mode .analyst-performance-grid>div{background:#0c1a24;border-color:#183443}
+html.pro-mode .analyst-performance-grid strong{color:#dff3fc}
+html.pro-mode .analyst-performance-money{border-top-color:#193442}
+html.pro-mode .analyst-performance-money span,html.pro-mode .analyst-performance-money small{color:#758b99}
+
 </style>
 </head>
 <!-- CLUB premium iPhone UI verified 2026-09-19 v2 -->
@@ -2434,7 +2475,7 @@ html.pro-mode .status-command .member-status-badge{background:linear-gradient(13
     <p class="lead" id="performance-lead">無料公開した正式ENTERのみ集計。非公開・見送り・様子見・投資0円は含めません。</p>
     <div class="period-tabs" role="tablist"><button class="period active" data-period="today">今日</button><button class="period" data-period="days7">7日</button><button class="period" data-period="days30">30日</button><button class="period" data-period="all">累計</button></div>
     <div class="stats-table"><div><span>回収率</span><strong id="m-roi">--</strong></div><div><span>的中率</span><strong id="m-hit">--</strong></div><div><span>収支</span><strong id="m-profit">--</strong><small id="m-races">集計中</small></div></div><div class="stats-subgrid" aria-label="実績内訳"><div><span>対象R</span><strong id="m-race-count">--</strong></div><div><span>的中数</span><strong id="m-hit-count">--</strong></div><div><span>投資</span><strong id="m-stake">--</strong></div><div><span>払戻</span><strong id="m-payout">--</strong></div></div>
-    <div class="band-performance"><div class="band-performance-head"><div><small>PERFORMANCE BY TYPE</small><strong>予想タイプ別パフォーマンス</strong></div><small>安定・中配当・高配当＋BOX型AIを独立集計</small></div><div id="band-performance" class="band-list"><div class="skeleton"></div></div><aside id="box-validation-reference" class="box-validation-reference" hidden></aside></div>
+    <div class="band-performance"><div class="band-performance-head"><div><small>4 ANALYST PERFORMANCE</small><strong>4人の予想家パフォーマンス</strong></div><small>それぞれが実際に買ったレースだけを個別集計</small></div><div id="band-performance" class="band-list analyst-performance-list"><div class="skeleton"></div></div><aside id="box-validation-reference" class="box-validation-reference" hidden></aside></div>
     <div class="live-results-section embedded-results" id="results"><div class="section-title-row"><div><small>LIVE RESULTS</small><h2>無料公開最新結果</h2></div><span class="auto-label">自動更新</span></div><button id="result-toggle" class="result-toggle" type="button" aria-expanded="false"><span><small>LIVE RESULTS</small><strong>最新結果を見る</strong><em>結果を確認中</em></span><i>▼</i></button><div id="result-list" class="result-list" hidden><div class="skeleton"></div></div><p class="transparency" hidden>的中だけを選ばず、無料公開したレースを結果順にそのまま表示します。</p></div>
   </section>
   <section class="club-panel" id="club"><div class="club-panel-inner"><span>ONE BOAT CLUB</span><h2>無料は一部公開。CLUBは正式判断を全部。</h2><p>無料公開を含む正式ENTER全件、買い目・資金配分、判断根拠を深掘りするPRO分析を確認できる有料版です。現在は先行登録のみ受け付けています。</p><a class="club-button" href="/club.html#club-waitlist">CLUB有料登録へ</a></div></section>
@@ -2458,8 +2499,8 @@ html.pro-mode .status-command .member-status-badge{background:linear-gradient(13
 <section id="race-sheet" class="bottom-sheet race-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="race-sheet-title"><div class="sheet-handle"></div><div class="sheet-head"><button id="race-back" class="sheet-back" type="button">‹</button><div><small>RACE DETAIL</small><h2 id="race-sheet-title">レース詳細</h2></div><span id="race-sheet-state" class="sheet-state">--</span></div><div id="race-detail" class="race-detail"></div></section>
 <nav class="bottom-app-nav" aria-label="下部ナビゲーション"><a href="/"><b>⌂</b><span>ホーム</span></a><a href="/today.html" class="active"><b>▦</b><span>本日の予想</span></a><a href="#results"><b><svg class="bottom-nav-chart-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V14M9 19V10M14 19V12M19 19V6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 11.5 9 8.5 13 10.2 20 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></b><span>実績</span></a><a href="/club.html"><b>◎</b><span>CLUB</span></a></nav>
 <footer><strong>ONE BOAT</strong><span>BOAT RACE ANALYTICS</span><small>© ONE BOAT</small></footer>
-<script src="/app.js?v=20260919-analysts1" defer></script>
-<script src="/ai-picks.js?v=20260919-analysts1" defer></script>
+<script src="/app.js?v=20260919-analysts2" defer></script>
+<script src="/ai-picks.js?v=20260919-analysts2" defer></script>
 <script>const mb=document.getElementById('topMenuButton'),mp=document.getElementById('topMenuPanel');function closeTopMenu(){mp.classList.remove('open');mb.setAttribute('aria-expanded','false')}mb.addEventListener('click',e=>{e.stopPropagation();const open=mp.classList.toggle('open');mb.setAttribute('aria-expanded',String(open))});document.addEventListener('click',e=>{if(!mp.contains(e.target)&&!mb.contains(e.target))closeTopMenu()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTopMenu()});</script>
 </body>
 </html>
