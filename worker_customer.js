@@ -214,5 +214,39 @@ function aiMetrics(rows){
   return out
 }
 function isoDaysAgo(n){const d=new Date(Date.now()+32400000-n*86400000);return d.toISOString().slice(0,10)}
-async function stats(){const rows=await sourceHistory({limit:2000});const today=jstDate(),d7=isoDaysAgo(6),d30=isoDaysAgo(29),dated=rows.filter(r=>r.race_date);const latest=rows.filter(r=>enter(r)&&r.settlement).sort((a,b)=>String(b.race_date).localeCompare(String(a.race_date))||num(b.race_no)-num(a.race_no)).slice(0,12).map(r=>({race_date:r.race_date,venue_name:VENUES[num(r.venue_code)-1]||`場${r.venue_code}`,race_no:num(r.race_no),hit:r.settlement?.hit===true,trifecta:r.settlement?.result?.trifecta||r.settlement?.trifecta||'',stake_yen:stake(r),payout_yen:num(r.settlement?.payout_yen),profit_yen:Number.isFinite(Number(r.settlement?.profit_yen))?Number(r.settlement.profit_yen):num(r.settlement?.payout_yen)-stake(r)}));const box_validation_reference={strategy:'BOX型AI',strategy_version:'watch-box-e-v1',date:'2026-09-19',as_of:'14:31',label:'9/19 朝から適用した場合',reference_only:true,races:21,hits:4,hit_rate:19.05,stake_yen:105000,payout_yen:112440,profit_yen:7440,roi:107.09,box1_hits:3,box2_hits:1,note:'正式運用実績とは別の参考検証。各レースで最初にBOX条件を満たした時点を採用し、公式結果で再計算。'};return{ok:true,scope:'public_only',ai_types:aiMetrics(rows),box_validation_reference,today:metric(dated.filter(r=>r.race_date===today)),days7:metric(dated.filter(r=>r.race_date>=d7&&r.race_date<=today)),days30:metric(dated.filter(r=>r.race_date>=d30&&r.race_date<=today)),all:metric(rows),latest}}
-export default{async fetch(request,env,ctx){const u=new URL(request.url);try{if(u.pathname==='/api/health')return json({ok:true,service:'ONE BOAT CUSTOMER',version:'2026-09-18.analysis-v1',source:'management-history+official-schedule',customer_view_only:true,public_payload_sanitized:true,edge_cache:true});if(u.pathname==='/api/public/overview')return cachedJson(u,ctx,20,buildOverview);if(u.pathname==='/api/public/venue')return cachedJson(u,ctx,5,()=>buildVenue(u.searchParams.get('code')));if(u.pathname==='/api/public/analysis')return cachedJson(u,ctx,15,()=>buildAnalysis(u.searchParams.get('code'),u.searchParams.get('race')));if(u.pathname==='/api/public/today')return cachedJson(u,ctx,20,async()=>{const o=await buildOverview();return{ok:true,date:o.date,count:o.public_count,public_count:o.public_count,items:o.public_items}});if(u.pathname==='/api/public/stats')return cachedJson(u,ctx,60,stats);if(u.pathname==='/hero-top.jpg')return asset(request,env,'/hero-top.webp','image/jpeg');if(u.pathname==='/'||u.pathname==='/index.html')return asset(request,env,'/index.html','text/html;charset=utf-8');return asset(request,env,u.pathname)}catch(e){return json({ok:false,error:'temporarily_unavailable',message:String(e?.message||e)},502)}}};
+function jstHm(v){const d=new Date(v);if(Number.isNaN(d.getTime()))return'--:--';return new Date(d.getTime()+32400000).toISOString().slice(11,16)}
+function boxValidationReference(rows,today){
+  if(today!=='2026-09-19')return null;
+  const base={strategy:'BOX型AI',strategy_version:'watch-box-e-v1',date:'2026-09-19',as_of:'14:31',label:'9/19 朝から適用した場合',reference_only:true,races:21,hits:4,stake_yen:105000,payout_yen:112440,box1_hits:3,box2_hits:1};
+  const cutoff=Date.parse('2026-09-19T05:31:59Z');
+  let latestMs=cutoff;
+  const added=(Array.isArray(rows)?rows:[]).filter(r=>{
+    const p=r?.prediction||{},method=String(p?.allocation_meta?.method||''),settled=Date.parse(r?.settlement?.settled_at||'');
+    return r?.race_date===today&&method==='watch-box-e-v1'&&r?.settlement&&Number.isFinite(settled)&&settled>cutoff;
+  });
+  for(const r of added){
+    base.races++;
+    base.stake_yen+=5000;
+    const payout=num(r?.settlement?.payout_yen);
+    base.payout_yen+=payout;
+    if(r?.settlement?.hit===true)base.hits++;
+    const win=normalizeTicket(r?.settlement?.result?.trifecta||r?.settlement?.trifecta||'');
+    if(win){
+      const p=r?.prediction||{},bets=Array.isArray(r?.bets)&&r.bets.length?r.bets:Array.isArray(p?.production_picks)?p.production_picks:[];
+      const wb=bets.find(b=>normalizeTicket(b?.ticket||b?.combination||b?.bet)===win);
+      const br=Number(wb?.box_rank);
+      if(br===1)base.box1_hits++;
+      if(br===2)base.box2_hits++;
+    }
+    const ms=Date.parse(r?.settlement?.settled_at||'');
+    if(Number.isFinite(ms)&&ms>latestMs)latestMs=ms;
+  }
+  base.as_of=jstHm(latestMs);
+  base.hit_rate=base.races?base.hits/base.races*100:0;
+  base.profit_yen=base.payout_yen-base.stake_yen;
+  base.roi=base.stake_yen?base.payout_yen/base.stake_yen*100:0;
+  base.note='14:31時点の朝から適用参考値を基準に、その後の同一BOXルール確定結果を自動加算。正式運用実績とは別の参考検証。';
+  return base;
+}
+async function stats(){const rows=await sourceHistory({limit:500});const today=jstDate(),d7=isoDaysAgo(6),d30=isoDaysAgo(29),dated=rows.filter(r=>r.race_date);const latest=rows.filter(r=>enter(r)&&r.settlement).sort((a,b)=>String(b.race_date).localeCompare(String(a.race_date))||num(b.race_no)-num(a.race_no)).slice(0,12).map(r=>({race_date:r.race_date,venue_name:VENUES[num(r.venue_code)-1]||`場${r.venue_code}`,race_no:num(r.race_no),hit:r.settlement?.hit===true,trifecta:r.settlement?.result?.trifecta||r.settlement?.trifecta||'',stake_yen:stake(r),payout_yen:num(r.settlement?.payout_yen),profit_yen:Number.isFinite(Number(r.settlement?.profit_yen))?Number(r.settlement.profit_yen):num(r.settlement?.payout_yen)-stake(r)}));const box_validation_reference=boxValidationReference(rows,today);return{ok:true,scope:'public_only',ai_types:aiMetrics(rows),box_validation_reference,today:metric(dated.filter(r=>r.race_date===today)),days7:metric(dated.filter(r=>r.race_date>=d7&&r.race_date<=today)),days30:metric(dated.filter(r=>r.race_date>=d30&&r.race_date<=today)),all:metric(rows),latest}}
+export default{async fetch(request,env,ctx){const u=new URL(request.url);try{if(u.pathname==='/api/health')return json({ok:true,service:'ONE BOAT CUSTOMER',version:'2026-09-19.boxref-live-v1',source:'management-history+official-schedule',customer_view_only:true,public_payload_sanitized:true,edge_cache:true});if(u.pathname==='/api/public/overview')return cachedJson(u,ctx,20,buildOverview);if(u.pathname==='/api/public/venue')return cachedJson(u,ctx,5,()=>buildVenue(u.searchParams.get('code')));if(u.pathname==='/api/public/analysis')return cachedJson(u,ctx,15,()=>buildAnalysis(u.searchParams.get('code'),u.searchParams.get('race')));if(u.pathname==='/api/public/today')return cachedJson(u,ctx,20,async()=>{const o=await buildOverview();return{ok:true,date:o.date,count:o.public_count,public_count:o.public_count,items:o.public_items}});if(u.pathname==='/api/public/stats')return cachedJson(u,ctx,60,stats);if(u.pathname==='/hero-top.jpg')return asset(request,env,'/hero-top.webp','image/jpeg');if(u.pathname==='/'||u.pathname==='/index.html')return asset(request,env,'/index.html','text/html;charset=utf-8');return asset(request,env,u.pathname)}catch(e){return json({ok:false,error:'temporarily_unavailable',message:String(e?.message||e)},502)}}};
