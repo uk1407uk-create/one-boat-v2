@@ -17,7 +17,7 @@ const $=s=>document.querySelector(s);
 const yen=n=>`${Math.round(Number(n||0)).toLocaleString('ja-JP')}円`;
 const pct=n=>Number.isFinite(Number(n))?`${Number(n).toFixed(1)}%`:'--';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let STATS=null,STATS_FETCHED_AT=0,CURRENT_VENUE=null,AUTO_OPENED=false,LOAD_TIMER=null,LAST_OVERVIEW=null,REFRESH_BURST_LEFT=2,STATS_LOADING=null,SITE_ONLY_KEYS=new Set(),ACTIVE_RACE_NO=null,VENUE_SHEET_TIMER=null,VENUE_SHEET_LOADING=false,CLUB_LIST_OPEN=false,RESULT_LIST_OPEN=false,MEMBER_TODAY_ENTER=null;
+let STATS=null,STATS_FETCHED_AT=0,CURRENT_VENUE=null,AUTO_OPENED=false,LOAD_TIMER=null,LAST_OVERVIEW=null,REFRESH_BURST_LEFT=2,STATS_LOADING=null,SITE_ONLY_KEYS=new Set(),ACTIVE_RACE_NO=null,VENUE_SHEET_TIMER=null,VENUE_SHEET_LOADING=false,CLUB_LIST_OPEN=false,RESULT_LIST_OPEN=false,MEMBER_TODAY_ENTER=null,MEMBER_SYNC_STATE='unknown';
 function trafficAttribution(){
   try{
     const q=new URLSearchParams(location.search);
@@ -96,15 +96,22 @@ function deadlineLeftText(v){
 function publicRecord(r){const d=String(r?.decision||r?.prediction?.decision||'').toUpperCase(),stake=Number(r?.stake_total_yen??r?.prediction?.stake_total_yen??0);return d==='ENTER'&&stake>0}
 async function paidTodayEnter(date){
   try{
-    const s=await fetch('/api/member/session',{credentials:'same-origin',cache:'no-store'}).then(r=>r.json()).catch(()=>null);
-    if(!s?.logged_in||s?.paid_access!==true)return null;
+    const sr=await fetch('/api/member/session',{credentials:'same-origin',cache:'no-store'});
+    if(!sr.ok){MEMBER_SYNC_STATE=MEMBER_SYNC_STATE.startsWith('paid')?'paid_error':'error';return null}
+    const sess=await sr.json().catch(()=>null);
+    if(!sess?.logged_in||sess?.paid_access!==true){MEMBER_SYNC_STATE='guest';return null}
+    MEMBER_SYNC_STATE='paid_loading';
     const u=new URL('/api/member/today-enter',location.origin);u.searchParams.set('date',date);
     const r=await fetch(u,{credentials:'same-origin',cache:'no-store',headers:{accept:'application/json'}});
-    if(!r.ok)return null;
+    if(!r.ok){MEMBER_SYNC_STATE='paid_error';return null}
     const d=await r.json().catch(()=>null);
-    if(!d?.ok||!Array.isArray(d.records))return null;
+    if(!d?.ok||!Array.isArray(d.records)){MEMBER_SYNC_STATE='paid_error';return null}
+    MEMBER_SYNC_STATE='paid';
     return d.records.map(x=>({...x,venue_name:VENUES[Number(x.venue_code)-1]||`場${x.venue_code||'--'}`}));
-  }catch{return null}
+  }catch{
+    MEMBER_SYNC_STATE=MEMBER_SYNC_STATE.startsWith('paid')?'paid_error':'error';
+    return null;
+  }
 }
 function memberRaceKey(date,venue,race){
   const d=String(date||'').slice(0,10).replaceAll('-','');
@@ -126,7 +133,14 @@ function memberRecordIsBuyable(x){
   return m>cur;
 }
 function mergeMemberVenue(v){
-  if(!v||!Array.isArray(MEMBER_TODAY_ENTER))return v;
+  if(!v)return v;
+  if(!Array.isArray(MEMBER_TODAY_ENTER)){
+    if(MEMBER_SYNC_STATE==='paid_error'){
+      const races=(Array.isArray(v.races)?v.races:[]).map(r=>['SETTLED','CLOSED','NOEVENT','FINISHED','PUBLIC'].includes(String(r?.state||''))?r:{...r,state:'UPDATING',note:'CLUB正式判定を再取得中'});
+      return {...v,races,state:['NOEVENT','FINISHED'].includes(String(v.state||''))?v.state:'UPDATING'};
+    }
+    return v;
+  }
   const date=String(v.date||trafficDay()).slice(0,10),code=Number(v.code||0);
   const races=(Array.isArray(v.races)?v.races:[]).map(r=>{
     const m=memberRecordFor(date,code,r.race_no);
@@ -138,7 +152,14 @@ function mergeMemberVenue(v){
   return {...v,races,state:cr&&effectiveRaceState(cr)==='ENTER'?'ENTER':v.state,member_enter_count:races.filter(x=>effectiveRaceState(x)==='ENTER').length};
 }
 function mergeMemberOverview(o){
-  if(!o||!Array.isArray(MEMBER_TODAY_ENTER))return o;
+  if(!o)return o;
+  if(!Array.isArray(MEMBER_TODAY_ENTER)){
+    if(MEMBER_SYNC_STATE==='paid_error'){
+      const venues=(Array.isArray(o.venues)?o.venues:[]).map(v=>['NOEVENT','FINISHED'].includes(String(v?.state||''))?v:{...v,state:'UPDATING'});
+      return {...o,venues};
+    }
+    return o;
+  }
   const date=String(o.date||trafficDay()).slice(0,10);
   const venues=(Array.isArray(o.venues)?o.venues:[]).map(v=>{
     const m=memberRecordFor(date,v.code,v.next_race_no);
@@ -530,9 +551,11 @@ async function load(){
   $('#today-date').textContent=formatJpDate(o.date);
   $('#today-count').textContent=Number.isFinite(Number(o.active_count))&&o.active_count!==null?`開催 ${Number(o.active_count)}場`:'開催情報更新中';
   const memberAll=await paidTodayEnter(o.date);
-  MEMBER_TODAY_ENTER=Array.isArray(memberAll)?memberAll:null;
+  if(Array.isArray(memberAll))MEMBER_TODAY_ENTER=memberAll;
+  else if(MEMBER_SYNC_STATE!=='paid_error')MEMBER_TODAY_ENTER=null;
+  const memberSyncBlocked=MEMBER_SYNC_STATE==='paid_error'&&!Array.isArray(MEMBER_TODAY_ENTER);
   const usingClub=Array.isArray(MEMBER_TODAY_ENTER);
-  const memberAwareOverview=usingClub?mergeMemberOverview(o):o;
+  const memberAwareOverview=(usingClub||memberSyncBlocked)?mergeMemberOverview(o):o;
   renderVenues(memberAwareOverview.venues||[]);
   renderFreeStrip(o);
   renderCustomerOverview(o);
@@ -542,9 +565,15 @@ async function load(){
   if(liveSettled.length)$('#result-list').innerHTML=liveSettled.map(resultCard).join('');
   updateResultToggle(allSettled.length,allSettled.filter(x=>x?.settlement?.hit===true).length);
   const memberLive=usingClub?MEMBER_TODAY_ENTER.filter(memberRecordIsBuyable).sort((a,b)=>deadlineMinute(a.deadline)-deadlineMinute(b.deadline)):[];
-  const items=usingClub?(pro?MEMBER_TODAY_ENTER:memberLive):(pro?all:all.filter(x=>!x.settlement).sort((a,b)=>deadlineMinute(a.deadline||a.close_time)-deadlineMinute(b.deadline||b.close_time)));
+  const items=memberSyncBlocked?[]:usingClub?(pro?MEMBER_TODAY_ENTER:memberLive):(pro?all:all.filter(x=>!x.settlement).sort((a,b)=>deadlineMinute(a.deadline||a.close_time)-deadlineMinute(b.deadline||b.close_time)));
   const clubToggle=$('#club-enter-toggle'),todayList=$('#today-list');
-  if(usingClub&&pro){
+  if(memberSyncBlocked){
+    const title=$('#public-title-text');if(title)title.textContent='CLUB 正式判定を再取得中';
+    const lead=document.querySelector('.public-lead');if(lead)lead.textContent='誤った判定は表示せず、正式ENTERを再確認しています';
+    $('#public-count').textContent='更新中';
+    if(clubToggle){clubToggle.hidden=true;clubToggle.setAttribute('aria-expanded','false')}
+    if(todayList)todayList.hidden=false;
+  }else if(usingClub&&pro){
     const title=$('#public-title-text');if(title)title.textContent='CLUB 本日の正式ENTER';
     const lead=document.querySelector('.public-lead');if(lead)lead.textContent='無料公開枠外を含む正式ENTER全件';
     $('#public-count').textContent=`正式ENTER ${items.length}R`;
@@ -571,7 +600,7 @@ async function load(){
     if(todayList)todayList.hidden=false;
     $('#public-count').textContent=o.public_count===null||o.public_count===undefined?'更新中':pro?`無料 ${Number(o.public_count)}/${Number(o.free_limit||30)}R`:`公開中 ${items.length}R`;
   }
-  $('#today-list').innerHTML=items.length?items.map(publicRaceCard).join(''):(usingClub&&!pro?'<div class="race-card"><div class="race-main"><strong>現在、購入可能な正式ENTERはありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>':usingClub?'<div class="race-card"><div class="race-main"><strong>本日の正式ENTERはまだありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>':pro?'<div class="race-card"><div class="race-main"><strong>現在、公開対象なし</strong><small>対象レースが確定すると自動表示します</small></div></div>':'<div class="race-card"><div class="race-main"><strong>現在、公開中の予想はありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>');
+  $('#today-list').innerHTML=memberSyncBlocked?'<div class="race-card"><div class="race-main"><strong>CLUB正式判定を再取得中</strong><small>取得完了まで「判定中」へ戻さず、正式データを再確認します。</small></div></div>':items.length?items.map(publicRaceCard).join(''):(usingClub&&!pro?'<div class="race-card"><div class="race-main"><strong>現在、購入可能な正式ENTERはありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>':usingClub?'<div class="race-card"><div class="race-main"><strong>本日の正式ENTERはまだありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>':pro?'<div class="race-card"><div class="race-main"><strong>現在、公開対象なし</strong><small>対象レースが確定すると自動表示します</small></div></div>':'<div class="race-card"><div class="race-main"><strong>現在、公開中の予想はありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>');
   document.querySelectorAll('.race-card-button').forEach(b=>b.addEventListener('click',async()=>{await openVenue(b.dataset.vcode);openRace(Number(b.dataset.rno))}));
   const nextCard=$('#next-decision-card');if(nextCard&&!nextCard.dataset.bound){nextCard.dataset.bound='1';nextCard.addEventListener('click',async()=>{const vc=nextCard.dataset.vcode,rn=Number(nextCard.dataset.rno);if(vc&&rn>=1&&rn<=12){await openVenue(vc);openRace(rn)}})}
 
