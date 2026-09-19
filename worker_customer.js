@@ -46,10 +46,10 @@ async function buildOverview(){
     if(!rs.length){venues.push({code,name:VENUES[code-1],state:'NOEVENT',next_race_no:null,next_deadline:null,public_count:historyAvailable?0:null});continue}
     const next=rs.find(x=>x.close_min===null||x.close_min>=now-1);
     if(!next){venues.push({code,name:VENUES[code-1],state:'FINISHED',next_race_no:12,next_deadline:rs[rs.length-1]?.deadline||null,public_count:historyAvailable?publicRows.length:null});continue}
-    const futurePublic=publicRows.find(r=>num(r.race_no)>=next.race_no&&!r.settlement);
-    const targetRec=futurePublic||vr.find(r=>num(r.race_no)===next.race_no);
-    const targetNo=targetRec?num(targetRec.race_no):next.race_no,targetSc=rs.find(x=>x.race_no===targetNo)||next;
-    const state=historyAvailable?recordState(targetRec,false):'UPDATING';
+    const targetNo=next.race_no,targetRec=vr.find(r=>num(r.race_no)===targetNo)||null,targetSc=next;
+    const closed=targetSc?.close_min!==null&&targetSc?.close_min!==undefined&&targetSc.close_min<=now;
+    const customerCutoff=targetSc?.close_min!==null&&targetSc?.close_min!==undefined&&(targetSc.close_min-now)<=1;
+    const state=historyAvailable?recordState(targetRec,closed,customerCutoff):'UPDATING';
     venues.push({code,name:VENUES[code-1],state,next_race_no:targetNo,next_deadline:targetSc?.deadline||null,public_count:historyAvailable?publicRows.length:null});
   }
   const publicItems=historyAvailable?rows.filter(enter).sort((a,b)=>num(a.venue_code)-num(b.venue_code)||num(a.race_no)-num(b.race_no)).map(r=>publicItem(r,scheduleMap)):[];

@@ -121,6 +121,8 @@ jobs:
           grep -q 'PRO UI: black / charcoal / gold, no blue accents' customer-public/analysis.css
           grep -q 'winning_odds' customer-public/app.js
           grep -q 'site_only_keys' worker_customer.js
+          grep -q 'const customerCutoff=targetSc' worker_customer.js
+          ! grep -q 'const futurePublic=publicRows.find' worker_customer.js
           ! grep -q 'one-boat-public-visibility' customer-public/app.js
           ! grep -q 'setInterval(load,30000)' customer-public/app.js
 
