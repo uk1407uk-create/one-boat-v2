@@ -1205,6 +1205,29 @@ html.pro-mode .private-plan-options span,html.pro-mode .private-plan-compare{col
 
 
 /* 2026-09-19 iPhone readability pass */
+.next-decision-time{display:inline-flex;margin-top:6px;padding:5px 8px;border-radius:999px;background:#eaf8ff;color:#0877d7;font-size:12px;font-style:normal;font-weight:950;letter-spacing:.01em}
+.skip-reason-tag{display:inline-flex;margin-left:6px;padding:3px 6px;border-radius:999px;background:#fff0f1;color:#b65460;font-size:8px;font-style:normal;font-weight:950;vertical-align:middle}
+.detail-skip-tag{display:inline-flex;margin-left:8px;padding:4px 7px;border-radius:999px;background:#fff0f1;color:#b65460;font-size:9px;font-style:normal;font-weight:950;vertical-align:middle}
+.customer-first-guide{position:fixed;inset:0;z-index:1200;background:rgba(3,18,30,.58);display:flex;align-items:flex-end;justify-content:center;padding:14px}
+.customer-first-guide[hidden]{display:none}
+.customer-guide-card{width:min(100%,440px);padding:18px 16px 16px;border-radius:18px;background:#fff;box-shadow:0 18px 50px rgba(0,0,0,.28)}
+.customer-guide-card>small{display:block;color:#1687bf;font-size:9px;font-weight:950;letter-spacing:.14em}
+.customer-guide-card h2{margin:4px 0 13px;color:#123d5a;font-size:21px;line-height:1.3}
+.customer-guide-items{display:grid;gap:8px}
+.guide-item{padding:11px 12px;border:1px solid #dfe9ef;border-radius:11px;background:#f9fbfc}
+.guide-item strong{display:block;font-size:14px;color:#163e59}
+.guide-item span{display:block;margin-top:3px;font-size:11px;line-height:1.55;color:#667e90;font-weight:750}
+.guide-item.buy{border-color:#a9dcef;background:#f2fbff}.guide-item.buy strong{color:#0877d7}
+.guide-item.wait{border-color:#ead79c;background:#fffaf0}.guide-item.wait strong{color:#a57613}
+.guide-item.skip{border-color:#efc5c9;background:#fff7f8}.guide-item.skip strong{color:#b65460}
+#customer-guide-close{width:100%;min-height:48px;margin-top:13px;border:0;border-radius:12px;background:linear-gradient(90deg,#17addf,#087bd8);color:#fff;font-size:14px;font-weight:950}
+body.guide-open{overflow:hidden}
+html.pro-mode .next-decision-time{background:#211d12;color:#d9bb63}
+html.pro-mode .skip-reason-tag,html.pro-mode .detail-skip-tag{background:#261a1a;color:#e0b0b4}
+html.pro-mode .customer-guide-card{background:#111214;border:1px solid #3b3d40}
+html.pro-mode .customer-guide-card>small{color:#d5b75d}html.pro-mode .customer-guide-card h2{color:#efefec}
+html.pro-mode .guide-item{background:#161719;border-color:#36383c}html.pro-mode .guide-item strong{color:#d9bb63}html.pro-mode .guide-item span{color:#999b9f}
+
 .customer-decision-board{margin:10px 10px 6px;padding:13px;border:1px solid #cbdfea;border-radius:14px;background:#fff;box-shadow:0 7px 18px rgba(10,73,115,.06)}
 .customer-decision-head{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:10px}
 .customer-decision-head div small{display:block;color:#2589bf;font-size:8px;font-weight:950;letter-spacing:.15em}
@@ -1479,12 +1502,24 @@ html.pro-mode .current-mark{background:#d8b75c!important;color:#111214!important
   <section class="page-section performance-section" id="performance"><div class="section-title-row"><div><small>FREE PUBLIC PERFORMANCE</small><h2>無料公開実績</h2></div><span class="auto-label">自動集計</span></div><p class="lead">無料公開した正式ENTERのみ集計。非公開・見送り・様子見・投資0円は含めません。</p><div class="period-tabs" role="tablist"><button class="period active" data-period="today">今日</button><button class="period" data-period="days7">7日</button><button class="period" data-period="days30">30日</button><button class="period" data-period="all">累計</button></div><div class="stats-table"><div><span>回収率</span><strong id="m-roi">--</strong></div><div><span>的中率</span><strong id="m-hit">--</strong></div><div><span>収支</span><strong id="m-profit">--</strong><small id="m-races">集計中</small></div></div><div class="band-performance"><div class="band-performance-head"><div><small>PERFORMANCE BY ODDS</small><strong>配当帯別パフォーマンス</strong></div><small>予想確定時の主配分オッズで1レース1分類</small></div><div id="band-performance" class="band-list"><div class="skeleton"></div></div></div></section>
   <section class="club-panel" id="club"><div class="club-panel-inner"><span>ONE BOAT CLUB</span><h2>無料は厳選。CLUBは正式判断を全部。</h2><p>無料公開枠外を含む正式ENTER全件、買い目・資金配分、判断根拠を深掘りするPRO分析を確認できる有料版です。現在は先行登録のみ受け付けています。</p><a class="club-button" href="/club.html#club-waitlist">CLUBの内容を見る</a></div></section>
 </main>
+<section id="customer-first-guide" class="customer-first-guide" hidden role="dialog" aria-modal="true" aria-labelledby="customer-guide-title">
+  <div class="customer-guide-card">
+    <small>ONE BOATの見方</small>
+    <h2 id="customer-guide-title">この3つだけ覚えればOK</h2>
+    <div class="customer-guide-items">
+      <div class="guide-item buy"><strong>予想公開</strong><span>ONE BOATが購入対象にしたレース</span></div>
+      <div class="guide-item wait"><strong>判断待ち</strong><span>まだ買わない。締切1分前までに最終判断</span></div>
+      <div class="guide-item skip"><strong>見送り</strong><span>ONE BOATはこのレースを買いません</span></div>
+    </div>
+    <button id="customer-guide-close" type="button">わかった</button>
+  </div>
+</section>
 <div id="sheet-backdrop" class="sheet-backdrop" hidden></div>
 <section id="venue-sheet" class="bottom-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="venue-sheet-title"><div class="sheet-handle"></div><div class="sheet-head"><button id="venue-close" class="sheet-back" type="button">×</button><div><small>BOAT RACE</small><h2 id="venue-sheet-title">場詳細</h2></div><span id="venue-sheet-state" class="sheet-state">--</span></div><div id="venue-sheet-meta" class="venue-sheet-meta"></div><div id="venue-races" class="venue-races"></div></section>
 <section id="race-sheet" class="bottom-sheet race-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="race-sheet-title"><div class="sheet-handle"></div><div class="sheet-head"><button id="race-back" class="sheet-back" type="button">‹</button><div><small>RACE DETAIL</small><h2 id="race-sheet-title">レース詳細</h2></div><span id="race-sheet-state" class="sheet-state">--</span></div><div id="race-detail" class="race-detail"></div></section>
 <nav class="bottom-app-nav" aria-label="下部ナビゲーション"><a href="/"><b>⌂</b><span>ホーム</span></a><a href="/today.html" class="active"><b>▦</b><span>本日の予想</span></a><a href="#results"><b><svg class="bottom-nav-chart-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V14M9 19V10M14 19V12M19 19V6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 11.5 9 8.5 13 10.2 20 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></b><span>実績</span></a><a href="/club.html"><b>◎</b><span>CLUB</span></a></nav>
 <footer><strong>ONE BOAT</strong><span>BOAT RACE ANALYTICS</span><small>© ONE BOAT</small></footer>
-<script src="/app.js?v=20260919-customerfirst3" defer></script>
+<script src="/app.js?v=20260919-customerfirst4" defer></script>
 <script src="/ai-picks.js?v=20260918-ai3" defer></script>
 <script>const mb=document.getElementById('topMenuButton'),mp=document.getElementById('topMenuPanel');function closeTopMenu(){mp.classList.remove('open');mb.setAttribute('aria-expanded','false')}mb.addEventListener('click',e=>{e.stopPropagation();const open=mp.classList.toggle('open');mb.setAttribute('aria-expanded',String(open))});document.addEventListener('click',e=>{if(!mp.contains(e.target)&&!mb.contains(e.target))closeTopMenu()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTopMenu()});</script>
 </body>
