@@ -401,10 +401,10 @@ function publicRaceCard(r,{memberActive=false}={}){
     sub=`${left?left+' ・ ':''}締切 ${timeText(dl)} ・ CLUB登録で買い目を確認`;
   }else if(savedViewMode()==='pro'){
     const pc=personaActiveCount(r);
-    sub=pc?`締切 ${timeText(r.deadline||r.close_time)} ・ ${pc}/4タイプが購入`:`締切 ${timeText(r.deadline||r.close_time)} ・ 投資 ${yen(r.stake_total_yen||r.prediction?.stake_total_yen)}`;
+    sub=pc?`締切 ${timeText(r.deadline||r.close_time)} ・ ${pc}/4人が購入`:`締切 ${timeText(r.deadline||r.close_time)} ・ 投資 ${yen(r.stake_total_yen||r.prediction?.stake_total_yen)}`;
   }else{
     const dl=r.deadline||r.close_time,left=deadlineLeftText(dl),pc=personaActiveCount(r);
-    sub=pc?`${left?left+' ・ ':''}締切 ${timeText(dl)} ・ ${pc}/4タイプが購入`:`${left?left+' ・ ':''}締切 ${timeText(dl)} ・ 買い目 ${betsOf(r).length}点`;
+    sub=pc?`${left?left+' ・ ':''}締切 ${timeText(dl)} ・ ${pc}/4人が購入`:`${left?left+' ・ ':''}締切 ${timeText(dl)} ・ 買い目 ${betsOf(r).length}点`;
   }
   const badge=settled?(r.settlement.hit?'的中':'不的中'):access.label;
   const pm=(isCommandAdmin()&&!settled&&!gated&&publicRecord(r))?clubPortfolioModel(r):null;
