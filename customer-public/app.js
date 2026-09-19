@@ -579,7 +579,7 @@ async function load(){
   const allSettled=all.filter(x=>x?.settlement),liveSettled=allSettled.slice().sort((a,b)=>deadlineMinute(b.deadline||b.close_time)-deadlineMinute(a.deadline||a.close_time)).slice(0,6);
   if(liveSettled.length)$('#result-list').innerHTML=liveSettled.map(resultCard).join('');
   updateResultToggle(allSettled.length,allSettled.filter(x=>x?.settlement?.hit===true).length);
-  const publicAccessRows=Array.isArray(o?.buyable_items)?o.buyable_items:[];
+  const publicAccessRows=Array.isArray(o?.buyable_items)?o.buyable_items:all.filter(x=>!x?.settlement);
   const publicScopeByKey=new Map(publicAccessRows.map(x=>[memberRaceKey(x.race_date||o.date,x.venue_code,x.race_no),x]));
   const memberLive=usingClub?MEMBER_TODAY_ENTER.filter(memberRecordIsBuyable).sort((a,b)=>deadlineMinute(a.deadline)-deadlineMinute(b.deadline)).map(x=>{
     const key=memberRaceKey(x.race_date||o.date,x.venue_code,x.race_no),pub=publicScopeByKey.get(key);
