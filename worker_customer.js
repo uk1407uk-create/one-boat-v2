@@ -29,7 +29,7 @@ function raceCategoryMeta(r){
 }
 function scheduleRaces(st){if(!st?.races)return[];return Object.entries(st.races).map(([rn,r])=>{const meta=raceCategoryMeta(r);return{race_no:num(r?.race_number??rn),deadline:r?.closed_at||r?.close_time||null,close_min:hmMin(r?.closed_at||r?.close_time),grade:meta.grade,women:meta.women,title:meta.title,subtitle:meta.subtitle}}).filter(x=>x.race_no>=1&&x.race_no<=12).sort((a,b)=>a.race_no-b.race_no)}
 function recordState(rec,closed=false,customerCutoff=false){if(!rec)return closed||customerCutoff?'SKIP':'PENDING';const d=decision(rec);if(d==='PRIVATE_ENTER'||rec?.__private_enter===true)return'PRIVATE';if(enter(rec))return rec.settlement?'SETTLED':'PUBLIC';if(d==='SKIP')return'SKIP';if(d==='WATCH'||d==='FINALIZING')return closed||customerCutoff?'SKIP':'WATCH';return closed||customerCutoff?'SKIP':'PENDING'}
-function noteFor(state){return state==='WATCH'?'最終判断待ち｜締切5分前までにENTERしなければ見送り':state==='SKIP'?'ONE BOATは購入しません':state==='PRIVATE'?'無料公開枠外｜CLUB限定（準備中）':state==='CLOSED'?'レース終了':state==='PENDING'?'直前分析中｜締切5分前までに最終判断':state==='UPDATING'?'正式データを更新中':''}
+function noteFor(state){return state==='WATCH'?'最終判断待ち｜締切1分前までにENTERしなければ見送り':state==='SKIP'?'ONE BOATは購入しません':state==='PRIVATE'?'無料公開枠外｜CLUB限定（準備中）':state==='CLOSED'?'レース終了':state==='PENDING'?'直前分析中｜締切1分前までに最終判断':state==='UPDATING'?'正式データを更新中':''}
 function publicItem(r,scheduleMap){const code=num(r.venue_code),rn=num(r.race_no),sc=scheduleMap?.get(`${code}-${rn}`),safe=safeRecord(r);return {...safe,venue_code:code,venue_name:VENUES[code-1]||`場${code}`,race_no:rn,deadline:r.deadline||r.close_time||sc?.deadline||null}}
 async function buildOverview(){
   const date=jstDate(),visibilityPromise=siteVisibility(date);
@@ -55,7 +55,7 @@ async function buildOverview(){
     if(!next){venues.push({code,name:VENUES[code-1],state:'FINISHED',next_race_no:12,next_deadline:rs[rs.length-1]?.deadline||null,grade:rs[0]?.grade||null,women:rs.some(x=>x.women===true),public_count:historyAvailable?publicRows.length:null});continue}
     const targetNo=next.race_no,targetRec=vr.find(r=>num(r.race_no)===targetNo)||null,targetSc=next;
     const closed=targetSc?.close_min!==null&&targetSc?.close_min!==undefined&&targetSc.close_min<=now;
-    const customerCutoff=targetSc?.close_min!==null&&targetSc?.close_min!==undefined&&(targetSc.close_min-now)<=5;
+    const customerCutoff=targetSc?.close_min!==null&&targetSc?.close_min!==undefined&&(targetSc.close_min-now)<=1;
     const state=historyAvailable?recordState(targetRec,closed,customerCutoff):'UPDATING';
     venues.push({code,name:VENUES[code-1],state,next_race_no:targetNo,next_deadline:targetSc?.deadline||null,grade:targetSc?.grade||rs[0]?.grade||null,women:targetSc?.women===true||rs.some(x=>x.women===true),public_count:historyAvailable?publicRows.length:null});
   }
@@ -98,10 +98,10 @@ async function buildVenue(code){
   if(scheduleAvailable&&!officialRs.length)return{ok:true,date,code,name:VENUES[code-1],state:'NOEVENT',public_count:historyAvailable?0:null,races:[],degraded:!historyAvailable,source:{schedule:true,predictions:historyAvailable}};
   const rs=scheduleAvailable?officialRs:Array.from({length:12},(_,i)=>{const rec=recBy.get(i+1);const deadline=rec?.deadline||rec?.close_time||null;return{race_no:i+1,deadline,close_min:hmMin(deadline)}});
   const races=rs.map(sc=>{
-    const rec=recBy.get(sc.race_no)||null,closed=scheduleAvailable&&sc.close_min!==null&&sc.close_min<=now,customerCutoff=scheduleAvailable&&sc.close_min!==null&&(sc.close_min-now)<=5;
+    const rec=recBy.get(sc.race_no)||null,closed=scheduleAvailable&&sc.close_min!==null&&sc.close_min<=now,customerCutoff=scheduleAvailable&&sc.close_min!==null&&(sc.close_min-now)<=1;
     const state=historyAvailable?recordState(rec,closed,customerCutoff):'UPDATING';
     const cutoffApplied=customerCutoff&&state==='SKIP'&&(!rec||['WATCH','FINALIZING',''].includes(decision(rec)));
-    return{race_no:sc.race_no,deadline:sc.deadline,grade:sc.grade||null,women:sc.women===true,title:sc.title||null,subtitle:sc.subtitle||null,state,note:cutoffApplied?'締切5分前までにENTER確定せず、今回は見送り':noteFor(state),record:safeRecord(rec),customer_cutoff:cutoffApplied}
+    return{race_no:sc.race_no,deadline:sc.deadline,grade:sc.grade||null,women:sc.women===true,title:sc.title||null,subtitle:sc.subtitle||null,state,note:cutoffApplied?'締切1分前までにENTER確定せず、今回は見送り':noteFor(state),record:safeRecord(rec),customer_cutoff:cutoffApplied}
   });
   const next=scheduleAvailable?races.find(r=>{const m=hmMin(r.deadline);return m===null||m>=now-1}):races.find(r=>r.state!=='CLOSED'&&r.state!=='SETTLED');
   const publicCount=historyAvailable?rows.filter(enter).length:null;
