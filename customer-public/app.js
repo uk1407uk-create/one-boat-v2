@@ -113,10 +113,10 @@ function deadlineUrgency(deadline){
   return{cls:'',left};
 }
 function venueTile(v){
-  const cls=stateClass(v.state),quiet=(v.state==='NOEVENT'||v.state==='FINISHED')?' easy-quiet':'',hasRace=Number(v.next_race_no)>=1,urg=hasRace?deadlineUrgency(v.next_deadline):{cls:'',left:null};
+  const cls=stateClass(v.state),quiet=(v.state==='NOEVENT'||v.state==='FINISHED')?' easy-quiet':'',hasRace=Number(v.next_race_no)>=1,hasPrediction=Number(v.public_count||0)>0,urg=hasRace?deadlineUrgency(v.next_deadline):{cls:'',left:null};
   const time=timeText(v.next_deadline);
   const meta=v.state==='NOEVENT'?'開催なし':v.state==='FINISHED'?'全レース終了':v.state==='UPDATING'&&!hasRace?'正式データ更新中':urg.left!==null?(urg.left<=0?`締切間近 ${time}`:`あと${urg.left}分 ${time}`):`締切 ${time}`;
-  return `<button class="venue-tile ${cls}${quiet}" type="button" data-code="${String(v.code).padStart(2,'0')}" aria-label="${esc(v.name)} ${stateLabel(v.state)}"><span class="venue-name">${esc(v.name)}</span><span class="venue-strip">${stateLabel(v.state)}</span><span class="venue-meta"><strong>${v.state==='NOEVENT'||!hasRace?'—':`${v.next_race_no}R`}</strong><em class="${urg.cls}">${esc(meta)}</em></span></button>`;
+  return `<button class="venue-tile ${cls}${quiet}${hasPrediction?' has-auto-prediction':''}" type="button" data-code="${String(v.code).padStart(2,'0')}" aria-label="${esc(v.name)} ${stateLabel(v.state)}"><span class="venue-name">${esc(v.name)}</span><span class="venue-strip">${stateLabel(v.state)}</span><span class="venue-meta"><strong>${v.state==='NOEVENT'||!hasRace?'—':`${v.next_race_no}R`}</strong><em class="${urg.cls}">${esc(meta)}</em></span></button>`;
 }
 function renderVenues(venues){$('#venue-grid').innerHTML=(venues||[]).map(venueTile).join('');document.querySelectorAll('.venue-tile').forEach(b=>b.addEventListener('click',()=>openVenue(b.dataset.code)))}
 function freeProgressModel(o){
@@ -301,6 +301,9 @@ function raceDetail(r){
     <div><span>判定</span><strong>${state}</strong></div>
     <div><span>投資</span><strong>${effectiveState==='PRIVATE'?'非公開':publicRecord(rec)?yen(stake):'購入なし'}</strong></div>
   </div>`;
+  if(effectiveState==='WATCH'||effectiveState==='PENDING'){
+    html+=`<div class="final-decision-note"><strong>最終判断</strong><span>締切1分前までに確定。ENTERしなければ見送りです。</span></div>`;
+  }
 
   if(effectiveState==='PRIVATE'){
     html+=`<section class="detail-block decision-message private-access-teaser"><div class="detail-label">ONE BOATの判断</div><h3>正式ENTER / 無料公開枠外</h3><p>ONE BOATでは正式ENTER判定です。無料公開枠外のため、買い目・資金配分・PRO分析は非表示です。CLUBでは正式ENTER全件を確認できる設計です。</p><a class="private-access-open" href="/club.html?plan=club_monthly#club-waitlist">CLUBで正式判断を見る</a><small class="private-access-note">現在は先行登録のみ。登録だけでは課金されません。</small></section>`;
