@@ -23,11 +23,11 @@
   }
   function roleText(v){var x=String(v||'').toLowerCase();if(/main|本線|primary|core/.test(x))return'本線';if(/cover|押さえ|抑え|sub|secondary/.test(x))return'押さえ';return'買い目'}
   function personaPart(portfolio,t){return portfolio&&portfolio.applied===true?portfolio[t.persona]||null:null}
-  function personaCards(portfolio,deadline,metricScope){
+  function personaCards(portfolio,deadline,metricScope,personaSettlements){
     var first=null;for(var i=0;i<TYPES.length;i++){var pp=personaPart(portfolio,TYPES[i]);if(pp&&pp.status==='BUY'&&Array.isArray(pp.picks)&&pp.picks.length){first=TYPES[i].key;break}}
     var html='';
     TYPES.forEach(function(t){
-      var pp=personaPart(portfolio,t)||{},xs=Array.isArray(pp.picks)?pp.picks:[],buy=pp.status==='BUY'&&xs.length>0,m=metric(t.key,metricScope),stake=Number(pp.stake_total_yen||0);
+      var pp=personaPart(portfolio,t)||{},xs=Array.isArray(pp.picks)?pp.picks:[],buy=pp.status==='BUY'&&xs.length>0,m=metric(t.key,metricScope),stake=Number(pp.stake_total_yen||0),ps=(Array.isArray(personaSettlements)?personaSettlements:[]).find(function(z){return String(z&&z.persona_key||'')===t.persona&&String(z&&z.version||'')===String(portfolio&&portfolio.version||'persona-v1')});
       html+='<details class="ai-pick-card ai-'+t.key+'" '+(first===t.key?'open':'')+'>';
       html+='<summary><div class="ai-card-top"><div class="ai-card-title"><small>ONE BOAT AI</small><strong>'+t.name+'</strong><p>'+t.desc+'</p></div><span class="ai-range">'+t.range+'</span></div>';
       html+='<div class="ai-card-metrics"><div><span>的中率</span><strong>'+metricValue(m,'hit_rate')+'</strong></div><div><span>回収率</span><strong>'+metricValue(m,'roi')+'</strong></div><div><span>買い目</span><strong>'+(buy?xs.length:0)+'点</strong></div></div>';
@@ -42,13 +42,14 @@
         html+='<p><strong>見送り</strong><br>'+esc(pp.reason||'このタイプの購入条件に該当していません。')+'</p>';
       }
       if(pp.reason&&buy)html+='<small class="persona-reason">'+esc(pp.reason)+'</small>';
+      if(ps){var pr=Number(ps.profit_yen||0);html+='<div class="persona-result '+(ps.hit?'hit':'miss')+'"><span>'+(ps.hit?'的中':'不的中')+'</span><strong>払戻 '+yen(Number(ps.payout_yen||0))+'</strong><em class="'+(pr>=0?'positive':'negative')+'">'+(pr>0?'+':'')+yen(pr)+'</em></div>'}
       html+=(m&&Number(m.races)>0)?'<small class="ai-sample">新方式実績 '+Number(m.races)+'レース</small>':'<small class="ai-sample">新方式の正式結果が揃った分から集計します。</small>';
       html+='</div></details>';
     });
     return html;
   }
-  function cards(bets,deadline,strategyMode,metricScope,portfolio){
-    if(portfolio&&portfolio.applied===true)return personaCards(portfolio,deadline,metricScope);
+  function cards(bets,deadline,strategyMode,metricScope,portfolio,personaSettlements){
+    if(portfolio&&portfolio.applied===true)return personaCards(portfolio,deadline,metricScope,personaSettlements);
     var g=groups(bets,strategyMode);var first=null;for(var i=0;i<TYPES.length;i++){if(g[TYPES[i].key].length){first=TYPES[i].key;break}}
     var html='';
     TYPES.forEach(function(t){
@@ -115,14 +116,14 @@
     html+='<section class="easy-decision '+stateClass(r.state)+'"><small>ONE BOAT判定</small><strong>'+state+'</strong><p>'+esc(portfolio&&portfolio.applied===true?(portfolio.has_any_pick?'4タイプのうち購入条件を満たした予想があります。':'4タイプすべて見送りです。'):(reasonShort||(publicRecord(rec)?'正式予想が確定しました。':'必要な正式データを確認しています。')))+'</p></section>';
     if(hasPrediction){
       var headLabel=portfolio&&portfolio.applied===true?'4タイプ別予想':'正式買い目',headCount=portfolio&&portfolio.applied===true?(activeTypes+'/4タイプ'):(bets.length+'点');
-      html+='<section class="official-ai-section"><div class="detail-label">AI予想｜'+headLabel+'</div><div class="official-order-head"><strong>買い目</strong><span>'+headCount+'</span></div><div class="ai-pick-stack">'+cards(bets,r.deadline,strategyMode,metricScope,portfolio)+'</div><p class="odds-range-note">'+(portfolio&&portfolio.applied===true?'※4タイプは同じONE BOAT予測データを、それぞれ異なる購入方針で選別しています。各タイプ1レース最大5,000円で、条件に応じて使わない資金もあります。':'※旧方式の予想表示です。')+'</p></section>';
+      html+='<section class="official-ai-section"><div class="detail-label">AI予想｜'+headLabel+'</div><div class="official-order-head"><strong>買い目</strong><span>'+headCount+'</span></div><div class="ai-pick-stack">'+cards(bets,r.deadline,strategyMode,metricScope,portfolio,rec.persona_settlements)+'</div><p class="odds-range-note">'+(portfolio&&portfolio.applied===true?'※4タイプは同じONE BOAT予測データを、それぞれ異なる購入方針で選別しています。各タイプ1レース最大5,000円で、条件に応じて使わない資金もあります。':'※旧方式の予想表示です。')+'</p></section>';
       html+='<section class="purchase-glance"><div><span>'+(portfolio&&portfolio.applied===true?'購入タイプ':'正式買い目')+'</span><strong>'+(portfolio&&portfolio.applied===true?activeTypes+' / 4':bets.length+'点')+'</strong></div><div class="deadline-cell"><span>締切まで</span><strong>'+left+'</strong><small>締切 '+timeText(r.deadline)+'</small></div></section>';
     }else{
       html+='<section class="purchase-glance no-buy"><div><span>購入</span><strong>なし</strong></div><div class="deadline-cell"><span>締切まで</span><strong>'+left+'</strong><small>締切 '+timeText(r.deadline)+'</small></div></section>';
       html+='<section class="detail-block decision-message"><div class="detail-label">ONE BOATの判断</div><h3>'+state+'</h3><p>'+esc(portfolio&&portfolio.applied===true?'4タイプすべて購入条件に届かなかったため見送ります。':(reasonShort||r.note||'正式データが揃うまで直前分析中として表示します。'))+'</p></section>';
     }
     html+='<a class="pro-jump" data-view-mode="pro" href="'+proHref+'"><span><small>PRO MODE</small><strong>詳しい根拠・展示・モーター・オッズを見る</strong></span><b>›</b></a>';
-    if(sett){var tri=(sett.result&&sett.result.trifecta)||sett.trifecta||'--',profit=Number(sett.profit_yen||0);html+='<section class="detail-block result-block '+(sett.hit?'hit':'miss')+'"><div class="detail-label">RESULT</div><h3>'+(sett.hit?'的中':'不的中')+'　3連単 '+esc(tri)+'</h3><div class="result-grid"><div><span>旧正式投資</span><strong>'+yen(stake)+'</strong></div><div><span>払戻</span><strong>'+yen(sett.payout_yen)+'</strong></div><div><span>収支</span><strong class="'+(profit>=0?'positive':'negative')+'">'+(profit>0?'+':'')+yen(profit)+'</strong></div></div></section>'}
+    if(sett&&!(portfolio&&portfolio.applied===true)){var tri=(sett.result&&sett.result.trifecta)||sett.trifecta||'--',profit=Number(sett.profit_yen||0);html+='<section class="detail-block result-block '+(sett.hit?'hit':'miss')+'"><div class="detail-label">RESULT</div><h3>'+(sett.hit?'的中':'不的中')+'　3連単 '+esc(tri)+'</h3><div class="result-grid"><div><span>旧正式投資</span><strong>'+yen(stake)+'</strong></div><div><span>払戻</span><strong>'+yen(sett.payout_yen)+'</strong></div><div><span>収支</span><strong class="'+(profit>=0?'positive':'negative')+'">'+(profit>0?'+':'')+yen(profit)+'</strong></div></div></section>'}
     return html;
   };
   var BASE_RENDER_OPEN_RACE=renderOpenRace;
