@@ -89,6 +89,14 @@ body:not(.pro-mode) .today-intro{display:none}
 .venue-tile.settled{border:2px solid #80bca9!important}.venue-tile.settled .venue-name{background:#f1fbf7!important}.venue-tile.settled .venue-strip{background:#238b70!important}
 .venue-tile.pending{border:2px solid #aec8da!important}.venue-tile.pending .venue-name{background:#f6fbff!important}.venue-tile.pending .venue-strip{background:#78afd1!important}
 .venue-tile.idle{opacity:.72!important;background:#f4f7f9!important;border:2px solid #cbd7df!important;box-shadow:0 2px 5px rgba(24,74,110,.035)!important}.venue-tile.idle .venue-name,.venue-tile.idle .venue-meta{background:#f6f8fa!important;color:#8799a6!important}.venue-tile.idle .venue-strip{background:#b8c4cc!important}.venue-tile.idle .venue-meta strong,.venue-tile.idle .venue-meta em{color:#8798a4!important}
+body:not(.pro-mode) .customer-decision-board{display:none!important}
+.status.access-sns{background:#eaf8f2!important;color:#16825f!important;border:1px solid #bfe8d8!important}
+.status.access-site{background:#eaf5ff!important;color:#167dc1!important;border:1px solid #bdddf3!important}
+.status.access-club{background:#fff7df!important;color:#8c6811!important;border:1px solid #ead28d!important}
+.race-card-button.club-gated{border-color:#e3cc88!important;background:linear-gradient(135deg,#fffdf7,#fff)!important}
+.race-card-button.club-gated .race-main small{color:#8a7440!important}
+.embedded-results{margin-top:18px;padding-top:16px;border-top:1px solid #dde8ee}
+.embedded-results .section-title-row{margin-left:0!important;margin-right:0!important;border-radius:7px!important}
 .public-title{margin-top:0!important;padding-top:9px!important;border-top:0!important}.race-list,.result-list{margin-top:8px!important}.race-card,.result-card{border:1px solid #ccdce6!important;border-radius:8px!important;box-shadow:0 2px 6px rgba(24,74,110,.055)!important;background:#fff!important}.race-card-button:before{display:none!important}
 .performance-section{margin:10px 10px 12px!important;padding:0 10px 12px!important;border:1px solid #cfdee7!important;border-radius:8px!important;background:#fff!important;color:#082f59!important;box-shadow:var(--shadow)!important}.performance-section .section-title-row{margin-left:-10px!important;margin-right:-10px!important;margin-bottom:8px!important;border-radius:7px 7px 0 0}.performance-section .section-title-row h2{color:#fff!important}.performance-section .section-title-row small{color:#cfefff!important}.performance-section .lead{color:#667e92!important}.performance-section .auto-label{background:#fff!important;color:#0b7fc5!important;border:0!important}.performance-section .period-tabs{background:#edf4f8!important;border:1px solid #d5e3eb!important;border-radius:6px!important}.performance-section .period{background:transparent!important;color:#668093!important;border-color:transparent!important}.performance-section .period.active{background:#087bd5!important;color:#fff!important;border-radius:5px!important}.performance-section .stats-table{background:#fff!important;border:1px solid #d5e2ea!important;box-shadow:none!important;border-radius:7px!important}.performance-section .stats-table>div{border-color:#e5edf2!important}.performance-section .stats-table span,.performance-section .stats-table small{color:#71879a!important}.performance-section .stats-table strong{color:#082f59!important}
 #results{padding-top:4px!important;padding-bottom:10px!important}#results .section-title-row{margin-bottom:8px!important}.transparency{color:#71879a!important;font-size:10px!important}
@@ -1571,21 +1579,22 @@ html.pro-mode .current-mark{background:#d8b75c!important;color:#111214!important
     </div>
     <button id="next-decision-card" class="next-decision-card empty" type="button"><div><small>NEXT DECISION</small><strong>次に判定するレースを確認中</strong><span>購入するか見送るか、決まり次第表示します。</span></div></button>
   </section>
-  <section class="page-section today-section" id="today">
+  <section class="page-section today-section buy-now-section" id="today">
     <div class="date-row"><button class="date-nav muted" type="button" disabled>‹ 前日</button><div><small>TODAY</small><strong id="today-date">本日のレース</strong></div><button class="date-nav muted" type="button" disabled>翌日 ›</button></div>
+    <div class="section-title-row public-title"><div><small>ONE BOAT SELECT</small><h2 id="public-title-text">本日の公開予想</h2></div><span id="public-count" class="count-label">--</span></div>
+    <p class="lead public-lead">公開範囲を「SNS公開・サイト限定・CLUB会員限定」で表示します。</p>
+    <button id="club-enter-toggle" class="club-enter-toggle" type="button" aria-expanded="false" hidden></button>
+    <div id="today-list" class="race-list"><div class="skeleton"></div><div class="skeleton"></div></div>
+  </section>
+  <section class="page-section performance-section" id="performance"><div class="section-title-row"><div><small>FREE PUBLIC PERFORMANCE</small><h2>無料公開実績</h2></div><span class="auto-label">自動集計</span></div><p class="lead">無料公開した正式ENTERのみ集計。非公開・見送り・様子見・投資0円は含めません。</p><div class="period-tabs" role="tablist"><button class="period active" data-period="today">今日</button><button class="period" data-period="days7">7日</button><button class="period" data-period="days30">30日</button><button class="period" data-period="all">累計</button></div><div class="stats-table"><div><span>回収率</span><strong id="m-roi">--</strong></div><div><span>的中率</span><strong id="m-hit">--</strong></div><div><span>収支</span><strong id="m-profit">--</strong><small id="m-races">集計中</small></div></div><div class="band-performance"><div class="band-performance-head"><div><small>PERFORMANCE BY ODDS</small><strong>予想タイプ別パフォーマンス</strong></div><small>安定・中配当・高配当＋BOX型AIを独立集計</small></div><div id="band-performance" class="band-list"><div class="skeleton"></div></div><aside id="box-validation-reference" class="box-validation-reference" hidden></aside></div><div class="live-results-section embedded-results" id="results"><div class="section-title-row"><div><small>LIVE RESULTS</small><h2>無料公開最新結果</h2></div><span class="auto-label">自動更新</span></div><button id="result-toggle" class="result-toggle" type="button" aria-expanded="false"><span><small>LIVE RESULTS</small><strong>最新結果を見る</strong><em>結果を確認中</em></span><i>▼</i></button><div id="result-list" class="result-list" hidden><div class="skeleton"></div></div><p class="transparency" hidden>的中だけを選ばず、無料公開したレースを結果順にそのまま表示します。</p></div></section>
+  <section class="club-panel" id="club"><div class="club-panel-inner"><span>ONE BOAT CLUB</span><h2>無料は厳選。CLUBは正式判断を全部。</h2><p>無料公開枠外を含む正式ENTER全件、買い目・資金配分、判断根拠を深掘りするPRO分析を確認できる有料版です。現在は先行登録のみ受け付けています。</p><a class="club-button" href="/club.html#club-waitlist">CLUB有料登録へ</a></div></section>
+  <section class="page-section today-section venue-search-section" id="venues">
     <div class="section-title-row venue-title"><div><small>RACE STADIUMS</small><h2 id="venue-title-text">全国24場</h2></div><span id="today-count" class="count-label">確認中</span></div>
     <p class="lead venue-lead">場を選んで1R〜12Rを確認</p>
     <div class="venue-legend"><span><i class="lg-live"></i>予想公開</span><span><i class="lg-watch"></i>様子見</span><span><i class="lg-skip"></i>見送り</span><span><i class="lg-idle"></i>非開催/終了</span></div>
     <div class="venue-grid" id="venue-grid" aria-label="全国24場"></div>
     <button id="venue-toggle" class="venue-toggle" type="button" aria-expanded="false">全24場を見る</button>
-    <div class="section-title-row public-title"><div><small>ONE BOAT SELECT</small><h2 id="public-title-text">本日の公開予想</h2></div><span id="public-count" class="count-label">--</span></div>
-    <p class="lead public-lead">正式ENTERのみ公開</p>
-    <button id="club-enter-toggle" class="club-enter-toggle" type="button" aria-expanded="false" hidden></button>
-    <div id="today-list" class="race-list"><div class="skeleton"></div><div class="skeleton"></div></div>
   </section>
-  <section class="page-section live-results-section" id="results"><div class="section-title-row"><div><small>LIVE RESULTS</small><h2>無料公開最新結果</h2></div><span class="auto-label">自動更新</span></div><button id="result-toggle" class="result-toggle" type="button" aria-expanded="false"><span><small>LIVE RESULTS</small><strong>最新結果を見る</strong><em>結果を確認中</em></span><i>▼</i></button><div id="result-list" class="result-list" hidden><div class="skeleton"></div></div><p class="transparency" hidden>的中だけを選ばず、無料公開したレースを結果順にそのまま表示します。</p></section>
-  <section class="page-section performance-section" id="performance"><div class="section-title-row"><div><small>FREE PUBLIC PERFORMANCE</small><h2>無料公開実績</h2></div><span class="auto-label">自動集計</span></div><p class="lead">無料公開した正式ENTERのみ集計。非公開・見送り・様子見・投資0円は含めません。</p><div class="period-tabs" role="tablist"><button class="period active" data-period="today">今日</button><button class="period" data-period="days7">7日</button><button class="period" data-period="days30">30日</button><button class="period" data-period="all">累計</button></div><div class="stats-table"><div><span>回収率</span><strong id="m-roi">--</strong></div><div><span>的中率</span><strong id="m-hit">--</strong></div><div><span>収支</span><strong id="m-profit">--</strong><small id="m-races">集計中</small></div></div><div class="band-performance"><div class="band-performance-head"><div><small>PERFORMANCE BY ODDS</small><strong>予想タイプ別パフォーマンス</strong></div><small>安定・中配当・高配当＋BOX型AIを独立集計</small></div><div id="band-performance" class="band-list"><div class="skeleton"></div></div><aside id="box-validation-reference" class="box-validation-reference" hidden></aside></div></section>
-  <section class="club-panel" id="club"><div class="club-panel-inner"><span>ONE BOAT CLUB</span><h2>無料は厳選。CLUBは正式判断を全部。</h2><p>無料公開枠外を含む正式ENTER全件、買い目・資金配分、判断根拠を深掘りするPRO分析を確認できる有料版です。現在は先行登録のみ受け付けています。</p><a class="club-button" href="/club.html#club-waitlist">CLUBの内容を見る</a></div></section>
 </main>
 <section id="customer-first-guide" class="customer-first-guide" hidden role="dialog" aria-modal="true" aria-labelledby="customer-guide-title">
   <div class="customer-guide-card">
@@ -1593,7 +1602,7 @@ html.pro-mode .current-mark{background:#d8b75c!important;color:#111214!important
     <h2 id="customer-guide-title">この3つだけ覚えればOK</h2>
     <div class="customer-guide-items">
       <div class="guide-item buy"><strong>無料公開</strong><span>ONE BOATが購入対象にした無料予想</span></div>
-      <div class="guide-item wait"><strong>判断待ち</strong><span>まだ買わない。締切5分前までに最終判断</span></div>
+      <div class="guide-item wait"><strong>判断待ち</strong><span>まだ買わない。締切1分前までに最終判断</span></div>
       <div class="guide-item skip"><strong>見送り</strong><span>ONE BOATはこのレースを買いません</span></div>
     </div>
     <button id="customer-guide-close" type="button">わかった</button>
@@ -1604,7 +1613,7 @@ html.pro-mode .current-mark{background:#d8b75c!important;color:#111214!important
 <section id="race-sheet" class="bottom-sheet race-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="race-sheet-title"><div class="sheet-handle"></div><div class="sheet-head"><button id="race-back" class="sheet-back" type="button">‹</button><div><small>RACE DETAIL</small><h2 id="race-sheet-title">レース詳細</h2></div><span id="race-sheet-state" class="sheet-state">--</span></div><div id="race-detail" class="race-detail"></div></section>
 <nav class="bottom-app-nav" aria-label="下部ナビゲーション"><a href="/"><b>⌂</b><span>ホーム</span></a><a href="/today.html" class="active"><b>▦</b><span>本日の予想</span></a><a href="#results"><b><svg class="bottom-nav-chart-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V14M9 19V10M14 19V12M19 19V6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 11.5 9 8.5 13 10.2 20 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></b><span>実績</span></a><a href="/club.html"><b>◎</b><span>CLUB</span></a></nav>
 <footer><strong>ONE BOAT</strong><span>BOAT RACE ANALYTICS</span><small>© ONE BOAT</small></footer>
-<script src="/app.js?v=20260919-cutoff1m1" defer></script>
+<script src="/app.js?v=20260919-accesslayout1" defer></script>
 <script src="/ai-picks.js?v=20260918-ai3" defer></script>
 <script>const mb=document.getElementById('topMenuButton'),mp=document.getElementById('topMenuPanel');function closeTopMenu(){mp.classList.remove('open');mb.setAttribute('aria-expanded','false')}mb.addEventListener('click',e=>{e.stopPropagation();const open=mp.classList.toggle('open');mb.setAttribute('aria-expanded',String(open))});document.addEventListener('click',e=>{if(!mp.contains(e.target)&&!mb.contains(e.target))closeTopMenu()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTopMenu()});</script>
 </body>
