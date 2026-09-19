@@ -442,21 +442,20 @@ function renderBandPerformance(key='today'){
   const root=STATS?.ai_types||{},types=root?.[key]?.stable?root[key]:root;
   const box=$('#band-performance');if(!box)return;
   const meta={
-    stable:{person:'SORA',role:'安定派',initial:'S',tagline:'絞れる時だけ、厚く。'},
-    mid:{person:'REN',role:'中配当派',initial:'R',tagline:'確率と妙味のバランス。'},
-    high:{person:'KAI',role:'高配当派',initial:'K',tagline:'人気より、評価差を見る。'},
-    box:{person:'JIN',role:'BOX派',initial:'J',tagline:'順番より、来る艇を読む。'}
+    stable:{label:'安定型AI',role:'安定型',tagline:'絞れる時だけ、厚く。'},
+    mid:{label:'中配当型AI',role:'中配当型',tagline:'確率と妙味のバランス。'},
+    high:{label:'高配当型AI',role:'高配当型',tagline:'人気より、評価差を見る。'},
+    box:{label:'BOX型AI',role:'BOX型',tagline:'順番より、来る艇を読む。'}
   };
   const order=['stable','mid','high','box'];
-  if(!types?.stable){box.innerHTML='<div class="race-card"><div class="race-main"><strong>集計中</strong><small>4人の予想家実績を更新しています。</small></div></div>';return}
+  if(!types?.stable){box.innerHTML='<div class="race-card"><div class="race-main"><strong>集計中</strong><small>分析タイプ別実績を更新しています。</small></div></div>';return}
   box.innerHTML=order.map(k=>{
     const m=types[k]||{},a=meta[k],races=Number(m.races||0),hits=Number(m.hits||0),roi=Number(m.roi||0),profit=Number(m.profit_yen||0),stake=Number(m.stake_yen||0),payout=Number(m.payout_yen||0),avgPts=Number(m.avg_points||0),avgStake=Number(m.avg_stake_yen||0),sample=m.sample_status||'新方式・参考値';
     const roiTone=races===0?'neutral':roi>=100?'positive':'negative';
     const profitText=profit>0?`+${yen(profit)}`:yen(profit);
     return `<article class="analyst-performance-card analyst-${k}">
       <div class="analyst-performance-head">
-        <div class="analyst-performance-avatar">${esc(a.initial)}</div>
-        <div class="analyst-performance-id"><small>ONE BOAT ANALYST / ${esc(a.role)}</small><strong>${esc(a.person)} <i>${esc(m.name||'')}</i></strong><span>${esc(a.tagline)}</span></div>
+        <div class="analyst-performance-id"><small>ONE BOAT ANALYSIS / ${esc(a.role)}</small><strong>${esc(a.label)}</strong><span>${esc(a.tagline)}</span></div>
         <em>${esc(sample)}</em>
       </div>
       <div class="analyst-performance-main">
