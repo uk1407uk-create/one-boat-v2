@@ -239,16 +239,31 @@ function renderFreeStrip(o){
   const complete=m.complete?`<div class="free-complete">本日の無料公開は終了しました</div>`:'';
   $('#free-strip-list').innerHTML=`<div class="free-progress-card"><div class="free-progress-head"><div><small>TODAY FREE</small><strong>本日の無料予想</strong></div><span class="${liveClass}"><i></i>${liveState}</span></div><div class="free-progress-numbers"><div class="free-used"><strong>${m.count}</strong><span>/ ${m.limit}R</span></div><div class="free-remaining"><small>残り</small><strong>${m.remaining}R</strong></div></div>${complete}<p class="free-progress-note">正式ENTERのみ公開</p></div>`;
 }
-function publicRaceCard(r){
-  const settled=!!r.settlement,memberEnter=!settled&&['paid','staff'].includes(String(r?.access_scope||'')),strategyMode=String(r?.prediction?.strategy_mode||''),siteOnly=String(r?.visibility_code||'')==='SNS_PRIVATE'||String(r?.customer_visibility_label||'')==='サイト限定',status=settled?(r.settlement.hit?'的中':'不的中'):(siteOnly?'サイト限定':strategyMode==='BOX'?'BOX型AI':memberEnter?'正式ENTER':'無料公開'),cls=settled?(r.settlement.hit?'hit':'miss'):'locked';
+function predictionAccess(r){
+  const d=String(r?.decision||r?.prediction?.decision||'').toUpperCase();
+  const visibility=String(r?.visibility_code||'');
+  const club=d==='PRIVATE_ENTER'||visibility==='FULL_PRIVATE'||r?.__private_enter===true||r?.club_only===true;
+  if(club)return{label:'CLUB会員限定',cls:'access-club',club:true};
+  const siteOnly=visibility==='SNS_PRIVATE'||String(r?.customer_visibility_label||'')==='サイト限定';
+  if(siteOnly)return{label:'サイト限定',cls:'access-site',club:false};
+  return{label:'SNS公開',cls:'access-sns',club:false};
+}
+function publicRaceCard(r,{memberActive=false}={}){
+  const settled=!!r.settlement,access=predictionAccess(r),gated=access.club&&!memberActive,cls=settled?(r.settlement.hit?'hit':'miss'):access.cls;
   let sub;
-  if(savedViewMode()==='pro'){
-    sub=settled?`${r.settlement?.result?.trifecta||r.settlement?.trifecta||'結果反映済'} ・ ${r.settlement.hit?`払戻 ${yen(r.settlement.payout_yen)}`:'結果公開'}`:`締切 ${timeText(r.deadline||r.close_time)} ・ 投資 ${yen(r.stake_total_yen||r.prediction?.stake_total_yen)}`;
+  if(settled){
+    sub=`${r.settlement?.result?.trifecta||r.settlement?.trifecta||'結果反映済'} ・ ${r.settlement.hit?`払戻 ${yen(r.settlement.payout_yen)}`:'結果公開'}`;
+  }else if(gated){
+    const dl=r.deadline||r.close_time,left=deadlineLeftText(dl);
+    sub=`${left?left+' ・ ':''}締切 ${timeText(dl)} ・ CLUB登録で買い目を確認`;
+  }else if(savedViewMode()==='pro'){
+    sub=`締切 ${timeText(r.deadline||r.close_time)} ・ 投資 ${yen(r.stake_total_yen||r.prediction?.stake_total_yen)}`;
   }else{
     const dl=r.deadline||r.close_time,left=deadlineLeftText(dl);
-    sub=settled?`${r.settlement?.result?.trifecta||r.settlement?.trifecta||'結果反映済'} ・ ${r.settlement.hit?`払戻 ${yen(r.settlement.payout_yen)}`:'結果公開'}`:`${left?left+' ・ ':''}締切 ${timeText(dl)} ・ 買い目 ${betsOf(r).length}点`;
+    sub=`${left?left+' ・ ':''}締切 ${timeText(dl)} ・ 買い目 ${betsOf(r).length}点`;
   }
-  return `<button class="race-card race-card-button" type="button" data-vcode="${String(r.venue_code).padStart(2,'0')}" data-rno="${Number(r.race_no)}"><div class="race-main"><strong>${esc(r.venue_name)} ${Number(r.race_no)}R</strong><small>${esc(sub)}</small></div><span class="status ${cls}">${status}</span></button>`;
+  const badge=settled?(r.settlement.hit?'的中':'不的中'):access.label;
+  return `<button class="race-card race-card-button${gated?' club-gated':''}" type="button" data-vcode="${String(r.venue_code).padStart(2,'0')}" data-rno="${Number(r.race_no)}" data-access="${access.club?'club':access.cls.replace('access-','')}"><div class="race-main"><strong>${esc(r.venue_name)} ${Number(r.race_no)}R</strong><small>${esc(sub)}</small></div><span class="status ${cls}">${badge}</span></button>`;
 }
 function normalizeResultTicket(v){return String(v||'').replace(/[‐‑‒–—―ー−]/g,'-').replace(/\s+/g,'').trim()}
 function resultModel(x){
@@ -564,8 +579,16 @@ async function load(){
   const allSettled=all.filter(x=>x?.settlement),liveSettled=allSettled.slice().sort((a,b)=>deadlineMinute(b.deadline||b.close_time)-deadlineMinute(a.deadline||a.close_time)).slice(0,6);
   if(liveSettled.length)$('#result-list').innerHTML=liveSettled.map(resultCard).join('');
   updateResultToggle(allSettled.length,allSettled.filter(x=>x?.settlement?.hit===true).length);
-  const memberLive=usingClub?MEMBER_TODAY_ENTER.filter(memberRecordIsBuyable).sort((a,b)=>deadlineMinute(a.deadline)-deadlineMinute(b.deadline)):[];
-  const items=memberSyncBlocked?[]:usingClub?(pro?MEMBER_TODAY_ENTER:memberLive):(pro?all:all.filter(x=>!x.settlement).sort((a,b)=>deadlineMinute(a.deadline||a.close_time)-deadlineMinute(b.deadline||b.close_time)));
+  const publicAccessRows=Array.isArray(o?.buyable_items)?o.buyable_items:[];
+  const publicScopeByKey=new Map(publicAccessRows.map(x=>[memberRaceKey(x.race_date||o.date,x.venue_code,x.race_no),x]));
+  const memberLive=usingClub?MEMBER_TODAY_ENTER.filter(memberRecordIsBuyable).sort((a,b)=>deadlineMinute(a.deadline)-deadlineMinute(b.deadline)).map(x=>{
+    const key=memberRaceKey(x.race_date||o.date,x.venue_code,x.race_no),pub=publicScopeByKey.get(key);
+    return pub?{...x,visibility_code:pub.visibility_code,customer_visibility_label:pub.customer_visibility_label}:{...x,visibility_code:'FULL_PRIVATE',club_only:true};
+  }):[];
+  const items=memberSyncBlocked?[]:usingClub?(pro?MEMBER_TODAY_ENTER.map(x=>{
+    const key=memberRaceKey(x.race_date||o.date,x.venue_code,x.race_no),pub=publicScopeByKey.get(key);
+    return pub?{...x,visibility_code:pub.visibility_code,customer_visibility_label:pub.customer_visibility_label}:{...x,visibility_code:'FULL_PRIVATE',club_only:true};
+  }):memberLive):(pro?all:publicAccessRows);
   const clubToggle=$('#club-enter-toggle'),todayList=$('#today-list');
   if(memberSyncBlocked){
     const title=$('#public-title-text');if(title)title.textContent='CLUB 正式判定を再取得中';
@@ -600,8 +623,11 @@ async function load(){
     if(todayList)todayList.hidden=false;
     $('#public-count').textContent=o.public_count===null||o.public_count===undefined?'更新中':pro?`無料 ${Number(o.public_count)}/${Number(o.free_limit||30)}R`:`公開中 ${items.length}R`;
   }
-  $('#today-list').innerHTML=memberSyncBlocked?'<div class="race-card"><div class="race-main"><strong>CLUB正式判定を再取得中</strong><small>取得完了まで「判定中」へ戻さず、正式データを再確認します。</small></div></div>':items.length?items.map(publicRaceCard).join(''):(usingClub&&!pro?'<div class="race-card"><div class="race-main"><strong>現在、購入可能な正式ENTERはありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>':usingClub?'<div class="race-card"><div class="race-main"><strong>本日の正式ENTERはまだありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>':pro?'<div class="race-card"><div class="race-main"><strong>現在、公開対象なし</strong><small>対象レースが確定すると自動表示します</small></div></div>':'<div class="race-card"><div class="race-main"><strong>現在、公開中の予想はありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>');
-  document.querySelectorAll('.race-card-button').forEach(b=>b.addEventListener('click',async()=>{await openVenue(b.dataset.vcode);openRace(Number(b.dataset.rno))}));
+  $('#today-list').innerHTML=memberSyncBlocked?'<div class="race-card"><div class="race-main"><strong>CLUB正式判定を再取得中</strong><small>取得完了まで「判定中」へ戻さず、正式データを再確認します。</small></div></div>':items.length?items.map(x=>publicRaceCard(x,{memberActive:usingClub})).join(''):(usingClub&&!pro?'<div class="race-card"><div class="race-main"><strong>現在、購入可能な正式ENTERはありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>':usingClub?'<div class="race-card"><div class="race-main"><strong>本日の正式ENTERはまだありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>':pro?'<div class="race-card"><div class="race-main"><strong>現在、公開対象なし</strong><small>対象レースが確定すると自動表示します</small></div></div>':'<div class="race-card"><div class="race-main"><strong>現在、公開中の予想はありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>');
+  document.querySelectorAll('.race-card-button').forEach(b=>b.addEventListener('click',async()=>{
+    if(b.dataset.access==='club'&&!usingClub){location.href='/club.html#club-waitlist';return}
+    await openVenue(b.dataset.vcode);openRace(Number(b.dataset.rno))
+  }));
   const nextCard=$('#next-decision-card');if(nextCard&&!nextCard.dataset.bound){nextCard.dataset.bound='1';nextCard.addEventListener('click',async()=>{const vc=nextCard.dataset.vcode,rn=Number(nextCard.dataset.rno);if(vc&&rn>=1&&rn<=12){await openVenue(vc);openRace(rn)}})}
 
   if(!AUTO_OPENED){
