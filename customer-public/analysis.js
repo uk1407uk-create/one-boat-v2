@@ -57,8 +57,13 @@ function racerLabel(lane){
   const name=String(r?.name||'').trim();
   return name?`${lane}号艇の${name}選手`:`${lane}号艇`;
 }
+function normalizeLegacyCutoffText(v){
+  return String(v||'')
+    .replace(/締切\s*1\s*分前/g,'締切5分前')
+    .replace(/1\s*分前までに/g,'5分前までに');
+}
 function plainDecisionReason(raw){
-  const s=String(raw||'').replace(/\s+/g,' ').trim();
+  const s=normalizeLegacyCutoffText(raw).replace(/\s+/g,' ').trim();
   if(!s)return'';
   const one=racerLabel(1),parts=[];
   if(/イン先マイ/.test(s))parts.push(`${one}が1マークを先に回って逃げる展開を中心に見ています。`);
@@ -346,7 +351,7 @@ function renderOfficialPrediction(v){
   }
   const rec=r.record||{},p=rec.prediction||{},bets=officialBets(rec);
   const stake=Number(rec.stake_total_yen??p.stake_total_yen??0);
-  const reason=String(p.reason||p.skip_reason||rec.reason||r.note||'').trim();
+  const reason=normalizeLegacyCutoffText(p.reason||p.skip_reason||rec.reason||r.note||'').trim();
   const theory=textValue(p.selected_theory||p.current_theory||p.strategy||rec.theory||'');
   const support=materialList(p.support_materials||rec.support_materials);
   const opposing=materialList(p.opposing_materials||rec.opposing_materials);
