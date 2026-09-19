@@ -263,7 +263,6 @@ function clubPortfolioModel(raw){
 }
 function renderClubPortfolioPlan(rows,{memberActive=false}={}){
   const root=$('#club-portfolio-beta');if(!root)return;
-  if(!isCommandAdmin()){root.hidden=true;root.innerHTML='';return}
   const allRows=Array.isArray(rows)?rows:[];
   const live=allRows.filter(x=>publicRecord(x)&&!x?.settlement);
   const settled=allRows.filter(x=>publicRecord(x)&&x?.settlement);
