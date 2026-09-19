@@ -242,6 +242,7 @@ function betsOf(r){const p=r?.prediction||{};return Array.isArray(r?.bets)&&r.be
 function referencePicksOf(r){const xs=r?.prediction?.reference_picks;return Array.isArray(xs)?xs.filter(x=>x?.ticket):[]}
 function ticketOf(x){return x?.ticket||x?.combination||x?.bet||'--'}
 function stakeOf(x){return Number(x?.stake_yen??x?.amount??x?.stake??0)}
+function isCommandAdmin(){return String(MEMBER_STATUS_SESSION?.plan||'').toLowerCase()==='staff'}
 function clubPortfolioModel(raw){
   const rec=raw?.record||raw||{},p=rec?.prediction||{},bets=betsOf(rec);
   const baseStake=Number(rec?.stake_total_yen??p?.stake_total_yen??0);
@@ -262,6 +263,7 @@ function clubPortfolioModel(raw){
 }
 function renderClubPortfolioPlan(rows,{memberActive=false}={}){
   const root=$('#club-portfolio-beta');if(!root)return;
+  if(!isCommandAdmin()){root.hidden=true;root.innerHTML='';return}
   const allRows=Array.isArray(rows)?rows:[];
   const live=allRows.filter(x=>publicRecord(x)&&!x?.settlement);
   const settled=allRows.filter(x=>publicRecord(x)&&x?.settlement);
@@ -401,7 +403,7 @@ function publicRaceCard(r,{memberActive=false}={}){
     sub=`${left?left+' ・ ':''}締切 ${timeText(dl)} ・ 買い目 ${betsOf(r).length}点`;
   }
   const badge=settled?(r.settlement.hit?'的中':'不的中'):access.label;
-  const pm=(!settled&&!gated&&publicRecord(r))?clubPortfolioModel(r):null;
+  const pm=(isCommandAdmin()&&!settled&&!gated&&publicRecord(r))?clubPortfolioModel(r):null;
   const ptag=pm?`<em class="portfolio-mini ${pm.mode.toLowerCase()}">CLUB ${esc(pm.label)}${pm.extraStake?` +${yen(pm.extraStake)}`:''}</em>`:'';
   return `<button class="race-card race-card-button${gated?' club-gated':''}" type="button" data-vcode="${String(r.venue_code).padStart(2,'0')}" data-rno="${Number(r.race_no)}" data-access="${access.club?'club':access.cls.replace('access-','')}"><div class="race-main"><strong>${esc(r.venue_name)} ${Number(r.race_no)}R</strong><small>${esc(sub)}</small>${ptag}</div><span class="status ${cls}">${badge}</span></button>`;
 }
@@ -647,7 +649,7 @@ function raceDetail(r){
     html+=`<div class="box-mode-note"><strong>BOX型AI</strong><span>${esc(b1)} BOX ＋ ${esc(b2)} BOX｜12点・総投資5,000円</span></div>`;
   }
 
-  if(publicRecord(rec)){
+  if(publicRecord(rec)&&isCommandAdmin()){
     const pm=clubPortfolioModel(rec);
     const ticketHtml=pm.mode==='FOCUS'&&pm.tickets.length?pm.tickets.map(x=>`<span><b>${esc(x.ticket)}</b><em>BOOST ${yen(x.boost_yen)}${x.odds?` / ${x.odds.toFixed(1)}倍`:''}</em></span>`).join(''):'';
     html+=`<section class="club-portfolio-detail ${pm.mode.toLowerCase()}"><div class="club-portfolio-title"><span>CLUB PORTFOLIO β</span><strong>${esc(pm.label)}</strong></div><p>${esc(pm.reason)}</p><div class="club-portfolio-money"><div><small>通常</small><b>${yen(pm.baseStake)}</b></div><div><small>追加</small><b>${pm.extraStake?'+'+yen(pm.extraStake):'なし'}</b></div><div><small>参考総投資</small><b>${yen(pm.totalStake)}</b></div></div>${ticketHtml?`<div class="club-portfolio-focus-picks">${ticketHtml}</div>`:''}<small class="club-portfolio-caution">β検証中｜正式予想・通常配分は変更していません。</small></section>`;
@@ -879,12 +881,10 @@ document.addEventListener('visibilitychange',()=>{
     return;
   }
   resetRefreshBurst();
-  syncMemberStatus({force:true});
-  load().then(scheduleLiveRefresh);
+  syncMemberStatus({force:true}).finally(()=>load().then(scheduleLiveRefresh));
   if(CURRENT_VENUE&&!$('#sheet-backdrop')?.hidden)refreshOpenVenue().then(scheduleVenueSheetRefresh);
 });
 setupPageMode();
 setupCustomerGuide();
 setupLazyStats();
-syncMemberStatus();
-load().then(scheduleLiveRefresh);
+syncMemberStatus().finally(()=>load().then(scheduleLiveRefresh));
