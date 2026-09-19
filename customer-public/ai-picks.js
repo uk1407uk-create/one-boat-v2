@@ -6,7 +6,7 @@
     {key:'box',name:'BOX型AI',range:'3艇BOX×2組',desc:'頭を絞りにくいレースを、条件を満たした時だけ2BOXで拾うタイプ。'}
   ];
   function band(odds){var o=Number(odds);if(!Number.isFinite(o)||o<1)return null;if(o<=20)return'stable';if(o<80)return'mid';return'high'}
-  function groups(bets,strategyMode){var g={stable:[],mid:[],high:[],box:[],unclassified:[]};var isBox=String(strategyMode||'').toUpperCase()==='BOX'||String(strategyMode||'')==='watch-box-e-v1';(bets||[]).forEach(function(b){if(isBox){g.box.push(b);return}var k=band(b&&b.odds);(k?g[k]:g.unclassified).push(b)});return g}
+  function groups(bets,strategyMode){var g={stable:[],mid:[],high:[],box:[],unclassified:[]};var isBox=String(strategyMode||'').toUpperCase()==='BOX'||String(strategyMode||'')==='watch-box-e-v1'||(bets||[]).some(function(b){return String(b&&b.selection_role||'').toUpperCase()==='BOX'});(bets||[]).forEach(function(b){if(isBox){g.box.push(b);return}var k=band(b&&b.odds);(k?g[k]:g.unclassified).push(b)});return g}
   function metric(key){return STATS&&STATS.ai_types?STATS.ai_types[key]||null:null}
   function metricValue(m,key){return m&&Number(m.races)>0&&Number.isFinite(Number(m[key]))?pct(m[key]):'—'}
   function oddsText(v){return Number.isFinite(Number(v))?Number(v).toFixed(1)+'倍':'データなし'}
