@@ -29,7 +29,7 @@ function raceCategoryMeta(r){
 }
 function scheduleRaces(st){if(!st?.races)return[];return Object.entries(st.races).map(([rn,r])=>{const meta=raceCategoryMeta(r);return{race_no:num(r?.race_number??rn),deadline:r?.closed_at||r?.close_time||null,close_min:hmMin(r?.closed_at||r?.close_time),grade:meta.grade,women:meta.women,title:meta.title,subtitle:meta.subtitle}}).filter(x=>x.race_no>=1&&x.race_no<=12).sort((a,b)=>a.race_no-b.race_no)}
 function recordState(rec,closed=false,customerCutoff=false){if(!rec)return closed||customerCutoff?'SKIP':'PENDING';const d=decision(rec);if(d==='PRIVATE_ENTER'||rec?.__private_enter===true)return'PRIVATE';if(enter(rec))return rec.settlement?'SETTLED':'PUBLIC';if(d==='SKIP')return'SKIP';if(d==='WATCH'||d==='FINALIZING')return closed||customerCutoff?'SKIP':'WATCH';return closed||customerCutoff?'SKIP':'PENDING'}
-function noteFor(state){return state==='WATCH'?'最終判断待ち｜締切5分前までにENTERしなければ見送り':state==='SKIP'?'ONE BOATは購入しません':state==='PRIVATE'?'無料公開枠外｜CLUB限定（準備中）':state==='CLOSED'?'レース終了':state==='PENDING'?'直前分析中｜締切5分前までに最終判断':state==='UPDATING'?'正式データを更新中':''}
+function noteFor(state){return state==='WATCH'?'最終判断待ち｜締切1分前までにENTERしなければ見送り':state==='SKIP'?'ONE BOATは購入しません':state==='PRIVATE'?'無料公開枠外｜CLUB限定（準備中）':state==='CLOSED'?'レース終了':state==='PENDING'?'直前分析中｜締切1分前までに最終判断':state==='UPDATING'?'正式データを更新中':''}
 function publicItem(r,scheduleMap){const code=num(r.venue_code),rn=num(r.race_no),sc=scheduleMap?.get(`${code}-${rn}`),safe=safeRecord(r);return {...safe,venue_code:code,venue_name:VENUES[code-1]||`場${code}`,race_no:rn,deadline:r.deadline||r.close_time||sc?.deadline||null}}
 async function buildOverview(){
   const date=jstDate(),visibilityPromise=siteVisibility(date);
@@ -55,7 +55,7 @@ async function buildOverview(){
     if(!next){venues.push({code,name:VENUES[code-1],state:'FINISHED',next_race_no:12,next_deadline:rs[rs.length-1]?.deadline||null,grade:rs[0]?.grade||null,women:rs.some(x=>x.women===true),public_count:historyAvailable?publicRows.length:null});continue}
     const targetNo=next.race_no,targetRec=vr.find(r=>num(r.race_no)===targetNo)||null,targetSc=next;
     const closed=targetSc?.close_min!==null&&targetSc?.close_min!==undefined&&targetSc.close_min<=now;
-    const customerCutoff=targetSc?.close_min!==null&&targetSc?.close_min!==undefined&&(targetSc.close_min-now)<=5;
+    const customerCutoff=targetSc?.close_min!==null&&targetSc?.close_min!==undefined&&(targetSc.close_min-now)<=1;
     const state=historyAvailable?recordState(targetRec,closed,customerCutoff):'UPDATING';
     venues.push({code,name:VENUES[code-1],state,next_race_no:targetNo,next_deadline:targetSc?.deadline||null,grade:targetSc?.grade||rs[0]?.grade||null,women:targetSc?.women===true||rs.some(x=>x.women===true),public_count:historyAvailable?publicRows.length:null});
   }
@@ -101,7 +101,7 @@ async function buildVenue(code){
     const rec=recBy.get(sc.race_no)||null,closed=scheduleAvailable&&sc.close_min!==null&&sc.close_min<=now,customerCutoff=scheduleAvailable&&sc.close_min!==null&&(sc.close_min-now)<=5;
     const state=historyAvailable?recordState(rec,closed,customerCutoff):'UPDATING';
     const cutoffApplied=customerCutoff&&state==='SKIP'&&(!rec||['WATCH','FINALIZING',''].includes(decision(rec)));
-    return{race_no:sc.race_no,deadline:sc.deadline,grade:sc.grade||null,women:sc.women===true,title:sc.title||null,subtitle:sc.subtitle||null,state,note:cutoffApplied?'締切5分前までにENTER確定せず、今回は見送り':noteFor(state),record:safeRecord(rec),customer_cutoff:cutoffApplied}
+    return{race_no:sc.race_no,deadline:sc.deadline,grade:sc.grade||null,women:sc.women===true,title:sc.title||null,subtitle:sc.subtitle||null,state,note:cutoffApplied?'締切1分前までにENTER確定せず、今回は見送り':noteFor(state),record:safeRecord(rec),customer_cutoff:cutoffApplied}
   });
   const next=scheduleAvailable?races.find(r=>{const m=hmMin(r.deadline);return m===null||m>=now-1}):races.find(r=>r.state!=='CLOSED'&&r.state!=='SETTLED');
   const publicCount=historyAvailable?rows.filter(enter).length:null;
@@ -120,7 +120,33 @@ function officialRace(off,code,rno){const stMap=stadiumsOf(off),st=stMap[String(
 function chooseLive(a,b){return a!==null&&a!==undefined&&a!==''?a:(b!==null&&b!==undefined&&b!==''?b:null)}
 function buildRacer(race,lane,engineLane){const base=race?.racers?.[String(lane)]||race?.racers?.[lane]||{},pre=race?.preview?.racers?.[String(lane)]||race?.preview?.racers?.[lane]||{};return{lane,name:base.name||engineLane?.name||null,racer_id:base.number||engineLane?.racer_id||null,grade:base.rank_number_source||null,national_win_rate:nullableNum(base.national_win_rate),national_top2_rate:nullableNum(base.national_top_2_percent),national_top3_rate:nullableNum(base.national_top_3_percent),local_win_rate:nullableNum(base.local_win_rate),local_top2_rate:nullableNum(base.local_top_2_percent),local_top3_rate:nullableNum(base.local_top_3_percent),average_st:nullableNum(base.average_start_timing),flying_count:nullableNum(base.flying_count),motor_number:nullableNum(base.motor_number),motor_top2_rate:nullableNum(base.motor_top_2_percent),motor_top3_rate:nullableNum(base.motor_top_3_percent),boat_number:nullableNum(base.boat_number),boat_top2_rate:nullableNum(base.boat_top_2_percent),boat_top3_rate:nullableNum(base.boat_top_3_percent),course:nullableNum(chooseLive(pre.course_number,engineLane?.course)),course_st:nullableNum(engineLane?.course_st80),course_sample:nullableNum(engineLane?.course_n),recent_avg_st:nullableNum(engineLane?.avg_st80),st_sigma:nullableNum(engineLane?.st_sigma),exhibition_time:nullableNum(chooseLive(pre.exhibition_time,engineLane?.exhibition_time)),start_exhibition_st:nullableNum(chooseLive(pre.start_timing,engineLane?.start_exhibition)),weight:nullableNum(chooseLive(pre.weight,base.weight)),tilt:nullableNum(pre.tilt_adjustment),original_exhibition:null,lap_time:null,half_lap_time:null,turn_time:null}}
 function surfaceOf(race){const p=race?.preview||{},r=race?.result||{};return{weather:chooseLive(p.weather_number_source,r.weather_number_source),weather_code:nullableNum(chooseLive(p.weather_number,r.weather_number)),air_temperature:nullableNum(chooseLive(p.air_temperature,r.air_temperature)),water_temperature:nullableNum(chooseLive(p.water_temperature,r.water_temperature)),wind_direction:chooseLive(p.wind_direction_number_source,r.wind_direction_number_source),wind_direction_code:nullableNum(chooseLive(p.wind_direction_number,r.wind_direction_number)),wind_speed:nullableNum(chooseLive(p.wind_speed,r.wind_speed)),wave_height:nullableNum(chooseLive(p.wave_height,r.wave_height)),tide_level:null,tide_phase:null}}
-async function buildAnalysis(code,rno){code=num(code);rno=num(rno);if(code<1||code>24)throw new Error('bad_venue');if(rno<1||rno>12)throw new Error('bad_race');const date=jstDate();const [off,rows]=await Promise.all([official(date),sourceHistory({date,venue:code,limit:100}).catch(()=>[])]);const race=officialRace(off,code,rno);if(!race)return{ok:false,error:'race_not_scheduled',date,venue_code:code,venue_name:VENUES[code-1],race_no:rno};const rec=rows.find(x=>num(x.race_no)===rno)||null,engines=engineLaneInputs(rec),engineMap=new Map(engines.map(x=>[num(x.lane),x])),racers=[];for(let lane=1;lane<=6;lane++)racers.push(buildRacer(race,lane,engineMap.get(lane)||null));const closeMin=hmMin(race.closed_at||race.close_time),closed=closeMin!==null&&closeMin<nowMin()-1,state=recordState(rec,closed),engine=safeEngine(rec),surface=surfaceOf(race);return{ok:true,date,venue_code:code,venue_name:VENUES[code-1],race_no:rno,title:race.title||null,subtitle:race.subtitle||null,deadline:race.closed_at||race.close_time||null,state,official_prediction_available:enter(rec),fetched_at:new Date().toISOString(),racers,surface,engine,odds:{available:false,trifecta:[],updated_at:null,status:'not_connected'},availability:{course_stats:engines.length?'engine_snapshot':'not_connected',original_exhibition:code===3?'not_provided':'not_connected',lap_time:'not_connected',half_lap_time:'not_connected',turn_time:'not_connected',odds:'not_connected',tide:'not_connected'}}}
+function exhibitionDetailOf(race,rec,racers){
+  const p=rec?.prediction||{},engines=engineLaneInputs(rec),engineMap=new Map(engines.map(x=>[num(x.lane),x]));
+  const pre=race?.preview?.racers||{};
+  const boats=[1,2,3,4,5,6].map(lane=>{
+    const pr=pre[String(lane)]||pre[lane]||{},en=engineMap.get(lane)||{},rr=racers.find(x=>num(x.lane)===lane)||{};
+    return{
+      lane,
+      course:nullableNum(chooseLive(pr.course_number,chooseLive(en.course,rr.course))),
+      start_timing:nullableNum(chooseLive(pr.start_timing,chooseLive(en.start_exhibition,rr.start_exhibition_st))),
+      exhibition_time:nullableNum(chooseLive(pr.exhibition_time,chooseLive(en.exhibition_time,rr.exhibition_time))),
+      tilt:nullableNum(chooseLive(pr.tilt_adjustment,rr.tilt))
+    }
+  });
+  return{boats,updated_at:p?.updated_at||p?.calculated_at||rec?.captured_at||new Date().toISOString()}
+}
+function originalExhibitionOf(rec,code){
+  if(Number(code)===3)return{available:false,reason:'not_provided_at_edogawa',labels:[],boats:[]};
+  const o=rec?.prediction?.input_snapshot?.original_exhibition||rec?.prediction?.final_snapshot?.original_exhibition||null;
+  if(!o||!Array.isArray(o?.boats)||o.boats.length!==6)return null;
+  const labels=Array.isArray(o.labels)?o.labels:[];
+  const boats=o.boats.map(b=>({
+    lane:num(b?.lane),
+    values:labels.map((label,idx)=>({label,value:nullableNum(b?.values?.[idx]?.value??b?.['value'+(idx+1)])}))
+  })).filter(b=>b.lane>=1&&b.lane<=6);
+  return{available:boats.length===6,source:o.source||null,labels,boats,updated_at:o.updated_at||rec?.prediction?.updated_at||rec?.captured_at||null}
+}
+async function buildAnalysis(code,rno){code=num(code);rno=num(rno);if(code<1||code>24)throw new Error('bad_venue');if(rno<1||rno>12)throw new Error('bad_race');const date=jstDate();const [off,rows]=await Promise.all([official(date),sourceHistory({date,venue:code,limit:100}).catch(()=>[])]);const race=officialRace(off,code,rno);if(!race)return{ok:false,error:'race_not_scheduled',date,venue_code:code,venue_name:VENUES[code-1],race_no:rno};const rec=rows.find(x=>num(x.race_no)===rno)||null,engines=engineLaneInputs(rec),engineMap=new Map(engines.map(x=>[num(x.lane),x])),racers=[];for(let lane=1;lane<=6;lane++)racers.push(buildRacer(race,lane,engineMap.get(lane)||null));const closeMin=hmMin(race.closed_at||race.close_time),closed=closeMin!==null&&closeMin<nowMin()-1,state=recordState(rec,closed),engine=safeEngine(rec),surface=surfaceOf(race),exhibition_detail=exhibitionDetailOf(race,rec,racers),original_exhibition=originalExhibitionOf(rec,code);return{ok:true,date,venue_code:code,venue_name:VENUES[code-1],race_no:rno,title:race.title||null,subtitle:race.subtitle||null,deadline:race.closed_at||race.close_time||null,state,official_prediction_available:enter(rec),fetched_at:new Date().toISOString(),racers,surface,engine,exhibition_detail,original_exhibition,odds:{available:false,trifecta:[],updated_at:null,status:'not_connected'},availability:{course_stats:engines.length?'engine_snapshot':'not_connected',original_exhibition:code===3?'not_provided':original_exhibition?.available?'engine_snapshot':'not_connected',lap_time:original_exhibition?.available?'engine_snapshot':'not_connected',half_lap_time:original_exhibition?.available?'engine_snapshot':'not_connected',turn_time:original_exhibition?.available?'engine_snapshot':'not_connected',odds:'not_connected',tide:'not_connected'}}}
 function metric(rows){let races=0,hits=0,stakeY=0,payoutY=0;for(const r of rows){if(!enter(r)||!r.settlement)continue;races++;const st=stake(r),pay=num(r.settlement?.payout_yen);stakeY+=st;payoutY+=pay;if(r.settlement?.hit===true)hits++}const profit=payoutY-stakeY;return{races,hits,hit_rate:races?hits/races*100:0,stake_yen:stakeY,payout_yen:payoutY,profit_yen:profit,roi:stakeY?payoutY/stakeY*100:0}}
 function aiBandKey(odds){const o=Number(odds);if(!Number.isFinite(o)||o<1)return null;if(o<=20)return'stable';if(o<80)return'mid';return'high'}
 function normalizeTicket(v){return String(v||'').replace(/[‐‑‒–—―ー−]/g,'-').replace(/\s+/g,'').trim()}
