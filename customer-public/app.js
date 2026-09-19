@@ -127,6 +127,25 @@ function freeProgressModel(o){
   const safeLimit=Number.isFinite(limit)&&limit>0?limit:30,safeCount=Math.max(0,Math.min(safeLimit,count)),remaining=Math.max(0,safeLimit-safeCount);
   return{available:true,limit:safeLimit,count:safeCount,remaining,complete:remaining===0};
 }
+function renderCustomerOverview(o){
+  const s=o?.decision_summary||{},buy=$('#customer-buy'),wait=$('#customer-wait'),skip=$('#customer-skip');
+  if(buy)buy.textContent=Number.isFinite(Number(s.buy))?String(Number(s.buy)):'--';
+  if(wait)wait.textContent=Number.isFinite(Number(s.waiting))?String(Number(s.waiting)):'--';
+  if(skip)skip.textContent=Number.isFinite(Number(s.skip))?String(Number(s.skip)):'--';
+  const n=o?.next_decision,box=$('#next-decision-card');
+  if(!box)return;
+  if(!n){
+    box.classList.add('empty');
+    box.removeAttribute('data-vcode');box.removeAttribute('data-rno');
+    box.innerHTML='<div><small>NEXT DECISION</small><strong>次の判定対象を確認中</strong><span>対象が決まり次第ここに表示します。</span></div>';
+    return;
+  }
+  box.classList.remove('empty');
+  box.dataset.vcode=String(n.venue_code||'');box.dataset.rno=String(n.race_no||'');
+  const status=n.state==='WATCH'?'最終判断待ち':'分析待ち';
+  const left=Number.isFinite(Number(n.minutes_left))?'あと約'+Math.max(0,Number(n.minutes_left))+'分':'判定待ち';
+  box.innerHTML='<div><small>NEXT DECISION</small><strong>'+esc(n.venue_name||'')+' '+(Number(n.race_no)||'--')+'R</strong><span>'+status+'｜'+left+'｜締切 '+timeText(n.deadline)+'</span></div><b>›</b>';
+}
 function renderFreeStrip(o){
   const m=freeProgressModel(o);
   if(!m.available){
@@ -355,6 +374,7 @@ async function load(){
   $('#today-count').textContent=Number.isFinite(Number(o.active_count))&&o.active_count!==null?`開催 ${Number(o.active_count)}場`:'開催情報更新中';
   renderVenues(o.venues||[]);
   renderFreeStrip(o);
+  renderCustomerOverview(o);
   const pro=savedViewMode()==='pro';
   const all=o.public_items||[];
   const liveSettled=all.filter(x=>x?.settlement).sort((a,b)=>deadlineMinute(b.deadline||b.close_time)-deadlineMinute(a.deadline||a.close_time)).slice(0,6);
@@ -373,6 +393,7 @@ async function load(){
   }
   $('#today-list').innerHTML=items.length?items.map(publicRaceCard).join(''):(usingClub?'<div class="race-card"><div class="race-main"><strong>本日の正式ENTERはまだありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>':pro?'<div class="race-card"><div class="race-main"><strong>現在、公開対象なし</strong><small>対象レースが確定すると自動表示します</small></div></div>':'<div class="race-card"><div class="race-main"><strong>現在、公開中の予想はありません</strong><small>正式ENTERが確定するとここへ自動表示します</small></div></div>');
   document.querySelectorAll('.race-card-button').forEach(b=>b.addEventListener('click',async()=>{await openVenue(b.dataset.vcode);openRace(Number(b.dataset.rno))}));
+  const nextCard=$('#next-decision-card');if(nextCard&&!nextCard.dataset.bound){nextCard.dataset.bound='1';nextCard.addEventListener('click',async()=>{const vc=nextCard.dataset.vcode,rn=Number(nextCard.dataset.rno);if(vc&&rn>=1&&rn<=12){await openVenue(vc);openRace(rn)}})}
 
   if(!AUTO_OPENED){
     const q=new URLSearchParams(location.search),vc=q.get('venue'),rn=Number(q.get('race'));
