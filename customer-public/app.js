@@ -157,14 +157,13 @@ function renderCustomerOverview(o){
   if(!n){
     box.classList.add('empty');
     box.removeAttribute('data-vcode');box.removeAttribute('data-rno');
-    box.innerHTML='<div><small>NEXT DECISION</small><strong>次の判定対象を確認中</strong><span>対象が決まり次第ここに表示します。</span></div>';
+    box.innerHTML='<div><small>NEXT DECISION</small><strong>次に判定するレースを確認中</strong><span>購入するか見送るか、決まり次第表示します。</span></div>';
     return;
   }
   box.classList.remove('empty');
   box.dataset.vcode=String(n.venue_code||'');box.dataset.rno=String(n.race_no||'');
-  const status=n.state==='WATCH'?'最終判断待ち':'分析待ち';
-  const left=Number.isFinite(Number(n.minutes_left))?'あと約'+Math.max(0,Number(n.minutes_left))+'分':'判定待ち';
-  box.innerHTML='<div><small>NEXT DECISION</small><strong>'+esc(n.venue_name||'')+' '+(Number(n.race_no)||'--')+'R</strong><em class="next-decision-time">最終判断 '+finalDecisionTime(n.deadline)+' まで</em><span>'+status+'｜'+left+'｜締切 '+timeText(n.deadline)+'</span></div><b>›</b>';
+  const left=Number.isFinite(Number(n.minutes_left))?'あと約'+Math.max(0,Number(n.minutes_left))+'分':'まもなく判定';
+  box.innerHTML='<div><small>NEXT DECISION</small><strong>'+esc(n.venue_name||'')+' '+(Number(n.race_no)||'--')+'R</strong><em class="next-decision-time">'+finalDecisionTime(n.deadline)+'に「購入 / 見送り」を確定</em><span>'+left+'｜締切 '+timeText(n.deadline)+'</span></div><b>›</b>';
 }
 function renderFreeStrip(o){
   const m=freeProgressModel(o);
